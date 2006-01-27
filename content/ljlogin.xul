@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://ljlogin/content/ljlogin.css" type="text/css"?>
+
+<overlay id="LJloginOverlay"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+<script type="application/x-javascript"
+        src="chrome://ljlogin/content/md5.js" />
+<script type="application/x-javascript"
+        src="chrome://ljlogin/content/ljlogin.js" />
+
+<script type="application/x-javascript">
+<![CDATA[
+try {
+  window.addEventListener("load", ljlinit, true);
+} catch(e) {}
+]]>
+</script>
+
+<statusbar id="status-bar">
+<!-- <statusbar id="status-bar" class="chromeclass-status">
+  <statusbarpanel id="ljlogin-status" insertbefore="statusbar-updates"
+                  collapsed="false"
+                  context="ljlogin-menu" popup="ljlogin-menu"> -->
+  <statusbarpanel id="ljlogin-status"
+  xxinsertafter="statusbarpanel-progress,security-button,privacy-button,offline-status,popupIcon,statusbar-display,component-bar,"
+                  collapsed="false"
+                  context="ljlogin-menu" popup="ljlogin-menu">
+    <label id="ljlogin" value="Loading..." />
+  </statusbarpanel>
+</statusbar>
+
+<popupset id="mainPopupSet">
+  <popup id="ljlogin-menu" position="after_start"
+         onpopupshowing="ljl_listlogins();" onpopuphiding="ljl_cleanmenu();">
+<!--         onpopupshowing="ljl_listlogins();" onpopuphiding="ljl_cleanmenu();" / -->
+    <!-- menuitem label="Argh." / -->
+  </popup>
+</popupset>
+
+</overlay>

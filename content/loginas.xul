@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+
+<dialog id="ljlogin-loginas"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        onload="document.getElementById('ljuser').focus();"
+        title="Log In As..."
+        buttons="accept,cancel"
+        ondialogaccept="return ljl_loginas();"
+        ondialogcancel="return true;">
+
+<script type="application/x-javascript"
+        src="chrome://ljlogin/content/md5.js" />
+<script type="application/x-javascript"
+        src="chrome://ljlogin/content/ljlogin.js" />
+
+<label control="ljuser" value="Username:" />
+<textbox id="ljuser" maxlength="15" />
+
+<label control="ljpass" value="Password:" />
+<textbox id="ljpass" type="password" maxlength="30" />
+
+<checkbox id="savepassword" checked="false" label="Use Password Manager to remember this password." />
+
+</dialog>
