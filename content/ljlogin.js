@@ -84,17 +84,14 @@ function ljl_getljsession() {
 
 function ljl_getljuser(ljcookie) {
   // Try to get the username out of the cookie.
-//  var namepull = new RegExp("^ws:([^:]*):");
-//  var grabname = namepull.exec(ljcookie);
-  var sessfields = ljcookie.split(":");
-  var grabname = sessfields[1];
 
-  if (!grabname) {
+  // First, we need to extract the userid from the ljsession:
+  var sessfields = ljcookie.split(":");
+  var ljuid = sessfields[1];
+  if (!ljuid) { // If there's nothing there, then punt:
     return false;
-  } else {
-//    return grabname[1];
-    return grabname;
   }
+  return ljuid; // Until the rest of the stuff goes here FIXME
 }
 
 function ljl_loggedin(ljcookie) {
@@ -256,7 +253,7 @@ function ljl_dologin(ljuser, ljpass, dlg) {
     }
   }
   ljl_endconn();
-  var ljsession = ljsaid["ljsession"]; // Hooray!
+  var mysession = ljsaid["ljsession"]; // Hooray!
 
   // Login, Phase III: We've gone through the challenge/response hoops,
   // and gotten our session. Now stash that puppy into a cookie so the
@@ -276,15 +273,24 @@ function ljl_dologin(ljuser, ljpass, dlg) {
   // string, like our IQ was normal.
   var ljuri = Components.classes["@mozilla.org/network/standard-url;1"].createInstance(Components.interfaces.nsIURI);
   ljuri.spec = "http://www.livejournal.com/";
-  // The cookie, on the other hand, can be a string, but needs to be
-  // formatted like it was being handed back from a server.
-  var ljcookie = "ljsession=" + ljsession +
-                 "; path=/; domain=.livejournal.com; HttpOnly";
-  // Do the actual save.
+  // The cookies, on the other hand, can be strings, but need to be
+  // formatted like they were being handed back from a server.
+  var ljsession = "ljsession=" + mysession +
+                  "; path=/; domain=.livejournal.com; HttpOnly";
+  var ljmasters = "ljmastersession=" + mysession +
+                  "; path=/; domain=.livejournal.com; HttpOnly";
+  // This bit's tricky: Gotta pull the uid and session id out of the
+  // session info, and use that to build the ljloggedin cookie:
+  var sessfields = mysession.split(":");
+  var ljloggedin = "ljloggedin=" + sessfields[1]+":"+sessfields[2] +
+                   "; path=/; domain=.livejournal.com; HttpOnly";
+  // Do the actual saves.
   try {
 //    var cookiejar = Components.classes["@mozilla.org/cookieService;1"].getService().QueryInterface(Components.interfaces.nsICookieService);
     var cookiejar = Components.classes["@mozilla.org/cookiemanager;1"].getService(Components.interfaces.nsICookieService);
-    cookiejar.setCookieString(ljuri, null, ljcookie, null);
+    cookiejar.setCookieString(ljuri, null, ljsession, null);
+    cookiejar.setCookieString(ljuri, null, ljmasters, null);
+    cookiejar.setCookieString(ljuri, null, ljloggedin, null);
   } catch(e) {
     alert("Error in cookie creation: " + e);
   }
