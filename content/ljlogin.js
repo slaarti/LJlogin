@@ -100,6 +100,9 @@ function ljl_loggedin(ljcookie) {
     // Oops. Nothing there, apparently.
     ljl_loggedout();
     return;
+  } else if (ljuser == "?UNKNOWN!") {
+    document.getElementById("ljlogin").setAttribute("value", "(Unknown user)");
+    document.getElementById("ljlogin-status").setAttribute("class", "whoareyou");
   } else {
     document.getElementById("ljlogin").setAttribute("value", ljuser);
     document.getElementById("ljlogin-status").setAttribute("class", "ljuser");
@@ -154,6 +157,18 @@ function ljl_parseljresponse(ljtext) {
   return ljsaid;
 }
 
+function ljl_trashsesssion() {
+  try {
+    var cookiejar = Components.classes["@mozilla.org/cookiemanager;1"].getService(Components.interfaces.nsICookieManager);
+    cookiejar.remove(".livejournal.com", "ljsession", "/", false);
+    cookiejar.remove(".livejournal.com", "ljmastersession", "/", false);
+    cookiejar.remove(".livejournal.com", "ljloggedin", "/", false);
+  } catch(e) {
+    alert("Error removing login cookies: " + e);
+  }
+  return;
+}
+
 function ljl_logmeout(dlg) {
   // Get the session cookie. If this isn't there, then there's no point in
   // trying to do anything, 'cause we're not even logged in.
@@ -181,8 +196,7 @@ function ljl_logmeout(dlg) {
       // Now that we're logged out, trash the cookie. Updating the display
       // in the status bar should happen automagically via the Observer
       // service.
-      var cookiejar = Components.classes["@mozilla.org/cookiemanager;1"].getService(Components.interfaces.nsICookieManager);
-      cookiejar.remove(".livejournal.com", "ljsession", "/", false);
+      ljl_trashsession();
     } else { // Aw. Logout failed.
       alert("Could not log out of LiveJournal: " + ljsaid["errmsg"]);
     }
