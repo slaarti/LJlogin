@@ -26,7 +26,7 @@ menuitem[class~="ljuser"],
 }
 
 #ljlogin-status[class~="unknown"] #ljlogin {
-  color: yellow;
+  color: red;
   font-style: italic;
   background: transparent url(chrome://ljlogin/content/whoareyou.gif) 0px 1px no-repeat;
   padding: 1px 0px 1px 17px;
