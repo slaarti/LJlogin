@@ -342,13 +342,13 @@ function ljl_loginas() {
 }
 
 function ljl_userlogin(username) {
-  // Get the password for the given username from the Password Manager.
-  var passman = Components.classes["@mozilla.org/passwordmanager;1"].getService(Components.interfaces.nsIPasswordManagerInternal);
-  var temphost = new Object();
-  var tempuser = new Object();
-  var temppass = new Object();
   var password = '';
+  // Get the password for the given username from the Password Manager.
   try {
+    var passman = Components.classes["@mozilla.org/passwordmanager;1"].getService(Components.interfaces.nsIPasswordManagerInternal);
+    var temphost = new Object();
+    var tempuser = new Object();
+    var temppass = new Object();
     passman.findPasswordEntry("http://www.livejournal.com", username, null,
                               temphost, tempuser, temppass);
     password = temppass.value;
