@@ -10,6 +10,7 @@ chrome/ljlogin.jar: content/contents.rdf content/ljlogin.xul \
 		    content/loginas.xul
 	if [ ! -d chrome ]; then mkdir chrome; fi
 	zip -r0 chrome/ljlogin.jar content
+	zip -d chrome/ljlogin.jar content/CVS/* content/CVS
 
 clean:
 	rm -f ljlogin.xpi chrome/ljlogin.jar
