@@ -24,3 +24,10 @@ menuitem[class~="ljuser"],
   background: transparent url(chrome://ljlogin/content/anonymous.gif) 0px 1px no-repeat;
   padding: 1px 0px 1px 17px;
 }
+
+#ljlogin-status[class~="unknown"] #ljlogin {
+  color: yellow;
+  font-style: italic;
+  background: transparent url(chrome://ljlogin/content/whoareyou.gif) 0px 1px no-repeat;
+  padding: 1px 0px 1px 17px;
+}
