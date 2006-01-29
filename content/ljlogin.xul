@@ -33,7 +33,7 @@ try {
 
 <popupset id="mainPopupSet">
   <popup id="ljlogin-menu" position="after_start"
-         onpopupshowing="ljl_listlogins();" onpopuphiding="ljl_cleanmenu();">
+         onpopupshowing="ljl_createmenu();" onpopuphiding="ljl_cleanmenu();">
 <!--         onpopupshowing="ljl_listlogins();" onpopuphiding="ljl_cleanmenu();" / -->
     <!-- menuitem label="Argh." / -->
   </popup>

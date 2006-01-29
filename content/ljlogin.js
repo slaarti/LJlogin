@@ -410,56 +410,54 @@ function ljl_userlogin(username) {
   return ljl_dologin(username, password);
 }
 
-function ljl_listlogins() {
-try {
-  var didstuff = false;
-  var passman = Components.classes["@mozilla.org/passwordmanager;1"].getService(Components.interfaces.nsIPasswordManager);
-  var passcheck = passman.enumerator;
-  var themenu = document.getElementById("ljlogin-menu");
+function ljl_createmenu() {
+  try {
+    var didstuff = false;
+    var passman = Components.classes["@mozilla.org/passwordmanager;1"].getService(Components.interfaces.nsIPasswordManager);
+    var passcheck = passman.enumerator;
+    var themenu = document.getElementById("ljlogin-menu");
 
-  // Grab logins to form menu.
-  while (passcheck.hasMoreElements()) {
-    try { // Get the password
-      var signon = passcheck.getNext();
+    // Grab logins to form menu.
+    while (passcheck.hasMoreElements()) {
+      var signon = passcheck.getNext(); // Get the password
       if (!signon) { // Oops. No actual password info there.
         return false;
       }
-    } catch(e) {
-      alert(e);
+      // Translate the object into parts.
+      signon = signon.QueryInterface(Components.interfaces.nsIPassword);
+      if (signon.host == "http://www.livejournal.com") {
+        // We have a winner! Add the username to the list.
+        var ljuser = signon.user;
+        var ljnode = document.createElement("menuitem");
+        ljnode.setAttribute("image", "chrome://ljlogin/content/userinfo.gif");
+        ljnode.setAttribute("label", ljuser);
+        ljnode.setAttribute("class", "menuitem-iconic ljuser");
+        ljnode.setAttribute("oncommand", "ljl_userlogin('" + ljuser + "');");
+        themenu.appendChild(ljnode);
+        didstuff = true;
+      }
     }
-    // Translate the object into parts.
-    signon = signon.QueryInterface(Components.interfaces.nsIPassword);
-    if (signon.host == "http://www.livejournal.com") {
-      // We have a winner! Add the username to the list.
-      var ljuser = signon.user;
-      var ljnode = document.createElement("menuitem");
-      ljnode.setAttribute("image", "chrome://ljlogin/content/userinfo.gif");
-      ljnode.setAttribute("label", ljuser);
-//      ljnode.setAttribute("class", "ljuser");
-      ljnode.setAttribute("class", "menuitem-iconic ljuser");
-      ljnode.setAttribute("oncommand", "ljl_userlogin('" + ljuser + "');");
-      themenu.appendChild(ljnode);
-      didstuff = true;
+    if (didstuff) { // If we inserted menu items, then we need a separator.
+      var menusep = document.createElement("menuseparator");
+      themenu.appendChild(menusep);
     }
+
+    // And, finally, the two items that are always there, for the login box
+    // and the logout option.
+    var loginas = document.createElement("menuitem");
+    loginas.setAttribute("label", "Log in as...");
+    loginas.setAttribute("oncommand", "ljl_loginas();");
+    themenu.appendChild(loginas);
+    var logout = document.createElement("menuitem");
+    logout.setAttribute("label", "Log out of LiveJournal");
+    logout.setAttribute("oncommand", "ljl_logmeout();");
+    themenu.appendChild(logout);
+
+    // Done and done.
+    return true;
+  } catch(e) {
+    alert("Error creating LJlogin menu: " + e);
   }
-  if (didstuff) { // If we inserted menu items, then we need a separator.
-    var menusep = document.createElement("menuseparator");
-    themenu.appendChild(menusep);
-  }
-  // And, finally, the two items that are always there, for the login box
-  // and the logout option.
-  var loginas = document.createElement("menuitem");
-  loginas.setAttribute("label", "Log in as...");
-  loginas.setAttribute("oncommand", "ljl_loginas();");
-  themenu.appendChild(loginas);
-  var logout = document.createElement("menuitem");
-  logout.setAttribute("label", "Log out of LiveJournal");
-  logout.setAttribute("oncommand", "ljl_logmeout();");
-  themenu.appendChild(logout);
-  return true;
-} catch(wtf) {
-  alert("WTF?! " + wtf);
-}
 }
 
 // Clean out the contents of the ljlogin-menu.
