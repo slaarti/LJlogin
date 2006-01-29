@@ -68,8 +68,8 @@ function ljl_getljsession() {
       if (!yumcookie) { // Oops. No actual cookie there.
         return false;
       }
-    } catch (exception) {
-      alert(exception);
+    } catch(e) {
+      alert(e);
     }
     // Make the cookie comprehensible.
     yumcookie = yumcookie.QueryInterface(Components.interfaces.nsICookie);
@@ -91,7 +91,31 @@ function ljl_getljuser(ljcookie) {
   if (!ljuid) { // If there's nothing there, then punt:
     return false;
   }
-  return ljuid; // Until the rest of the stuff goes here FIXME
+//  return ljuid; // Until the rest of the stuff goes here FIXME
+
+  // Now, go through the Password Manager and hopefully find a matching
+  // username/uid pair. I *would* use findPasswordEntry instead, except
+  // that whoever wrote it makes it throw an exception if there's no
+  // match, instead of doing something sane with return values. Cockbites.
+  try {
+    var passman = Components.classes["@mozilla.org/passwordmanager;1"].getService(Components.interfaces.nsIPasswordManager);
+    var passcheck = passman.enumerator;
+    while (passcheck.hasMoreElements()) {
+      var signon = passcheck.getNext();
+      if (!signon) { // Oops. No actual info there.
+        continue; // So skip it.
+      }
+      // Translate the object into parts.
+      uidmap = signon.QueryInterface(Components.interfaces.nsIPassword);
+      if ((uidmap.host == "ljlogin.uidmap") && (uidmap.password == ljuid)) {
+        return uidmap.user; // Yay, we found it!
+      }
+    }
+  } catch(e) {
+    alert("Error looking up uid map: " + e);
+    return false;
+  }
+  return "?UNKNOWN!"; // No match found. Aw.
 }
 
 function ljl_loggedin(ljcookie) {
@@ -352,8 +376,8 @@ function ljl_userlogin(username) {
     passman.findPasswordEntry("http://www.livejournal.com", username, null,
                               temphost, tempuser, temppass);
     password = temppass.value;
-  } catch(exception) {
-    alert ("Unable to get password for " + username + ": " + exception);
+  } catch(e) {
+    alert ("Unable to get password for " + username + ": " + e);
   }
 
   // And, now that we have that, make the hand-off to the logging-in function:
@@ -374,8 +398,8 @@ try {
       if (!signon) { // Oops. No actual password info there.
         return false;
       }
-    } catch (exception) {
-      alert(exception);
+    } catch(e) {
+      alert(e);
     }
     // Translate the object into parts.
     signon = signon.QueryInterface(Components.interfaces.nsIPassword);
