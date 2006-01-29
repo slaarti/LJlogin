@@ -91,7 +91,6 @@ function ljl_getljuser(ljcookie) {
   if (!ljuid) { // If there's nothing there, then punt:
     return false;
   }
-//  return ljuid; // Until the rest of the stuff goes here FIXME
 
   // Now, go through the Password Manager and hopefully find a matching
   // username/uid pair. I *would* use findPasswordEntry instead, except
