@@ -280,6 +280,21 @@ function ljl_validuser(ljuser) {
   }
 }
 
+// Stash a username/userid pair into the Password Manager to make available
+// later for getting a username from a uid.
+function ljl_mkuidmap(ljuser, ljuid) {
+  try {
+    var passman = Components.classes["@mozilla.org/passwordmanager;1"].getService(Components.interfaces.nsIPasswordManagerInternal);
+    passman.addUserFull("ljlogin.uidmap",
+                         ljuser,     ljuid,
+                        "username", "userid");
+  } catch(e) {
+    alert("Password saving failed: " + e);
+    return false;
+  }
+  return true;
+}
+
 function ljl_dologin(ljuser, ljpass) {
   var ljsaid;
   var w = window;
@@ -443,6 +458,58 @@ function ljl_userlogin(username) {
 
   // And, now that we have that, make the hand-off to the logging-in function:
   return ljl_dologin(username, password);
+}
+
+// Allow a user to name an account for which no username/uid map exists.
+function ljl_uidfix() {
+  var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+                          .getService(Components.interfaces.nsIPromptService);
+  // Get the ljsession:
+  var ljsession = ljl_getljsession();
+  if (!ljsession) {
+    // Guess we weren't really logged in.
+    prompts.alert(window, "LJlogin", "Not logged in!");
+    return false;
+  }
+  // Is this actually a uid for which we have no username?
+  if (ljl_getljuser(ljsession) != "?UNKNOWN!") {
+    prompts.alert(window, "LJlogin", "Username already on file " +
+                                     "or not logged in!");
+    return false;
+  }
+
+  // Get the username:
+  var ljuser = { value: "" };
+  var needuser = true;
+  while (needuser) {
+    var doit = prompts.prompt(window, "LJlogin: Set Username...",
+                       "What is the username for the currently " +
+                       "logged-in account?", ljuser);
+    if (!doit) return false; // User canceled.
+    if (ljl_validuser(ljuser.value)) needuser = false; // Validity check
+  }
+
+  // Extract the uid from the ljsession for mapping:
+//  var sessfields = ljsession.split(":");
+  var ljuid = ljsession.split(":")[1];
+
+  // Stash the username/uid pair into the PM:
+  if (!ljl_mkuidmap(ljuser, ljuid)) return false;
+
+  // Hopefully, setting a cookie, even if it's to the same value it
+  // already has, will still trigger the change observer and get the
+  // status widget updated:
+  try {
+    var ljuri = Components.classes["@mozilla.org/network/standard-url;1"].createInstance(Components.interfaces.nsIURI);
+    ljuri.spec = "http://www.livejournal.com/";
+    var cookiejar = Components.classes["@mozilla.org/cookiemanager;1"].getService(Components.interfaces.nsICookieService);
+    cookiejar.setCookieString(ljuri, null, ljsession, null);
+  } catch(e) {
+    prompts.alert(window, "LJlogin", "Unable to re-save ljsession: " + e);
+    return false;
+  }
+
+  return true;
 }
 
 function ljl_createmenu() {
