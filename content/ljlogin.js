@@ -498,19 +498,8 @@ function ljl_uidfix() {
   // Stash the username/uid pair into the PM:
   if (!ljl_mkuidmap(ljuser.value, ljuid)) return false;
 
+  // Update the display of the status widget:
   ljl_loggedin(ljsession);
-  // Hopefully, setting a cookie, even if it's to the same value it
-  // already has, will still trigger the change observer and get the
-  // status widget updated:
-//  try {
-//    var ljuri = Components.classes["@mozilla.org/network/standard-url;1"].createInstance(Components.interfaces.nsIURI);
-//    ljuri.spec = "http://www.livejournal.com/";
-//    var cookiejar = Components.classes["@mozilla.org/cookiemanager;1"].getService(Components.interfaces.nsICookieService);
-//    cookiejar.setCookieString(ljuri, null, ljsession, null);
-//  } catch(e) {
-//    prompts.alert(window, "LJlogin", "Unable to re-save ljsession: " + e);
-//    return false;
-//  }
 
   return true;
 }
