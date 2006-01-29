@@ -102,7 +102,7 @@ function ljl_loggedin(ljcookie) {
     return;
   } else if (ljuser == "?UNKNOWN!") {
     document.getElementById("ljlogin").setAttribute("value", "(Unknown user)");
-    document.getElementById("ljlogin-status").setAttribute("class", "whoareyou");
+    document.getElementById("ljlogin-status").setAttribute("class", "unknown");
   } else {
     document.getElementById("ljlogin").setAttribute("value", ljuser);
     document.getElementById("ljlogin-status").setAttribute("class", "ljuser");
