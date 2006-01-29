@@ -256,6 +256,31 @@ function ljl_logmeout() {
   return true;
 }
 
+// Test a username for validity
+function ljl_validuser(ljuser) {
+  // First is the bad-character check. Uppercase characters are technically
+  // verboten by LJ, or at least that's what they say in the account creation
+  // page, as is the hyphen, but in post-create ops, they work just fine in
+  // place of the lowercase letters and underscore, respectively, so allow
+  // them in the check:
+  var badchars = new RegExp("[^a-zA-Z0-9_-]");
+  if (badchars.test(ljuser)) {
+    var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+                            .getService(Components.interfaces.nsIPromptService);
+    prompts.alert("Invalid character(s) in username!");
+    return false;
+  } else if (ljuser.length > 15) {
+    // Also, check for if the username provided is too long. It's possible
+    // that there's no actual harm in letting people screw up this way, but
+    // we may as well check for it and handle appropriately:
+    var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+                            .getService(Components.interfaces.nsIPromptService);
+    prompts.alert("Invalid username: Must be no longer than 15 characters.");
+  else {
+    return true;
+  }
+}
+
 function ljl_dologin(ljuser, ljpass) {
   var ljsaid;
   var w = window;
