@@ -192,7 +192,7 @@ function ljl_trashsession() {
   return;
 }
 
-function ljl_logmeout(dlg) {
+function ljl_logmeout() {
   // Get the session cookie. If this isn't there, then there's no point in
   // trying to do anything, 'cause we're not even logged in.
   var ljsession = ljl_getljsession();
@@ -205,7 +205,7 @@ function ljl_logmeout(dlg) {
     // Yup. We're good to go.
 
     // Get the browser window.
-    var w = (dlg ? window.opener : window);
+    var w = window;
 
     // Tell LJ that we want to expire this session.
     ljl_newconn(); // Create the connection.
@@ -256,14 +256,14 @@ function ljl_logmeout(dlg) {
   return true;
 }
 
-function ljl_dologin(ljuser, ljpass, dlg) {
+function ljl_dologin(ljuser, ljpass) {
   var ljsaid;
-  var w = (dlg ? window.opener : window);
+  var w = window;
 
   // First thing's first: Before we try to log in as someone, we should
   // log out first. Assuming we are logged in, but the logout function
   // handles checking for that, so we don't have to.
-  ljl_logmeout(dlg);
+  ljl_logmeout();
 
   // Login, Phase I: Get the challenge
   ljl_newconn(); // Create the connection.
@@ -361,31 +361,34 @@ function ljl_dologin(ljuser, ljpass, dlg) {
   return true;
 }
 
-function ljl_loginbox() {
-  window.openDialog("chrome://ljlogin/content/loginas.xul",
-                    "ljl-loginas", "chrome,dialog");
-  return true;
-}
-
 function ljl_loginas() {
-  var ljuser = document.getElementById("ljuser").value;
-  var ljpass = document.getElementById("ljpass").value;
-  var saveit = document.getElementById("savepassword").checked;
+  // Ask the user for the account information to log in with, and optionally
+  // if they want to save is in the Password Manager.
+  var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+                          .getService(Components.interfaces.nsIPromptService);
+  var ljuser = { value: "" };
+  var ljpass = { value: "" };
+  var saveit = { value: false };
+  var doit = prompts.promptUsernameAndPassword(window, "Log In As...", "",
+                     ljuser, ljpass,
+                     "Use Password Manager to remember this password.", saveit);
+  if (!doit) return false; // User canceled.
 
   // First thing, saving the login into the Password Manager, if that
   // checkbox were clicked.
-  if (saveit) {
+  if (saveit.value) {
     try {
       var passman = Components.classes["@mozilla.org/passwordmanager;1"].getService(Components.interfaces.nsIPasswordManagerInternal);
-      passman.addUserFull("http://www.livejournal.com", ljuser, ljpass,
-                          "user", "password");
+      passman.addUserFull("http://www.livejournal.com",
+                          ljuser.value, ljpass.value,
+                          "user",       "password");
     } catch(e) {
       alert("Password saving failed: " + e);
     }
   }
 
   // Hand off main logging-in duties:
-  return ljl_dologin(ljuser, ljpass, true);
+  return ljl_dologin(ljuser.value, ljpass.value);
 }
 
 function ljl_userlogin(username) {
@@ -404,7 +407,7 @@ function ljl_userlogin(username) {
   }
 
   // And, now that we have that, make the hand-off to the logging-in function:
-  return ljl_dologin(username, password, false);
+  return ljl_dologin(username, password);
 }
 
 function ljl_listlogins() {
@@ -447,11 +450,11 @@ try {
   // and the logout option.
   var loginas = document.createElement("menuitem");
   loginas.setAttribute("label", "Log in as...");
-  loginas.setAttribute("oncommand", "ljl_loginbox();");
+  loginas.setAttribute("oncommand", "ljl_loginas();");
   themenu.appendChild(loginas);
   var logout = document.createElement("menuitem");
   logout.setAttribute("label", "Log out of LiveJournal");
-  logout.setAttribute("oncommand", "ljl_logmeout(false);");
+  logout.setAttribute("oncommand", "ljl_logmeout();");
   themenu.appendChild(logout);
   return true;
 } catch(wtf) {
