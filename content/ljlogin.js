@@ -227,11 +227,16 @@ function ljl_logmeout(dlg) {
       var ljsaid = ljl_parseljresponse(ljl_conn.responseText);
       if ((ljsaid["success"] != "OK") || (ljsaid["errmsg"])) {
         // Something went wrong here.
-        alert("Could not log out of LiveJournal: " + ljsaid["errmsg"]);
+        window.openDialog("chrome://ljlogin/content/logouterr.xul",
+                          "ljl-logouterr", "chrome,dialog",
+                          ljsaid["errmsg"]);
+        return;
       }
     } else { // Something else happened.
-      alert("Could not log out of LiveJournal: " + ljl_conn.status
-                                           + " " + ljl_conn.statusText);
+      window.openDialog("chrome://ljlogin/content/logouterr.xul",
+                        "ljl-logouterr", "chrome,dialog",
+                        ljl_conn.status + " " + ljl_conn.statusText);
+      return;
     }
     w.status = "Done";
     ljl_endconn();
