@@ -258,6 +258,8 @@ function ljl_logmeout() {
 
 // Test a username for validity
 function ljl_validuser(ljuser) {
+  var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+                          .getService(Components.interfaces.nsIPromptService);
   // First is the bad-character check. Uppercase characters are technically
   // verboten by LJ, or at least that's what they say in the account creation
   // page, as is the hyphen, but in post-create ops, they work just fine in
@@ -265,18 +267,15 @@ function ljl_validuser(ljuser) {
   // them in the check:
   var badchars = new RegExp("[^a-zA-Z0-9_-]");
   if (badchars.test(ljuser)) {
-    var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-                            .getService(Components.interfaces.nsIPromptService);
-    prompts.alert("Invalid character(s) in username!");
+    prompts.alert(window, "LJlogin", "Invalid character(s) in username!");
     return false;
   } else if (ljuser.length > 15) {
     // Also, check for if the username provided is too long. It's possible
     // that there's no actual harm in letting people screw up this way, but
     // we may as well check for it and handle appropriately:
-    var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-                            .getService(Components.interfaces.nsIPromptService);
-    prompts.alert("Invalid username: Must be no longer than 15 characters.");
-  else {
+    prompts.alert(window, "LJlogin",
+                  "Invalid username: Must be no longer than 15 characters.");
+  } else {
     return true;
   }
 }
@@ -285,9 +284,14 @@ function ljl_dologin(ljuser, ljpass) {
   var ljsaid;
   var w = window;
 
-  // First thing's first: Before we try to log in as someone, we should
-  // log out first. Assuming we are logged in, but the logout function
-  // handles checking for that, so we don't have to.
+  // First thing's first: Is this user okay to log in as?
+  if (!ljl_validuser(ljuser)) {
+    return false;
+  }
+
+  // Before we try to log in as someone, we should log out first.
+  // Assuming we are logged in, but the logout function handles checking
+  // for that, so we don't have to.
   ljl_logmeout();
 
   // Login, Phase I: Get the challenge
@@ -394,10 +398,16 @@ function ljl_loginas() {
   var ljuser = { value: "" };
   var ljpass = { value: "" };
   var saveit = { value: false };
-  var doit = prompts.promptUsernameAndPassword(window, "Log In As...", "",
-                     ljuser, ljpass,
-                     "Use Password Manager to remember this password.", saveit);
-  if (!doit) return false; // User canceled.
+  var needuser = true;
+
+  while (needuser) { // Want not only credentials, but valid ones.
+    var doit = prompts.promptUsernameAndPassword(window, "Log In As...", "",
+                       ljuser, ljpass,
+                       "Use Password Manager to remember this password.",
+                       saveit);
+    if (!doit) return false; // User canceled.
+    if (ljl_validuser(ljuser.value)) needuser = false; // Validity check
+  }
 
   // First thing, saving the login into the Password Manager, if that
   // checkbox were clicked.
