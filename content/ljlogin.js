@@ -365,6 +365,13 @@ function ljl_dologin(ljuser, ljpass) {
   // browser can use it. Our status-bar widget should pick up on it and
   // update automagically.
   w.status = "Saving login credentials...";
+
+  // Before we can stash the cookies, we need to stash a mapping of
+  // username to userid in the PM, so that other functions that need
+  // to know the username can find out, now that LJ's taken the usernames
+  // out of ljsession:
+  ljl_mkuidmap(ljuser, mysession.split(":")[1]);
+
 // This code was written on the assumption that the nsICookieManager2
 // interface, which had this nifty add() method that did just what you'd
 // expect, would be available. Alas, it's not, so we have to do some
