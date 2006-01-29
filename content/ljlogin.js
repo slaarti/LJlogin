@@ -181,7 +181,7 @@ function ljl_parseljresponse(ljtext) {
   return ljsaid;
 }
 
-function ljl_trashsesssion() {
+function ljl_trashsession() {
   try {
     var cookiejar = Components.classes["@mozilla.org/cookiemanager;1"].getService(Components.interfaces.nsICookieManager);
     cookiejar.remove(".livejournal.com", "ljsession", "/", false);
@@ -199,37 +199,56 @@ function ljl_logmeout(dlg) {
   var ljsession = ljl_getljsession();
   if (!ljsession) return true;
 
-  // Get the browser window.
-  var w = (dlg ? window.opener : window);
+  // Okay, we're logged in, but are we logged in as someone whose username
+  // we can get from the userid?
+  var ljuser = ljl_getljuser(ljsession);
+  if ((ljuser) && (ljuser != "?UNKNOWN!")) {
+    // Yup. We're good to go.
 
-  // Tell LJ that we want to expire this session.
-  ljl_newconn(); // Create the connection.
-  // Give the connection our existing login credentials, which we're expiring.
-  ljl_conn.setRequestHeader("X-LJ-Auth", "cookie");
-  ljl_conn.setRequestHeader("Cookie", "ljsession=" + ljsession);
-  // Aaaaaand, go!
-  w.status = "Logging out of LiveJournal...";
-  ljl_conn.send("mode=sessionexpire&user="
-               + encodeURIComponent(ljl_getljuser(ljsession)) +
-               "&auth_method=cookie");
-  if (ljl_conn.status == 200) { // Assuming a successful request...
-    // Check whether the request accomplished the job.
-    var ljsaid = ljl_parseljresponse(ljl_conn.responseText);
-    if ((ljsaid["success"] == "OK") && (!ljsaid["errmsg"])) {
-      // Logout worked. Hooray!
-      // Now that we're logged out, trash the cookie. Updating the display
-      // in the status bar should happen automagically via the Observer
-      // service.
-      ljl_trashsession();
-    } else { // Aw. Logout failed.
-      alert("Could not log out of LiveJournal: " + ljsaid["errmsg"]);
+    // Get the browser window.
+    var w = (dlg ? window.opener : window);
+
+    // Tell LJ that we want to expire this session.
+    ljl_newconn(); // Create the connection.
+    // Give the connection our existing login credentials, which we're expiring.
+    ljl_conn.setRequestHeader("X-LJ-Auth", "cookie");
+    ljl_conn.setRequestHeader("Cookie", "ljsession=" + ljsession);
+    ljl_conn.setRequestHeader("Cookie", "ljmastersession=" + ljsession);
+    var sessfields = mysession.split(":");
+    ljl_conn.setRequestHeader("Cookie", "ljloggedin=" +
+                                         sessfields[1]+":"+sessfields[2]);
+    // Aaaaaand, go!
+    w.status = "Logging out of LiveJournal...";
+    ljl_conn.send("mode=sessionexpire&user="
+                 + encodeURIComponent(ljuser) +
+                 "&auth_method=cookie");
+    if (ljl_conn.status == 200) { // Assuming a successful request...
+      // Check whether the request accomplished the job.
+      var ljsaid = ljl_parseljresponse(ljl_conn.responseText);
+      if ((ljsaid["success"] != "OK") || (ljsaid["errmsg"])) {
+        // Something went wrong here.
+        alert("Could not log out of LiveJournal: " + ljsaid["errmsg"]);
+      }
+    } else { // Something else happened.
+      alert("Could not log out of LiveJournal: " + ljl_conn.status
+                                           + " " + ljl_conn.statusText);
     }
-  } else { // Something else happened.
-    alert("Could not log out of LiveJournal: " + ljl_conn.status
-                                         + " " + ljl_conn.statusText);
+    w.status = "Done";
+    ljl_endconn();
+  } else if (ljuser == "?UNKNOWN!") {
+    // No username/uid mapping available. Make just trashing the session
+    // an option:
+    var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+                            .getService(Components.interfaces.nsIPromptService);
+    if (!prompts.confirm(window, "LJlogin: Unknown username",
+                         "Unknown username. Unable to request session " +
+                         "close from LiveJournal. Log out anyway?")) {
+      return false; // No, never mind.
+    }
   }
-  w.status = "Done";
-  ljl_endconn();
+  // Okay, we're done. Trash the session. Updating the display in the
+  // status bar should happen automagically via the Observer service.
+  ljl_trashsession();
   return true;
 }
 
