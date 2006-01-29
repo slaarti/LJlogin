@@ -480,11 +480,13 @@ function ljl_uidfix() {
 
   // Get the username:
   var ljuser = { value: "" };
+  var chkbx = { value: false }; // Apparently required even if you aren't
+                                // going to have a checkbox.
   var needuser = true;
   while (needuser) {
     var doit = prompts.prompt(window, "LJlogin: Set Username...",
                        "What is the username for the currently " +
-                       "logged-in account?", ljuser);
+                       "logged-in account?", ljuser, null, chkbx);
     if (!doit) return false; // User canceled.
     if (ljl_validuser(ljuser.value)) needuser = false; // Validity check
   }
@@ -494,20 +496,21 @@ function ljl_uidfix() {
   var ljuid = ljsession.split(":")[1];
 
   // Stash the username/uid pair into the PM:
-  if (!ljl_mkuidmap(ljuser, ljuid)) return false;
+  if (!ljl_mkuidmap(ljuser.value, ljuid)) return false;
 
+  ljl_loggedin(ljsession);
   // Hopefully, setting a cookie, even if it's to the same value it
   // already has, will still trigger the change observer and get the
   // status widget updated:
-  try {
-    var ljuri = Components.classes["@mozilla.org/network/standard-url;1"].createInstance(Components.interfaces.nsIURI);
-    ljuri.spec = "http://www.livejournal.com/";
-    var cookiejar = Components.classes["@mozilla.org/cookiemanager;1"].getService(Components.interfaces.nsICookieService);
-    cookiejar.setCookieString(ljuri, null, ljsession, null);
-  } catch(e) {
-    prompts.alert(window, "LJlogin", "Unable to re-save ljsession: " + e);
-    return false;
-  }
+//  try {
+//    var ljuri = Components.classes["@mozilla.org/network/standard-url;1"].createInstance(Components.interfaces.nsIURI);
+//    ljuri.spec = "http://www.livejournal.com/";
+//    var cookiejar = Components.classes["@mozilla.org/cookiemanager;1"].getService(Components.interfaces.nsICookieService);
+//    cookiejar.setCookieString(ljuri, null, ljsession, null);
+//  } catch(e) {
+//    prompts.alert(window, "LJlogin", "Unable to re-save ljsession: " + e);
+//    return false;
+//  }
 
   return true;
 }
@@ -515,11 +518,27 @@ function ljl_uidfix() {
 function ljl_createmenu() {
   try {
     var didstuff = false;
-    var passman = Components.classes["@mozilla.org/passwordmanager;1"].getService(Components.interfaces.nsIPasswordManager);
-    var passcheck = passman.enumerator;
     var themenu = document.getElementById("ljlogin-menu");
 
+    // First, offer the option of naming the account we're logged in with,
+    // if we're logged into one whose username we don't know.
+    // Get the ljsession:
+    var ljsession = ljl_getljsession();
+    if (ljsession) {
+      // Is this actually a uid for which we have no username?
+      if (ljl_getljuser(ljsession) == "?UNKNOWN!") {
+        var nameacct = document.createElement("menuitem");
+        nameacct.setAttribute("label", "Assign username to this login");
+        nameacct.setAttribute("oncommand", "ljl_uidfix();");
+        themenu.appendChild(nameacct);
+        var namesep = document.createElement("menuseparator");
+        themenu.appendChild(namesep);
+      }
+    }
+
     // Grab logins to form menu.
+    var passman = Components.classes["@mozilla.org/passwordmanager;1"].getService(Components.interfaces.nsIPasswordManager);
+    var passcheck = passman.enumerator;
     while (passcheck.hasMoreElements()) {
       var signon = passcheck.getNext(); // Get the password
       if (!signon) { // Oops. No actual password info there.
