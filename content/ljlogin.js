@@ -213,7 +213,7 @@ function ljl_logmeout() {
     ljl_conn.setRequestHeader("X-LJ-Auth", "cookie");
     ljl_conn.setRequestHeader("Cookie", "ljsession=" + ljsession);
     ljl_conn.setRequestHeader("Cookie", "ljmastersession=" + ljsession);
-    var sessfields = mysession.split(":");
+    var sessfields = ljsession.split(":");
     ljl_conn.setRequestHeader("Cookie", "ljloggedin=" +
                                          sessfields[1]+":"+sessfields[2]);
     // Aaaaaand, go!
