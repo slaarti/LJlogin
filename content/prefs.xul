@@ -11,7 +11,12 @@
 <script type="application/x-javascript"
         src="chrome://ljlogin/content/ljlogin.js" />
 
-<description value="An error occurred while requesting session close
-from LiveJournal. Log out anyway?" />
+<groupbox>
+<caption label="UserID Mapping Maintenance" />
+</groupbox>
+
+<groupbox>
+<caption label="Account Maintenance" />
+</groupbox>
 
 </dialog>
