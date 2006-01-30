@@ -511,6 +511,11 @@ function ljl_uidfix() {
   return true;
 }
 
+function ljl_prefs() {
+  window.openDialog("chrome://ljlogin/content/prefs.xul",
+                    "ljl-prefs", "chrome,dialog");
+}
+
 function ljl_createmenu() {
   try {
     var didstuff = false;
@@ -569,6 +574,10 @@ function ljl_createmenu() {
     logout.setAttribute("label", "Log out of LiveJournal");
     logout.setAttribute("oncommand", "ljl_logmeout();");
     themenu.appendChild(logout);
+    var prefs = document.createElement("menuitem");
+    prefs.setAttribute("label", "Preferences");
+    prefs.setAttribute("oncommand", "ljl_prefs();");
+    themenu.appendChild(prefs);
 
     // Done and done.
     return true;
