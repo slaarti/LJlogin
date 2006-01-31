@@ -275,6 +275,14 @@ function ljl_validuser(ljuser) {
     // we may as well check for it and handle appropriately:
     prompts.alert(window, "LJlogin",
                   "Invalid username: Must be no longer than 15 characters.");
+    return false;
+  } else if (ljuser.length == 0) {
+    // Finally, check that we got anything at all. I suppose it's silly that
+    // this should be the final check, but that's they way the tests got
+    // added.
+    prompts.alert(window, "LJlogin",
+                  "No username given!");
+    return false;
   } else {
     return true;
   }
