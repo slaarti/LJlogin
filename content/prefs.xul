@@ -12,7 +12,14 @@
         src="chrome://ljlogin/content/ljlogin.js" />
 
 <groupbox>
-<caption label="UserID Mapping Maintenance" />
+  <caption label="UserID Mapping Maintenance" />
+  <hbox>
+    <menulist id="ljl-prefs-uidmap-select">
+      <menupopup id="ljl-prefs-uidmap-menu" />
+    </menulist>
+    <button id="ljl-prefs-uidmap-rename" label="Change Username" />
+    <button id="ljl-prefs-uidmap-remove" label="Remove From UID Map" />
+  </hbox>
 </groupbox>
 
 <groupbox>
