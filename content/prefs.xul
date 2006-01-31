@@ -6,10 +6,13 @@
         title="LJlogin Preferences"
         buttons="accept"
         buttonlabelaccept="Close"
-        ondialogaccept="return true;">
+        ondialogaccept="return true;"
+        onload="ljl_prefs_init();">
 
 <script type="application/x-javascript"
         src="chrome://ljlogin/content/ljlogin.js" />
+<script type="application/x-javascript"
+        src="chrome://ljlogin/content/prefs.js" />
 
 <groupbox>
   <caption label="UserID Mapping Maintenance" />
