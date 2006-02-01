@@ -1,7 +1,68 @@
+// Rename an account in the uidmap
+function ljl_prefs_uidmap_rename() {
+  var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+                          .getService(Components.interfaces.nsIPromptService);
+
+  // Get the uid to rename, and make sure it's actually there.
+  var ljuid = document.getElementById("ljl-prefs-uidmap-select")
+                      .getAttribute("value");
+  if (!ljuid) {
+    prompts.alert(window, "LJlogin", "No uid/username provided for edit!");
+    return false;
+  }
+
+  // Load the existing username as a basis for edit:
+  var username = new Object();
+  try {
+    var passman = Components.classes["@mozilla.org/passwordmanager;1"]
+        .getService(Components.interfaces.nsIPasswordManagerInternal);
+    var temphost = new Object();
+    var temppass = new Object();
+    passman.findPasswordEntry("ljlogin.uidmap", null, ljuid,
+                              temphost, username, temppass);
+  } catch(e) {
+    prompts.alert(window, "LJlogin", "Error getting username: " + e);
+    return false;
+  }
+
+  // Ask for the new username. Make sure it's valid while we're at it.
+  var chkbx = { value: false }; // Unused but required
+  var needuser = true;
+  while (needuser) {
+    var doit = prompts.prompt(window, "LJlogin: Change Username",
+                              "What is the correct username for this userid?",
+                              username, null, chkbx);
+    if (!doit) return false; // User canceled.
+    if (ljl_validuser(username.value)) needuser = false; // Validity check
+  }
+
+  // Save the new username:
+  if (!ljl_mkuidmap(username.value, ljuid)) {
+    prompts.alert(window, "LJlogin", "Username save failed!");
+    return false;
+  }
+
+  // Reset the username in the status widget if we just changed the
+  // username for the currently logged-in user:
+  var ljsession = ljl_getljsession();
+  if ((ljsession) && (ljsession.split(":")[1] == ljuid)) {
+    ljl_loggedin(ljsession);
+  }
+
+  // Finally, reload the uidmap section of the Prefs window:
+  ljl_prefs_uidmap_init();
+
+  // And, done.
+  return true;
+}
+
 // Initialize the uidmap box
 function ljl_prefs_uidmap_init() {
   var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
                           .getService(Components.interfaces.nsIPromptService);
+  // Before we can build, we must first destroy:
+  ljl_cleanmenu("ljl-prefs-uidmap-menu");
+
   // Load up the uidmap.
   var uidmap = new Array();
   var uidcount = 0; // Keep a count, since .length apparently
