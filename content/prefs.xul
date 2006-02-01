@@ -22,7 +22,8 @@
     </menulist>
     <button id="ljl-prefs-uidmap-rename" label="Change Username"
             oncommand="ljl_prefs_uidmap_rename();" />
-    <button id="ljl-prefs-uidmap-remove" label="Remove From UID Map" />
+    <button id="ljl-prefs-uidmap-remove" label="Remove From UID Map"
+            oncommand="ljl_prefs_uidmap_remove();" />
   </hbox>
 </groupbox>
 

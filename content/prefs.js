@@ -58,7 +58,68 @@ function ljl_prefs_uidmap_rename() {
   // username for the currently logged-in user:
   var ljsession = ljl_getljsession();
   if ((ljsession) && (ljsession.split(":")[1] == ljuid)) {
-//    ljl_loggedin(ljsession);
+    // Can't use ljl_loggedin(), since we're not in the right window, so
+    // trash and remake the session cookies instead:
+    ljl_trashsession();
+    ljl_savesession(ljsession);
+  }
+
+  // Finally, reload the uidmap section of the Prefs window:
+  ljl_prefs_uidmap_init();
+
+  // And, done.
+  return true;
+}
+
+// Remove an entry from the uidmap
+function ljl_prefs_uidmap_remove() {
+  var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+                          .getService(Components.interfaces.nsIPromptService);
+
+  // Get the uid to remove, and make sure it's actually there.
+  var ljuid = document.getElementById("ljl-prefs-uidmap-select")
+                      .getAttribute("value");
+  if (!ljuid) {
+    prompts.alert(window, "LJlogin", "No uid/username provided for edit!");
+    return false;
+  }
+
+  // Give the user a chance to cancel:
+  if (!prompts.confirm(window, "LJlogin: Remove name/uid from uidmap",
+                       "Are you sure you want to remove this entry " +
+                       "from the uidmap?")) {
+    return false; // Never mind!
+  }
+
+  // Can't just remove by uid, because the username is the key field,
+  // so we have to do an extract from the PM first:
+  var username = new Object();
+  try {
+    var passman = Components.classes["@mozilla.org/passwordmanager;1"]
+        .getService(Components.interfaces.nsIPasswordManagerInternal);
+    var temphost = new Object();
+    var temppass = new Object();
+    passman.findPasswordEntry("ljlogin.uidmap", null, ljuid,
+                              temphost, username, temppass);
+  } catch(e) {
+    prompts.alert(window, "LJlogin", "Error getting username: " + e);
+    return false;
+  }
+
+  // Do the removal:
+  try {
+    var passman = Components.classes["@mozilla.org/passwordmanager;1"]
+        .getService().QueryInterface(Components.interfaces.nsIPasswordManager);
+    passman.removeUser("ljlogin.uidmap", username.value);
+  } catch(e) {
+    prompts.alert(window, "LJlogin", "Error removing entry from uidmap: " + e);
+    return false;
+  }
+
+  // Reset the username in the status widget if we just removed the
+  // username for the currently logged-in user:
+  var ljsession = ljl_getljsession();
+  if ((ljsession) && (ljsession.split(":")[1] == ljuid)) {
     // Can't use ljl_loggedin(), since we're not in the right window, so
     // trash and remake the session cookies instead:
     ljl_trashsession();
