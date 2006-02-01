@@ -139,6 +139,9 @@ function ljl_prefs_uidmap_init() {
                           .getService(Components.interfaces.nsIPromptService);
   // Before we can build, we must first destroy:
   ljl_cleanmenu("ljl-prefs-uidmap-menu");
+  var bbox = document.getElementById("ljl-prefs-uidmap-select");
+  bbox.setAttribute("value", "");
+  bbox.setAttribute("label", "");
 
   // Load up the uidmap.
   var uidmap = new Array();
