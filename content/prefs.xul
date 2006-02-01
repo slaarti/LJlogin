@@ -33,7 +33,7 @@
     <menulist id="ljl-prefs-account-select">
       <menupopup id="ljl-prefs-account-menu" />
     </menulist>
-    <button id="ljl-prefs-account-rename" label="Change Password"
+    <button id="ljl-prefs-account-passwd" label="Change Password"
             oncommand="ljl_prefs_account_passwd();" />
     <button id="ljl-prefs-account-remove" label="Remove Account"
             oncommand="ljl_prefs_account_remove();" />
