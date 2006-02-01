@@ -595,8 +595,8 @@ function ljl_createmenu() {
 }
 
 // Clean out the contents of the ljlogin-menu.
-function ljl_cleanmenu() {
-  var themenu = document.getElementById("ljlogin-menu");
+function ljl_cleanmenu(menuname) {
+  var themenu = document.getElementById(menuname);
   while (themenu.hasChildNodes()) {
     themenu.removeChild(themenu.firstChild);
   }
