@@ -303,6 +303,51 @@ function ljl_mkuidmap(ljuser, ljuid) {
   return true;
 }
 
+// Take an ljsession and make the requisite cookies.
+function ljl_savesession(mysession) {
+  if (!mysession) return false; // No point if no session.
+// This code was written on the assumption that the nsICookieManager2
+// interface, which had this nifty add() method that did just what you'd
+// expect, would be available. Alas, it's not, so we have to do some
+// fucked-up hackery instead.
+//  var cookiejar = Components.classes["@mozilla.org/cookiemanager;1"]
+//                 .getService(Components.interfaces.nsICookieManager2);
+//  cookiejar.add(".livejournal.com", "/", "ljsession", ljsession,
+//                false, true, 0);
+  // This fucked-up hackery, BTW, is based on SaveCookie() from the
+  // "Add N Edit Cookies" extension.
+  // For some reason, this *has* to be a URI object, and not just the
+  // string, like our IQ was normal.
+  var ljuri = Components.classes["@mozilla.org/network/standard-url;1"]
+                        .createInstance(Components.interfaces.nsIURI);
+  ljuri.spec = "http://www.livejournal.com/";
+  // The cookies, on the other hand, can be strings, but need to be
+  // formatted like they were being handed back from a server.
+  var ljsession = "ljsession=" + mysession +
+                  "; path=/; domain=.livejournal.com; HttpOnly";
+  var ljmasters = "ljmastersession=" + mysession +
+                  "; path=/; domain=.livejournal.com; HttpOnly";
+  // This bit's tricky: Gotta pull the uid and session id out of the
+  // session info, and use that to build the ljloggedin cookie:
+  var sessfields = mysession.split(":");
+  var ljloggedin = "ljloggedin=" + sessfields[1]+":"+sessfields[2] +
+                   "; path=/; domain=.livejournal.com; HttpOnly";
+  // Do the actual saves.
+  try {
+//    var cookiejar = Components.classes["@mozilla.org/cookieService;1"]
+//    .getService().QueryInterface(Components.interfaces.nsICookieService);
+    var cookiejar = Components.classes["@mozilla.org/cookiemanager;1"]
+                    .getService(Components.interfaces.nsICookieService);
+    cookiejar.setCookieString(ljuri, null, ljsession, null);
+    cookiejar.setCookieString(ljuri, null, ljmasters, null);
+    cookiejar.setCookieString(ljuri, null, ljloggedin, null);
+  } catch(e) {
+    alert("Error in cookie creation: " + e);
+    return false;
+  }
+  return true;
+}
+
 function ljl_dologin(ljuser, ljpass) {
   var ljsaid;
   var w = window;
@@ -379,41 +424,8 @@ function ljl_dologin(ljuser, ljpass) {
   // to know the username can find out, now that LJ's taken the usernames
   // out of ljsession:
   ljl_mkuidmap(ljuser, mysession.split(":")[1]);
-
-// This code was written on the assumption that the nsICookieManager2
-// interface, which had this nifty add() method that did just what you'd
-// expect, would be available. Alas, it's not, so we have to do some
-// fucked-up hackery instead.
-//  var cookiejar = Components.classes["@mozilla.org/cookiemanager;1"].getService(Components.interfaces.nsICookieManager2);
-//  cookiejar.add(".livejournal.com", "/", "ljsession", ljsession,
-//                false, true, 0);
-  // This fucked-up hackery, BTW, is based on SaveCookie() from the
-  // "Add N Edit Cookies" extension.
-  // For some reason, this *has* to be a URI object, and not just the
-  // string, like our IQ was normal.
-  var ljuri = Components.classes["@mozilla.org/network/standard-url;1"].createInstance(Components.interfaces.nsIURI);
-  ljuri.spec = "http://www.livejournal.com/";
-  // The cookies, on the other hand, can be strings, but need to be
-  // formatted like they were being handed back from a server.
-  var ljsession = "ljsession=" + mysession +
-                  "; path=/; domain=.livejournal.com; HttpOnly";
-  var ljmasters = "ljmastersession=" + mysession +
-                  "; path=/; domain=.livejournal.com; HttpOnly";
-  // This bit's tricky: Gotta pull the uid and session id out of the
-  // session info, and use that to build the ljloggedin cookie:
-  var sessfields = mysession.split(":");
-  var ljloggedin = "ljloggedin=" + sessfields[1]+":"+sessfields[2] +
-                   "; path=/; domain=.livejournal.com; HttpOnly";
-  // Do the actual saves.
-  try {
-//    var cookiejar = Components.classes["@mozilla.org/cookieService;1"].getService().QueryInterface(Components.interfaces.nsICookieService);
-    var cookiejar = Components.classes["@mozilla.org/cookiemanager;1"].getService(Components.interfaces.nsICookieService);
-    cookiejar.setCookieString(ljuri, null, ljsession, null);
-    cookiejar.setCookieString(ljuri, null, ljmasters, null);
-    cookiejar.setCookieString(ljuri, null, ljloggedin, null);
-  } catch(e) {
-    alert("Error in cookie creation: " + e);
-  }
+  // Now save:
+  ljl_savesession(mysession);
 
   // Aaaaand, done.
   w.status = "Done";
