@@ -543,25 +543,8 @@ function ljl_prefs() {
                     "ljl-prefs", "chrome,dialog");
 }
 
-function ljl_createmenu() {
-  var themenu = document.getElementById("ljlogin-menu");
-
-  // First, offer the option of naming the account we're logged in with,
-  // if we're logged into one whose username we don't know.
-  // Get the ljsession:
-  var ljsession = ljl_getljsession();
-  if (ljsession) {
-    // Is this actually a uid for which we have no username?
-    if (ljl_getljuser(ljsession) == "?UNKNOWN!") {
-      var nameacct = document.createElement("menuitem");
-      nameacct.setAttribute("label", "Assign username to this login");
-      nameacct.setAttribute("oncommand", "ljl_uidfix();");
-      themenu.appendChild(nameacct);
-      var namesep = document.createElement("menuseparator");
-      themenu.appendChild(namesep);
-    }
-  }
-
+// Pull a list of usernames from the PM, hand them back as a sorted array.
+function ljl_userlist() {
   var userlist = new Array();
   try {
     // Grab logins to form menu.
@@ -581,15 +564,39 @@ function ljl_createmenu() {
   } catch(e) {
     var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
                             .getService(Components.interfaces.nsIPromptService);
-    prompts.alert(window, "LJlogin: Menu error",
-                  "Error loading usernames for LJlogin menu: " + e);
+    prompts.alert(window, "LJlogin",
+                  "Error loading username list: " + e);
     return false;
   }
 
+  return userlist.sort();
+}
+
+function ljl_createmenu() {
+  var themenu = document.getElementById("ljlogin-menu");
+
+  // First, offer the option of naming the account we're logged in with,
+  // if we're logged into one whose username we don't know.
+  // Get the ljsession:
+  var ljsession = ljl_getljsession();
+  if (ljsession) {
+    // Is this actually a uid for which we have no username?
+    if (ljl_getljuser(ljsession) == "?UNKNOWN!") {
+      var nameacct = document.createElement("menuitem");
+      nameacct.setAttribute("label", "Assign username to this login");
+      nameacct.setAttribute("oncommand", "ljl_uidfix();");
+      themenu.appendChild(nameacct);
+      var namesep = document.createElement("menuseparator");
+      themenu.appendChild(namesep);
+    }
+  }
+
+  // Get the user list:
+  var userlist = ljl_userlist();
+
   // Did we get anything for display?
   if (userlist.length > 0) {
-    // Yes. Sort, then generate menu items for them.
-    userlist = userlist.sort();
+    // Yes. Generate menu items for them.
     while (userlist.length > 0) {
       var ljuser = userlist.shift();
       var ljnode = document.createElement("menuitem");
