@@ -42,7 +42,8 @@ function ljlinit() {
       }
     }
   };
-  var observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
+  var observerService = Components.classes["@mozilla.org/observer-service;1"]
+                        .getService(Components.interfaces.nsIObserverService);
   observerService.addObserver(cookiemonster,"cookie-changed",false);
 
   // And then we need to set the login status as it currently is, in case
@@ -59,7 +60,8 @@ function ljlinit() {
 }
 
 function ljl_getljsession() {
-  var cookiejar = Components.classes["@mozilla.org/cookiemanager;1"].getService(Components.interfaces.nsICookieManager);
+  var cookiejar = Components.classes["@mozilla.org/cookiemanager;1"]
+                  .getService(Components.interfaces.nsICookieManager);
   var handinjar = cookiejar.enumerator;
 
   while (handinjar.hasMoreElements()) {
@@ -97,7 +99,8 @@ function ljl_getljuser(ljcookie) {
   // that whoever wrote it makes it throw an exception if there's no
   // match, instead of doing something sane with return values. Cockbites.
   try {
-    var passman = Components.classes["@mozilla.org/passwordmanager;1"].getService(Components.interfaces.nsIPasswordManager);
+    var passman = Components.classes["@mozilla.org/passwordmanager;1"]
+                  .getService(Components.interfaces.nsIPasswordManager);
     var passcheck = passman.enumerator;
     while (passcheck.hasMoreElements()) {
       var signon = passcheck.getNext();
@@ -182,7 +185,8 @@ function ljl_parseljresponse(ljtext) {
 
 function ljl_trashsession() {
   try {
-    var cookiejar = Components.classes["@mozilla.org/cookiemanager;1"].getService(Components.interfaces.nsICookieManager);
+    var cookiejar = Components.classes["@mozilla.org/cookiemanager;1"]
+                    .getService(Components.interfaces.nsICookieManager);
     cookiejar.remove(".livejournal.com", "ljsession", "/", false);
     cookiejar.remove(".livejournal.com", "ljmastersession", "/", false);
     cookiejar.remove(".livejournal.com", "ljloggedin", "/", false);
@@ -292,7 +296,8 @@ function ljl_validuser(ljuser) {
 // later for getting a username from a uid.
 function ljl_mkuidmap(ljuser, ljuid) {
   try {
-    var passman = Components.classes["@mozilla.org/passwordmanager;1"].getService(Components.interfaces.nsIPasswordManagerInternal);
+    var passman = Components.classes["@mozilla.org/passwordmanager;1"]
+                  .getService(Components.interfaces.nsIPasswordManagerInternal);
     passman.addUserFull("ljlogin.uidmap",
                          ljuser,     ljuid,
                         "username", "userid");
@@ -455,7 +460,8 @@ function ljl_loginas() {
   // checkbox were clicked.
   if (saveit.value) {
     try {
-      var passman = Components.classes["@mozilla.org/passwordmanager;1"].getService(Components.interfaces.nsIPasswordManagerInternal);
+      var passman = Components.classes["@mozilla.org/passwordmanager;1"]
+          .getService(Components.interfaces.nsIPasswordManagerInternal);
       passman.addUserFull("http://www.livejournal.com",
                           ljuser.value, ljpass.value,
                           "user",       "password");
@@ -472,7 +478,8 @@ function ljl_userlogin(username) {
   var password = '';
   // Get the password for the given username from the Password Manager.
   try {
-    var passman = Components.classes["@mozilla.org/passwordmanager;1"].getService(Components.interfaces.nsIPasswordManagerInternal);
+    var passman = Components.classes["@mozilla.org/passwordmanager;1"]
+        .getService(Components.interfaces.nsIPasswordManagerInternal);
     var temphost = new Object();
     var tempuser = new Object();
     var temppass = new Object();
@@ -558,7 +565,8 @@ function ljl_createmenu() {
     }
 
     // Grab logins to form menu.
-    var passman = Components.classes["@mozilla.org/passwordmanager;1"].getService(Components.interfaces.nsIPasswordManager);
+    var passman = Components.classes["@mozilla.org/passwordmanager;1"]
+                  .getService(Components.interfaces.nsIPasswordManager);
     var passcheck = passman.enumerator;
     while (passcheck.hasMoreElements()) {
       var signon = passcheck.getNext(); // Get the password
@@ -614,5 +622,3 @@ function ljl_cleanmenu(menuname) {
   }
   return true;
 }
-
-//window.addEventListener("load", ljlinit, false);
