@@ -12,32 +12,44 @@ function ljl_prefs_uidmap_rename() {
   }
 
   // Load the existing username as a basis for edit:
-  var username = new Object();
+  var olduname = new Object();
   try {
     var passman = Components.classes["@mozilla.org/passwordmanager;1"]
         .getService(Components.interfaces.nsIPasswordManagerInternal);
     var temphost = new Object();
     var temppass = new Object();
     passman.findPasswordEntry("ljlogin.uidmap", null, ljuid,
-                              temphost, username, temppass);
+                              temphost, olduname, temppass);
   } catch(e) {
     prompts.alert(window, "LJlogin", "Error getting username: " + e);
     return false;
   }
 
   // Ask for the new username. Make sure it's valid while we're at it.
+  var newuname = { value: olduname.value }; // Copy the object for editing
   var chkbx = { value: false }; // Unused but required
   var needuser = true;
   while (needuser) {
     var doit = prompts.prompt(window, "LJlogin: Change Username",
                               "What is the correct username for this userid?",
-                              username, null, chkbx);
+                              newuname, null, chkbx);
     if (!doit) return false; // User canceled.
-    if (ljl_validuser(username.value)) needuser = false; // Validity check
+    if (ljl_validuser(newuname.value)) needuser = false; // Validity check
   }
 
+  // Because we're saving a new username, and the PM doesn't let you pick
+  // which field you key on, we have to remove the old uidmap entry before
+  // you can add the new one:
+  try {
+    var passman = Components.classes["@mozilla.org/passwordmanager;1"]
+        .getService().QueryInterface(Components.interfaces.nsIPasswordManager);
+    passman.removeUser("ljlogin.uidmap", olduname.value);
+  } catch(e) {
+    prompts.alert(window, "LJlogin", "Error removing old username: " + e);
+    return false;
+  }
   // Save the new username:
-  if (!ljl_mkuidmap(username.value, ljuid)) {
+  if (!ljl_mkuidmap(newuname.value, ljuid)) {
     prompts.alert(window, "LJlogin", "Username save failed!");
     return false;
   }
@@ -46,7 +58,11 @@ function ljl_prefs_uidmap_rename() {
   // username for the currently logged-in user:
   var ljsession = ljl_getljsession();
   if ((ljsession) && (ljsession.split(":")[1] == ljuid)) {
-    ljl_loggedin(ljsession);
+//    ljl_loggedin(ljsession);
+    // Can't use ljl_loggedin(), since we're not in the right window, so
+    // trash and remake the session cookies instead:
+    ljl_trashsession();
+    ljl_savesession(ljsession);
   }
 
   // Finally, reload the uidmap section of the Prefs window:
