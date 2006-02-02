@@ -314,14 +314,25 @@ function ljl_prefs_account_remove() {
   return true;
 }
 
+// Toggle the availability of the default-user select menu, as well as
+// setting the value of the relevant preference.
 function ljl_prefs_default_onoff() {
   // Get checkbox state:
   var checked = document.getElementById("ljl-prefs-default-enable")
                         .getAttribute("checked");
-  var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-                          .getService(Components.interfaces.nsIPromptService);
-  prompts.alert(window, "LJlogin", "Checked is " + checked);
+  // Remember that checked means enabled means "disabled" must be false
+  // and vice versa:
+  document.getElementById("ljl-prefs-default-select")
+          .setAttribute("disabled", (checked ? "false" : "true"));
+  // Note that we keep the "Set Default Account" button disabled. That's
+  // because that only gets enabled by making a selection in the
+  // Default Account menu.
+  document.getElementById("ljl-prefs-default-setacct")
+          .setAttribute("disabled", "true");
 
+  // FIXME: Save preference value!
+
+  return true;
 }
 
 function ljl_prefs_account_init() {
