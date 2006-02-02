@@ -75,8 +75,7 @@ function ljl_getdefaultlogin() {
     return false;
   }
 
-  // Now, hand back results, based on whether or not this
-  // functionality is enabled:
+  // Now, hand back results:
   return ljuser;
 }
 
