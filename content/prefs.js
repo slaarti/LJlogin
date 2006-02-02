@@ -300,9 +300,11 @@ function ljl_prefs_account_init() {
             .setAttribute("disabled", "false");
     document.getElementById("ljl-prefs-default-select")
             .setAttribute("disabled", "false");
-    // Note that we don't enable the "Set Default Account" button. That's
+    // Note that we keep the "Set Default Account" button disabled. That's
     // because that only gets enabled by making a selection in the
     // Default Account menu.
+    document.getElementById("ljl-prefs-default-setacct")
+            .setAttribute("disabled", "true");
   }
   return true;
 }
