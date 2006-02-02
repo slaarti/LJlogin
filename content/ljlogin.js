@@ -72,9 +72,21 @@ function ljlinit() {
     }
     if (defenabled) { // Yes, log in as a default user.
       var ljuser = ljl_getdefaultlogin();
-        if (ljuser) { // Make sure there's actually a user to log in as.
-          // FIXME CONTINUE CODE HERE
-    ljl_loggedout();
+      if (ljuser) { // Make sure there's actually a user to log in as.
+        // Is this a user for whom we have an account stored?
+        if (ljl_userlist().indexOf(ljuser) > -1) {
+          // Yes. Hand off to automated login:
+          ljl_userlogin(ljuser);
+        } else {
+          // No, hand off to user-prompted login:
+          ljl_loginas(ljuser);
+        }
+      } else { // Blank username. Don't bother.
+        ljl_loggedout();
+      }
+    } else { // No, no default login, start as logged out.
+      ljl_loggedout();
+    }
   }
 
   // Finally, flag that the extension is loaded.
@@ -479,12 +491,12 @@ function ljl_dologin(ljuser, ljpass) {
   return true;
 }
 
-function ljl_loginas() {
+function ljl_loginas(username = "") {
   // Ask the user for the account information to log in with, and optionally
   // if they want to save is in the Password Manager.
   var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
                           .getService(Components.interfaces.nsIPromptService);
-  var ljuser = { value: "" };
+  var ljuser = { value: username };
   var ljpass = { value: "" };
   var saveit = { value: false };
   var needuser = true;
