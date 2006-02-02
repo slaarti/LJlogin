@@ -281,7 +281,7 @@ function ljl_prefs_account_remove() {
                           .getService(Components.interfaces.nsIPromptService);
 
   // Get the username, and make sure it's actually there.
-  var ljuser = document.getElementById("ljl-prefs-uidmap-select")
+  var ljuser = document.getElementById("ljl-prefs-account-select")
                        .getAttribute("value");
   if (!ljuser) {
     prompts.alert(window, "LJlogin", "No username provided for removal!");
@@ -291,6 +291,7 @@ function ljl_prefs_account_remove() {
   // Give the user a chance to cancel:
   if (!prompts.confirm(window, "LJlogin: Remove Account",
                        "Are you sure you want to remove this account? " +
+                       "(" + ljuser + ") " +
                        "(Note: Does not log you out if logged in to " +
                        "this account.)")) {
     return false; // Never mind!
