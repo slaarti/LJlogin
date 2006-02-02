@@ -452,15 +452,4 @@ function ljl_prefs_default_setacct() {
 function ljl_prefs_init() {
   ljl_prefs_uidmap_init();
   ljl_prefs_account_init();
-
-  // Set trigger for when the default-account menu is changed:
-  document.getElementById("ljl-prefs-default-select")
-          .addEventListener("ValueChange", ljl_prefs_default_change, false);
-}
-
-function ljl_prefs_unload() {
-  // Set trigger for when the default-account menu is changed:
-  document.getElementById("ljl-prefs-default-select")
-          .removeEventListener("ValueChange", ljl_prefs_default_change, false);
-  return true;
 }
