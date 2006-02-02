@@ -330,7 +330,20 @@ function ljl_prefs_default_onoff() {
   document.getElementById("ljl-prefs-default-setacct")
           .setAttribute("disabled", "true");
 
-  // FIXME: Save preference value!
+  // Save the enable/disable value to the preference system:
+  try {
+    var prefs = Components.classes["@mozilla.org/preferences-service;1"]
+                          .getService(Components.interfaces.nsIPrefService);
+    prefs = prefs.getBranch("extensions.ljlogin.");
+    prefs.setBoolPref("defaultlogin.enable",
+                      (checked == "true" ? true : false));
+  } catch(e) {
+    var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+                            .getService(Components.interfaces.nsIPromptService);
+    prompts.alert(window, "LJlogin: Default login on/off",
+                          "Problem saving preference: " + e);
+    return false;
+  }
 
   return true;
 }
