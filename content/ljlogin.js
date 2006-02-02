@@ -50,8 +50,30 @@ function ljlinit() {
   // we're already logged in via a persistent cookie or something.
   var ljsession = ljl_getljsession();
   if (ljsession) {
-    ljl_loggedin(ljsession);
+    // Make extra certain *all* of the cookies are there:
+    ljl_trashsession();
+    ljl_savesession(ljsession);
   } else {
+    // We're not logged in. Check to see if we should log in
+    // as a default user:
+    var defenabled;
+    try {
+      var prefs = Components.classes["@mozilla.org/preferences-service;1"]
+                            .getService(Components.interfaces.nsIPrefService);
+      prefs = prefs.getBranch("extensions.ljlogin.");
+      defenabled = prefs.getBoolPref("defaultlogin.enabled");
+    } catch(e) {
+      var prompts = Components
+                     .classes["@mozilla.org/embedcomp/prompt-service;1"]
+                     .getService(Components.interfaces.nsIPromptService);
+      prompts.alert(window, "LJlogin",
+                            "Problem getting default login enable pref: " + e);
+      return false;
+    }
+    if (defenabled) { // Yes, log in as a default user.
+      var ljuser = ljl_getdefaultlogin();
+        if (ljuser) { // Make sure there's actually a user to log in as.
+          // FIXME CONTINUE CODE HERE
     ljl_loggedout();
   }
 
