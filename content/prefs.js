@@ -80,7 +80,7 @@ function ljl_prefs_uidmap_remove() {
   var ljuid = document.getElementById("ljl-prefs-uidmap-select")
                       .getAttribute("value");
   if (!ljuid) {
-    prompts.alert(window, "LJlogin", "No uid/username provided for edit!");
+    prompts.alert(window, "LJlogin", "No uid/username provided for removal!");
     return false;
   }
 
