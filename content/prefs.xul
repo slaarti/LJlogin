@@ -7,7 +7,8 @@
         buttons="accept"
         buttonlabelaccept="Close"
         ondialogaccept="return true;"
-        onload="ljl_prefs_init();">
+        onload="ljl_prefs_init();"
+        onclose="ljl_prefs_unload();">
 
 <script type="application/x-javascript"
         src="chrome://ljlogin/content/ljlogin.js" />
