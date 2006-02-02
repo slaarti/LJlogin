@@ -366,6 +366,7 @@ function ljl_prefs_account_init() {
             .setAttribute("disabled", "true");
     document.getElementById("ljl-prefs-default-select")
             .setAttribute("disabled", "true");
+    // FIXME: Remove this once I can set it based on enable pref below:
     document.getElementById("ljl-prefs-default-setacct")
             .setAttribute("disabled", "true");
     return true;
@@ -417,6 +418,7 @@ function ljl_prefs_account_init() {
             .setAttribute("disabled", "false");
     document.getElementById("ljl-prefs-default-enable")
             .setAttribute("disabled", "false");
+    // FIXME: Remove this once I can set it based on enable pref below:
     document.getElementById("ljl-prefs-default-select")
             .setAttribute("disabled", "false");
     // Note that we keep the "Set Default Account" button disabled. That's
@@ -425,6 +427,10 @@ function ljl_prefs_account_init() {
     document.getElementById("ljl-prefs-default-setacct")
             .setAttribute("disabled", "true");
   }
+
+  // FIXME: Properly handle the state of the default-account checkbox
+  // and menu enabling based on the enable preference.
+
   return true;
 }
 
