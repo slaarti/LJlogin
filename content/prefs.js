@@ -314,6 +314,16 @@ function ljl_prefs_account_remove() {
   return true;
 }
 
+function ljl_prefs_default_onoff() {
+  // Get checkbox state:
+  var checked = document.getElementById("ljl-prefs-default-enable")
+                        .getAttribute("checked");
+  var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+                          .getService(Components.interfaces.nsIPromptService);
+  prompts.alert(window, "LJlogin", "Checked is " + checked);
+
+}
+
 function ljl_prefs_account_init() {
   var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
                           .getService(Components.interfaces.nsIPromptService);
