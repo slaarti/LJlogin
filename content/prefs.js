@@ -356,6 +356,28 @@ function ljl_prefs_default_change() {
 
 // Set the default account preference
 function ljl_prefs_default_setacct() {
+  // Get the username, and make sure it's actually there.
+  var ljuser = document.getElementById("ljl-prefs-default-select")
+                       .getAttribute("value");
+  if (!ljuser) {
+    prompts.alert(window, "LJlogin",
+                          "No username provided for default account!");
+    return false;
+  }
+
+  try {
+    var prefs = Components.classes["@mozilla.org/preferences-service;1"]
+                          .getService(Components.interfaces.nsIPrefService);
+    prefs = prefs.getBranch("extensions.ljlogin.");
+    prefs.setCharPref("defaultlogin.ljuser", ljuser);
+  } catch(e) {
+    var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+                            .getService(Components.interfaces.nsIPromptService);
+    prompts.alert(window, "LJlogin: Default login username",
+                          "Problem saving preference: " + e);
+    return false;
+  }
+
   // We've set the default, so disable the button until the user
   // wants to change it again.
   document.getElementById("ljl-prefs-default-setacct")
