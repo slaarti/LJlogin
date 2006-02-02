@@ -283,55 +283,31 @@ function ljl_prefs_account_remove() {
   // Get the username, and make sure it's actually there.
   var ljuser = document.getElementById("ljl-prefs-uidmap-select")
                        .getAttribute("value");
-  if (!ljuid) {
-    prompts.alert(window, "LJlogin", "No uid/username provided for edit!");
+  if (!ljuser) {
+    prompts.alert(window, "LJlogin", "No username provided for removal!");
     return false;
   }
 
   // Give the user a chance to cancel:
-  if (!prompts.confirm(window, "LJlogin: Remove name/uid from uidmap",
-                       "Are you sure you want to remove this entry " +
-                       "from the uidmap?")) {
+  if (!prompts.confirm(window, "LJlogin: Remove Account",
+                       "Are you sure you want to remove this account? " +
+                       "(Note: Does not log you out if logged in to " +
+                       "this account.)")) {
     return false; // Never mind!
-  }
-
-  // Can't just remove by uid, because the username is the key field,
-  // so we have to do an extract from the PM first:
-  var username = new Object();
-  try {
-    var passman = Components.classes["@mozilla.org/passwordmanager;1"]
-        .getService(Components.interfaces.nsIPasswordManagerInternal);
-    var temphost = new Object();
-    var temppass = new Object();
-    passman.findPasswordEntry("ljlogin.uidmap", null, ljuid,
-                              temphost, username, temppass);
-  } catch(e) {
-    prompts.alert(window, "LJlogin", "Error getting username: " + e);
-    return false;
   }
 
   // Do the removal:
   try {
     var passman = Components.classes["@mozilla.org/passwordmanager;1"]
         .getService().QueryInterface(Components.interfaces.nsIPasswordManager);
-    passman.removeUser("ljlogin.uidmap", username.value);
+    passman.removeUser("http://www.livejournal.com", ljuser);
   } catch(e) {
-    prompts.alert(window, "LJlogin", "Error removing entry from uidmap: " + e);
+    prompts.alert(window, "LJlogin", "Error removing account: " + e);
     return false;
   }
 
-  // Reset the username in the status widget if we just removed the
-  // username for the currently logged-in user:
-  var ljsession = ljl_getljsession();
-  if ((ljsession) && (ljsession.split(":")[1] == ljuid)) {
-    // Can't use ljl_loggedin(), since we're not in the right window, so
-    // trash and remake the session cookies instead:
-    ljl_trashsession();
-    ljl_savesession(ljsession);
-  }
-
-  // Finally, reload the uidmap section of the Prefs window:
-  ljl_prefs_uidmap_init();
+  // Finally, reload the account section of the Prefs window:
+  ljl_prefs_account_init();
 
   // And, done.
   return true;
