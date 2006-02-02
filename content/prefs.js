@@ -348,6 +348,20 @@ function ljl_prefs_default_onoff() {
   return true;
 }
 
+// Make sure we can set a default account when the menu is changed
+function ljl_prefs_default_change() {
+  document.getElementById("ljl-prefs-default-setacct")
+          .setAttribute("disabled", "false");
+}
+
+// Set the default account preference
+function ljl_prefs_default_setacct() {
+  // We've set the default, so disable the button until the user
+  // wants to change it again.
+  document.getElementById("ljl-prefs-default-setacct")
+          .setAttribute("disabled", "true");
+}
+
 function ljl_prefs_account_init() {
   var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
                           .getService(Components.interfaces.nsIPromptService);
@@ -456,20 +470,6 @@ function ljl_prefs_account_init() {
           .setAttribute("disabled", "true");
 
   return true;
-}
-
-// Make sure we can set a default account when the menu is changed
-function ljl_prefs_default_change() {
-  document.getElementById("ljl-prefs-default-setacct")
-          .setAttribute("disabled", "false");
-}
-
-// Set the default account preference
-function ljl_prefs_default_setacct() {
-  // We've set the default, so disable the button until the user
-  // wants to change it again.
-  document.getElementById("ljl-prefs-default-setacct")
-          .setAttribute("disabled", "true");
 }
 
 // Initialize the Preferences window
