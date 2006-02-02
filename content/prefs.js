@@ -216,6 +216,65 @@ function ljl_prefs_uidmap_init() {
   return true;
 }
 
+function ljl_prefs_account_passwd() {
+  var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+                          .getService(Components.interfaces.nsIPromptService);
+
+  // Get the uid to rename, and make sure it's actually there.
+  var ljuser = document.getElementById("ljl-prefs-account-select")
+                       .getAttribute("value");
+  if (!ljuser) {
+    prompts.alert(window, "LJlogin",
+                          "No username provided for password change!");
+    return false;
+  }
+
+  // Ask for the new oassword, and get confirmation of it as well.
+  var passwd = { value: "" }; // Copy the object for editing
+  var chkbx = { value: false }; // Unused but required
+  var needpw = true;
+  while (needpw) {
+    var doit = prompts.promptPassword(window, "LJlogin: Change Password",
+                      "What is the new password for this account? " +
+                      "(Keep in mind that this does not change the " +
+                      "password on LiveJournal's servers.)",
+                      passwd, null, chkbx);
+    if (!doit) return false; // User canceled.
+
+    // Now we need confirmation:
+    var confpw = { value: "" };
+    doit = prompts.promptPassword(window, "LJlogin: Change Password",
+                  "Please re-enter the new password to confirm:",
+                  confpw, null, chkbx);
+    if (!doit) return false; // User canceled.
+
+    if (passwd.value == confpw.value) {
+      needpw = false; // Got a confirmation match.
+    } else {
+      // Replacement password and confirmation were different.
+      prompts.alert(window, "LJlogin: Change Password",
+                            "New password and confirmation must match!");
+    }
+  }
+
+  // Okay. Now we have the goods. Update the password
+  try {
+    var passman = Components.classes["@mozilla.org/passwordmanager;1"]
+        .getService(Components.interfaces.nsIPasswordManagerInternal);
+    passman.addUserFull("http://www.livejournal.com",
+                        ljuser, passwd.value,
+                        "user", "password");
+  } catch(e) {
+    prompts.alert(window, "LJlogin",
+                          "Error while attempting to save password: " + e);
+    return false;
+  }
+
+  prompts.alert(window, "LJlogin: Change Password",
+                        "Password change successful!");
+  return true;
+}
+
 function ljl_prefs_account_init() {
   var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
                           .getService(Components.interfaces.nsIPromptService);
