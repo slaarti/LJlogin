@@ -379,9 +379,6 @@ function ljl_prefs_account_init() {
             .setAttribute("disabled", "true");
     document.getElementById("ljl-prefs-default-select")
             .setAttribute("disabled", "true");
-    // FIXME: Remove this once I can set it based on enable pref below:
-    document.getElementById("ljl-prefs-default-setacct")
-            .setAttribute("disabled", "true");
     return true;
   } else {
     var amenu = document.getElementById("ljl-prefs-account-menu");
@@ -431,18 +428,32 @@ function ljl_prefs_account_init() {
             .setAttribute("disabled", "false");
     document.getElementById("ljl-prefs-default-enable")
             .setAttribute("disabled", "false");
-    // FIXME: Remove this once I can set it based on enable pref below:
-    document.getElementById("ljl-prefs-default-select")
-            .setAttribute("disabled", "false");
-    // Note that we keep the "Set Default Account" button disabled. That's
-    // because that only gets enabled by making a selection in the
-    // Default Account menu.
-    document.getElementById("ljl-prefs-default-setacct")
-            .setAttribute("disabled", "true");
   }
 
-  // FIXME: Properly handle the state of the default-account checkbox
-  // and menu enabling based on the enable preference.
+  // Get the default account enable preference, and set the state of the
+  // default-account checkbox and menu being enabled accordingly:
+  var defchecked;
+  try {
+    var prefs = Components.classes["@mozilla.org/preferences-service;1"]
+                          .getService(Components.interfaces.nsIPrefService);
+    prefs = prefs.getBranch("extensions.ljlogin.");
+    defchecked = prefs.getBoolPref("defaultlogin.enable");
+  } catch(e) {
+    var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+                            .getService(Components.interfaces.nsIPromptService);
+    prompts.alert(window, "LJlogin",
+                          "Problem getting default login preference: " + e);
+    return false;
+  }
+  document.getElementById("ljl-prefs-default-enable")
+          .setAttribute("checked", (defchecked ? "true" : ""));
+  document.getElementById("ljl-prefs-default-select")
+          .setAttribute("disabled", (defchecked ? "false" : "true"));
+  // Note that we keep the "Set Default Account" button disabled. That's
+  // because that only gets enabled by making a selection in the
+  // Default Account menu.
+  document.getElementById("ljl-prefs-default-setacct")
+          .setAttribute("disabled", "true");
 
   return true;
 }
