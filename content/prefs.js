@@ -357,13 +357,12 @@ function ljl_prefs_default_change() {
 // Set the default account preference
 function ljl_prefs_default_setacct() {
   // Get the username, and make sure it's actually there.
-  var ljuser = document.getElementById("ljl-prefs-default-select")
+  var ljuser = document.getElementById("ljl-prefs-default-ljuser")
                        .getAttribute("value");
-  if (!ljuser) {
-    prompts.alert(window, "LJlogin",
-                          "No username provided for default account!");
-    return false;
-  }
+  // Check that it's an okay username, but first check if it's set to
+  // anything at all, because ljl_validuser() doesn't allow that but
+  // we should probably let the user do that here.
+  if ((ljuser) && (!ljl_validuser(ljuser))) return false;
 
   try {
     var prefs = Components.classes["@mozilla.org/preferences-service;1"]
@@ -389,17 +388,11 @@ function ljl_prefs_account_init() {
                           .getService(Components.interfaces.nsIPromptService);
   // Before we can build, we must first destroy:
   ljl_cleanmenu("ljl-prefs-account-menu");
-  ljl_cleanmenu("ljl-prefs-default-menu");
   var bbox = document.getElementById("ljl-prefs-account-select");
   bbox.setAttribute("value", "");
   bbox.setAttribute("label", "");
-  var bbox = document.getElementById("ljl-prefs-default-select");
-  bbox.setAttribute("value", "");
-  bbox.setAttribute("label", "");
-
-  // FIXME: Need function here to get default login and handle
-  //        if the username selected for that is invalid.
-  var defaultuser;
+  document.getElementById("ljl-prefs-default-ljlogin")
+          .setAttribute("value", "");
 
   // Get the user list to populate the menu.
   var userlist = ljl_userlist();
@@ -411,30 +404,17 @@ function ljl_prefs_account_init() {
             .setAttribute("disabled", "true");
     document.getElementById("ljl-prefs-account-remove")
             .setAttribute("disabled", "true");
-    document.getElementById("ljl-prefs-default-enable")
-            .setAttribute("disabled", "true");
-    document.getElementById("ljl-prefs-default-select")
-            .setAttribute("disabled", "true");
     return true;
   } else {
     var amenu = document.getElementById("ljl-prefs-account-menu");
-    var dmenu = document.getElementById("ljl-prefs-default-menu");
     var f = true;
     while (userlist.length > 0) {
       var ljuser = userlist.shift();
-      // This is kind of messy, that we have to do everything twice
-      // for each step of setting up a menu item. Check later if
-      // we can just make one item and add it to both menus happily.
       var aitem = document.createElement("menuitem");
-      var ditem = document.createElement("menuitem");
       aitem.setAttribute("value", ljuser);
-      ditem.setAttribute("value", ljuser);
       aitem.setAttribute("label", ljuser);
-      ditem.setAttribute("label", ljuser);
       aitem.setAttribute("image", "chrome://ljlogin/content/userinfo.gif");
-      ditem.setAttribute("image", "chrome://ljlogin/content/userinfo.gif");
       aitem.setAttribute("class", "menuitem-iconic ljuser");
-      ditem.setAttribute("class", "menuitem-iconic ljuser");
       if (f) { // Auto-fill the account options list w/first item.
         // Apparently selected doesn't work here. So, brute it.
         var box = document.getElementById("ljl-prefs-account-select");
@@ -442,17 +422,8 @@ function ljl_prefs_account_init() {
         box.setAttribute("label", ljuser);
         f = false;
       }
-      // If we have a default user, and this ljuser is that one, then
-      // set the default user menu to select it.
-      if ((defaultuser) && (ljuser == defaultuser)) {
-        var box = document.getElementById("ljl-prefs-account-select");
-        box.setAttribute("value", ljuser);
-        box.setAttribute("label", ljuser);
-        ditem.setAttribute("selected", "true");
-      }
       // Do the adds.
       amenu.appendChild(aitem);
-      dmenu.appendChild(ditem);
     }
 
     // And now, make the menus and related buttons/boxes useable:
@@ -461,8 +432,6 @@ function ljl_prefs_account_init() {
     document.getElementById("ljl-prefs-account-passwd")
             .setAttribute("disabled", "false");
     document.getElementById("ljl-prefs-account-remove")
-            .setAttribute("disabled", "false");
-    document.getElementById("ljl-prefs-default-enable")
             .setAttribute("disabled", "false");
   }
 
@@ -483,8 +452,12 @@ function ljl_prefs_account_init() {
   }
   document.getElementById("ljl-prefs-default-enable")
           .setAttribute("checked", (defchecked ? "true" : ""));
-  document.getElementById("ljl-prefs-default-select")
+  document.getElementById("ljl-prefs-default-ljuser")
           .setAttribute("disabled", (defchecked ? "false" : "true"));
+  // Get the default username, and fill the field info:
+  var defaultuser = ljl_getdefaultlogin();
+  document.getElementById("ljl-prefs-default-ljuser")
+          .setAttribute("value", defaultuser);
   // Note that we keep the "Set Default Account" button disabled. That's
   // because that only gets enabled by making a selection in the
   // Default Account menu.

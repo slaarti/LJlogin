@@ -59,6 +59,27 @@ function ljlinit() {
   ljl_loaded = true;
 }
 
+// Get the default username
+function ljl_getdefaultlogin() {
+  var ljuser;
+  try {
+    var prefs = Components.classes["@mozilla.org/preferences-service;1"]
+                          .getService(Components.interfaces.nsIPrefService);
+    prefs = prefs.getBranch("extensions.ljlogin.");
+    ljuser = prefs.getCharPref("defaultlogin.ljuser");
+  } catch(e) {
+    var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+                            .getService(Components.interfaces.nsIPromptService);
+    prompts.alert(window, "LJlogin",
+                          "Problem getting default login preferences: " + e);
+    return false;
+  }
+
+  // Now, hand back results, based on whether or not this
+  // functionality is enabled:
+  return ljuser;
+}
+
 function ljl_getljsession() {
   var cookiejar = Components.classes["@mozilla.org/cookiemanager;1"]
                   .getService(Components.interfaces.nsICookieManager);
