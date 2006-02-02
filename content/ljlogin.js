@@ -62,14 +62,14 @@ function ljlinit() {
 // Get the default username
 function ljl_getdefaultlogin() {
   var ljuser;
+  var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+                          .getService(Components.interfaces.nsIPromptService);
   try {
     var prefs = Components.classes["@mozilla.org/preferences-service;1"]
                           .getService(Components.interfaces.nsIPrefService);
     prefs = prefs.getBranch("extensions.ljlogin.");
     ljuser = prefs.getCharPref("defaultlogin.ljuser");
   } catch(e) {
-    var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-                            .getService(Components.interfaces.nsIPromptService);
     prompts.alert(window, "LJlogin",
                           "Problem getting default login preferences: " + e);
     return false;

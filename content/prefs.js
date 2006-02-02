@@ -317,16 +317,22 @@ function ljl_prefs_account_remove() {
 // Toggle the availability of the default-user select menu, as well as
 // setting the value of the relevant preference.
 function ljl_prefs_default_onoff() {
+  var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+                          .getService(Components.interfaces.nsIPromptService);
   // Get checkbox state:
   var checked = document.getElementById("ljl-prefs-default-enable")
                         .getAttribute("checked");
   // Remember that checked means enabled means "disabled" must be false
   // and vice versa:
-  document.getElementById("ljl-prefs-default-select")
-          .setAttribute("disabled", (checked ? "false" : "true"));
-  // Note that we keep the "Set Default Account" button disabled. That's
-  // because that only gets enabled by making a selection in the
-  // Default Account menu.
+  if (checked == "true") {
+    document.getElementById("ljl-prefs-default-ljuser")
+            .removeAttribute("disabled");
+  } else {
+    document.getElementById("ljl-prefs-default-ljuser")
+            .setAttribute("disabled", "true");
+  }
+  // We always disable this, because it's only allowed by entering text
+  // in the account name box:
   document.getElementById("ljl-prefs-default-setacct")
           .setAttribute("disabled", "true");
 
@@ -338,8 +344,6 @@ function ljl_prefs_default_onoff() {
     prefs.setBoolPref("defaultlogin.enable",
                       (checked == "true" ? true : false));
   } catch(e) {
-    var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-                            .getService(Components.interfaces.nsIPromptService);
     prompts.alert(window, "LJlogin: Default login on/off",
                           "Problem saving preference: " + e);
     return false;
@@ -351,7 +355,8 @@ function ljl_prefs_default_onoff() {
 // Make sure we can set a default account when the menu is changed
 function ljl_prefs_default_change() {
   document.getElementById("ljl-prefs-default-setacct")
-          .setAttribute("disabled", "false");
+          .removeAttribute("disabled");
+  return true;
 }
 
 // Set the default account preference
@@ -362,7 +367,7 @@ function ljl_prefs_default_setacct() {
   // Check that it's an okay username, but first check if it's set to
   // anything at all, because ljl_validuser() doesn't allow that but
   // we should probably let the user do that here.
-  if ((ljuser) && (!ljl_validuser(ljuser))) return false;
+  if ((!ljuser) || (!ljl_validuser(ljuser))) return false;
 
   try {
     var prefs = Components.classes["@mozilla.org/preferences-service;1"]
@@ -391,8 +396,6 @@ function ljl_prefs_account_init() {
   var bbox = document.getElementById("ljl-prefs-account-select");
   bbox.setAttribute("value", "");
   bbox.setAttribute("label", "");
-  document.getElementById("ljl-prefs-default-ljlogin")
-          .setAttribute("value", "");
 
   // Get the user list to populate the menu.
   var userlist = ljl_userlist();
@@ -435,6 +438,10 @@ function ljl_prefs_account_init() {
             .setAttribute("disabled", "false");
   }
 
+  return true;
+}
+
+function ljl_prefs_default_init() {
   // Get the default account enable preference, and set the state of the
   // default-account checkbox and menu being enabled accordingly:
   var defchecked;
@@ -452,15 +459,19 @@ function ljl_prefs_account_init() {
   }
   document.getElementById("ljl-prefs-default-enable")
           .setAttribute("checked", (defchecked ? "true" : ""));
-  document.getElementById("ljl-prefs-default-ljuser")
-          .setAttribute("disabled", (defchecked ? "false" : "true"));
+  if (defchecked) {
+    document.getElementById("ljl-prefs-default-ljuser")
+            .removeAttribute("disabled");
+  } else {
+    document.getElementById("ljl-prefs-default-ljuser")
+            .setAttribute("disabled", "true");
+  }
   // Get the default username, and fill the field info:
-  var defaultuser = ljl_getdefaultlogin();
   document.getElementById("ljl-prefs-default-ljuser")
-          .setAttribute("value", defaultuser);
-  // Note that we keep the "Set Default Account" button disabled. That's
-  // because that only gets enabled by making a selection in the
-  // Default Account menu.
+          .setAttribute("value", ljl_getdefaultlogin());
+
+  // Always toggle this off. It's only allowed when the user changes
+  // the username in the box.
   document.getElementById("ljl-prefs-default-setacct")
           .setAttribute("disabled", "true");
 
@@ -471,4 +482,5 @@ function ljl_prefs_account_init() {
 function ljl_prefs_init() {
   ljl_prefs_uidmap_init();
   ljl_prefs_account_init();
+  ljl_prefs_default_init();
 }
