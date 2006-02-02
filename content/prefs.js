@@ -440,6 +440,14 @@ function ljl_prefs_default_change() {
           .setAttribute("disabled", "false");
 }
 
+// Set the default account preference
+function ljl_prefs_default_setacct() {
+  // We've set the default, so disable the button until the user
+  // wants to change it again.
+  document.getElementById("ljl-prefs-default-setacct")
+          .setAttribute("disabled", "true");
+}
+
 // Initialize the Preferences window
 function ljl_prefs_init() {
   ljl_prefs_uidmap_init();
