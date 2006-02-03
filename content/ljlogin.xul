@@ -8,6 +8,8 @@
 <script type="application/x-javascript"
         src="chrome://ljlogin/content/md5.js" />
 <script type="application/x-javascript"
+        src="chrome://ljlogin/content/arrayextras.js" />
+<script type="application/x-javascript"
         src="chrome://ljlogin/content/ljlogin.js" />
 
 <script type="application/x-javascript">
