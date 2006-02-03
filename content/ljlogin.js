@@ -491,7 +491,9 @@ function ljl_dologin(ljuser, ljpass) {
   return true;
 }
 
-function ljl_loginas(username = "") {
+function ljl_loginas() {
+  // Were we handed a username to log in as?
+  var username = ((arguments.length > 0) ? arguments[0] : "");
   // Ask the user for the account information to log in with, and optionally
   // if they want to save is in the Password Manager.
   var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
