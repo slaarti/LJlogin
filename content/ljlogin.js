@@ -46,6 +46,9 @@ function ljlinit() {
                         .getService(Components.interfaces.nsIObserverService);
   observerService.addObserver(cookiemonster,"cookie-changed",false);
 
+  // First, assume we're logged out:
+  ljl_loggedout();
+
   // And then we need to set the login status as it currently is, in case
   // we're already logged in via a persistent cookie or something.
   var ljsession = ljl_getljsession();
