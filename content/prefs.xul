@@ -40,20 +40,21 @@
     <button id="ljl-prefs-account-remove" label="Remove Account"
             oncommand="ljl_prefs_account_remove();" />
   </hbox>
-  <groupbox>
-    <caption label="Default login" />
-    <description>
-      These options exist to set a user to log in as on browser start.
-    </description>
-    <hbox>
-      <checkbox id="ljl-prefs-default-enable" label="Enable"
-                oncommand="ljl_prefs_default_onoff();" />
-      <textbox id="ljl-prefs-default-ljuser" maxlength="15"
-               oninput="ljl_prefs_default_change();" />
-      <button id="ljl-prefs-default-setacct" label="Set Default Account"
-              oncommand="ljl_prefs_default_setacct();" />
-    </hbox>
-  </groupbox>
+</groupbox>
+
+<groupbox>
+  <caption label="Default login" />
+  <description>
+    These options exist to set a user to log in as on browser start.
+  </description>
+  <hbox>
+    <checkbox id="ljl-prefs-default-enable" label="Enable"
+              oncommand="ljl_prefs_default_onoff();" />
+    <textbox id="ljl-prefs-default-ljuser" maxlength="15"
+             oninput="ljl_prefs_default_change();" />
+    <button id="ljl-prefs-default-setacct" label="Set Default Account"
+            oncommand="ljl_prefs_default_setacct();" />
+  </hbox>
 </groupbox>
 
 </dialog>
