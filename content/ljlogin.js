@@ -61,7 +61,7 @@ function ljlinit() {
       var prefs = Components.classes["@mozilla.org/preferences-service;1"]
                             .getService(Components.interfaces.nsIPrefService);
       prefs = prefs.getBranch("extensions.ljlogin.");
-      defenabled = prefs.getBoolPref("defaultlogin.enabled");
+      defenabled = prefs.getBoolPref("defaultlogin.enable");
     } catch(e) {
       var prompts = Components
                      .classes["@mozilla.org/embedcomp/prompt-service;1"]
