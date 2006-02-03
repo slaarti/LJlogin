@@ -221,8 +221,7 @@ function ljl_prefs_account_passwd() {
                           .getService(Components.interfaces.nsIPromptService);
 
   // Get the uid to rename, and make sure it's actually there.
-  var ljuser = document.getElementById("ljl-prefs-account-select")
-                       .getAttribute("value");
+  var ljuser = document.getElementById("ljl-prefs-account-select").value;
   if (!ljuser) {
     prompts.alert(window, "LJlogin",
                           "No username provided for password change!");
@@ -281,8 +280,7 @@ function ljl_prefs_account_remove() {
                           .getService(Components.interfaces.nsIPromptService);
 
   // Get the username, and make sure it's actually there.
-  var ljuser = document.getElementById("ljl-prefs-account-select")
-                       .getAttribute("value");
+  var ljuser = document.getElementById("ljl-prefs-account-select").value;
   if (!ljuser) {
     prompts.alert(window, "LJlogin", "No username provided for removal!");
     return false;
@@ -318,10 +316,9 @@ function ljl_prefs_account_init() {
   var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
                           .getService(Components.interfaces.nsIPromptService);
   // Before we can build, we must first destroy:
-  ljl_cleanmenu("ljl-prefs-account-menu");
-  var bbox = document.getElementById("ljl-prefs-account-select");
-  bbox.setAttribute("value", "");
-  bbox.setAttribute("label", "");
+  var menu = document.getElementById("ljl-prefs-account-select");
+  menu.selectedIndex = -1; // Unselect...
+  menu.removeAllItems(); // ...and clear.
 
   // Get the user list to populate the menu.
   var userlist = ljl_userlist();
@@ -335,25 +332,15 @@ function ljl_prefs_account_init() {
             .setAttribute("disabled", "true");
     return true;
   } else {
-    var amenu = document.getElementById("ljl-prefs-account-menu");
-    var f = true;
     while (userlist.length > 0) {
-      var ljuser = userlist.shift();
-      var aitem = document.createElement("menuitem");
-      aitem.setAttribute("value", ljuser);
-      aitem.setAttribute("label", ljuser);
-      aitem.setAttribute("image", "chrome://ljlogin/content/userinfo.gif");
-      aitem.setAttribute("class", "menuitem-iconic ljuser");
-      if (f) { // Auto-fill the account options list w/first item.
-        // Apparently selected doesn't work here. So, brute it.
-        var box = document.getElementById("ljl-prefs-account-select");
-        box.setAttribute("value", ljuser);
-        box.setAttribute("label", ljuser);
-        f = false;
-      }
-      // Do the adds.
-      amenu.appendChild(aitem);
+      var ljuser = userlist.shift(); // Get item content
+      var item = menu.appendItem(ljuser, ljuser); // Add item
+      // Add the LJ-look attributes:
+      item.setAttribute("image", "chrome://ljlogin/content/userinfo.gif");
+      item.setAttribute("class", "menuitem-iconic ljuser");
     }
+    menu.selectedIndex = 0; // Select first item by default;
+                            // Remember that it's zero-indexed.
 
     // And now, make the menus and related buttons/boxes useable:
     document.getElementById("ljl-prefs-account-select")

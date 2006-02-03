@@ -32,9 +32,7 @@
 <groupbox>
   <caption label="Account Maintenance" />
   <hbox>
-    <menulist id="ljl-prefs-account-select">
-      <menupopup id="ljl-prefs-account-menu" />
-    </menulist>
+    <menulist id="ljl-prefs-account-select" />
     <button id="ljl-prefs-account-passwd" label="Change Password"
             oncommand="ljl_prefs_account_passwd();" />
     <button id="ljl-prefs-account-remove" label="Remove Account"
