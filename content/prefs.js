@@ -141,7 +141,7 @@ function ljl_prefs_uidmap_init() {
   menu.removeAllItems(); // ...and clear.
 
   // Load up the uidmap.
-  var uidmap = new Array();
+  var uidmap = new Object();
   var uidcount = 0; // Keep a count, since .length apparently
                     // doesn't work on hashes.
   try {
