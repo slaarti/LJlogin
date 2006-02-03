@@ -19,7 +19,7 @@
 <groupbox>
   <caption label="UserID Mapping Maintenance" />
   <hbox>
-    <menulist id="ljl-prefs-uidmap-select" />
+    <menulist id="ljl-prefs-uidmap-menu" />
     <button id="ljl-prefs-uidmap-rename" label="Change Username"
             oncommand="ljl_prefs_uidmap_rename();" />
     <button id="ljl-prefs-uidmap-remove" label="Remove From UID Map"
@@ -30,7 +30,7 @@
 <groupbox>
   <caption label="Account Maintenance" />
   <hbox>
-    <menulist id="ljl-prefs-account-select" />
+    <menulist id="ljl-prefs-account-menu" />
     <button id="ljl-prefs-account-passwd" label="Change Password"
             oncommand="ljl_prefs_account_passwd();" />
     <button id="ljl-prefs-account-remove" label="Remove Account"

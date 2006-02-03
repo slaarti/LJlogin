@@ -4,7 +4,7 @@ function ljl_prefs_uidmap_rename() {
                           .getService(Components.interfaces.nsIPromptService);
 
   // Get the uid to rename, and make sure it's actually there.
-  var ljuid = document.getElementById("ljl-prefs-uidmap-select").value;
+  var ljuid = document.getElementById("ljl-prefs-uidmap-menu").value;
   if (!ljuid) {
     prompts.alert(window, "LJlogin", "No uid/username provided for edit!");
     return false;
@@ -76,7 +76,7 @@ function ljl_prefs_uidmap_remove() {
                           .getService(Components.interfaces.nsIPromptService);
 
   // Get the uid to remove, and make sure it's actually there.
-  var ljuid = document.getElementById("ljl-prefs-uidmap-select").value;
+  var ljuid = document.getElementById("ljl-prefs-uidmap-menu").value;
   if (!ljuid) {
     prompts.alert(window, "LJlogin", "No uid/username provided for removal!");
     return false;
@@ -136,7 +136,7 @@ function ljl_prefs_uidmap_init() {
   var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
                           .getService(Components.interfaces.nsIPromptService);
   // Before we can build, we must first destroy:
-  var menu = document.getElementById("ljl-prefs-uidmap-select");
+  var menu = document.getElementById("ljl-prefs-uidmap-menu");
   menu.selectedIndex = -1; // Unselect...
   menu.removeAllItems(); // ...and clear.
 
@@ -164,7 +164,7 @@ function ljl_prefs_uidmap_init() {
   }
 
   if (uidcount <= 0) { // Nobody home, apparently.
-    document.getElementById("ljl-prefs-uidmap-select")
+    document.getElementById("ljl-prefs-uidmap-menu")
             .setAttribute("disabled", "true");
     document.getElementById("ljl-prefs-uidmap-rename")
             .setAttribute("disabled", "true");
@@ -193,7 +193,7 @@ function ljl_prefs_uidmap_init() {
     menu.selectedIndex = 0;
 
     // And now, make the menu and its related buttons available for action:
-    document.getElementById("ljl-prefs-uidmap-select")
+    document.getElementById("ljl-prefs-uidmap-menu")
             .setAttribute("disabled", "false");
     document.getElementById("ljl-prefs-uidmap-rename")
             .setAttribute("disabled", "false");
@@ -208,7 +208,7 @@ function ljl_prefs_account_passwd() {
                           .getService(Components.interfaces.nsIPromptService);
 
   // Get the uid to rename, and make sure it's actually there.
-  var ljuser = document.getElementById("ljl-prefs-account-select").value;
+  var ljuser = document.getElementById("ljl-prefs-account-menu").value;
   if (!ljuser) {
     prompts.alert(window, "LJlogin",
                           "No username provided for password change!");
@@ -267,7 +267,7 @@ function ljl_prefs_account_remove() {
                           .getService(Components.interfaces.nsIPromptService);
 
   // Get the username, and make sure it's actually there.
-  var ljuser = document.getElementById("ljl-prefs-account-select").value;
+  var ljuser = document.getElementById("ljl-prefs-account-menu").value;
   if (!ljuser) {
     prompts.alert(window, "LJlogin", "No username provided for removal!");
     return false;
@@ -303,7 +303,7 @@ function ljl_prefs_account_init() {
   var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
                           .getService(Components.interfaces.nsIPromptService);
   // Before we can build, we must first destroy:
-  var menu = document.getElementById("ljl-prefs-account-select");
+  var menu = document.getElementById("ljl-prefs-account-menu");
   menu.selectedIndex = -1; // Unselect...
   menu.removeAllItems(); // ...and clear.
 
@@ -311,7 +311,7 @@ function ljl_prefs_account_init() {
   var userlist = ljl_userlist();
 
   if ((!userlist) || (userlist.length <= 0)) { // Nobody home, apparently.
-    document.getElementById("ljl-prefs-account-select")
+    document.getElementById("ljl-prefs-account-menu")
             .setAttribute("disabled", "true");
     document.getElementById("ljl-prefs-account-passwd")
             .setAttribute("disabled", "true");
@@ -330,7 +330,7 @@ function ljl_prefs_account_init() {
                             // Remember that it's zero-indexed.
 
     // And now, make the menus and related buttons/boxes useable:
-    document.getElementById("ljl-prefs-account-select")
+    document.getElementById("ljl-prefs-account-menu")
             .setAttribute("disabled", "false");
     document.getElementById("ljl-prefs-account-passwd")
             .setAttribute("disabled", "false");
