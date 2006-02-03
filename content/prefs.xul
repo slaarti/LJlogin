@@ -19,9 +19,7 @@
 <groupbox>
   <caption label="UserID Mapping Maintenance" />
   <hbox>
-    <menulist id="ljl-prefs-uidmap-select">
-      <menupopup id="ljl-prefs-uidmap-menu" />
-    </menulist>
+    <menulist id="ljl-prefs-uidmap-select" />
     <button id="ljl-prefs-uidmap-rename" label="Change Username"
             oncommand="ljl_prefs_uidmap_rename();" />
     <button id="ljl-prefs-uidmap-remove" label="Remove From UID Map"

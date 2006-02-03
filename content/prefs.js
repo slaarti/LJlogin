@@ -4,8 +4,7 @@ function ljl_prefs_uidmap_rename() {
                           .getService(Components.interfaces.nsIPromptService);
 
   // Get the uid to rename, and make sure it's actually there.
-  var ljuid = document.getElementById("ljl-prefs-uidmap-select")
-                      .getAttribute("value");
+  var ljuid = document.getElementById("ljl-prefs-uidmap-select").value;
   if (!ljuid) {
     prompts.alert(window, "LJlogin", "No uid/username provided for edit!");
     return false;
@@ -77,8 +76,7 @@ function ljl_prefs_uidmap_remove() {
                           .getService(Components.interfaces.nsIPromptService);
 
   // Get the uid to remove, and make sure it's actually there.
-  var ljuid = document.getElementById("ljl-prefs-uidmap-select")
-                      .getAttribute("value");
+  var ljuid = document.getElementById("ljl-prefs-uidmap-select").value;
   if (!ljuid) {
     prompts.alert(window, "LJlogin", "No uid/username provided for removal!");
     return false;
@@ -138,10 +136,9 @@ function ljl_prefs_uidmap_init() {
   var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
                           .getService(Components.interfaces.nsIPromptService);
   // Before we can build, we must first destroy:
-  ljl_cleanmenu("ljl-prefs-uidmap-menu");
-  var bbox = document.getElementById("ljl-prefs-uidmap-select");
-  bbox.setAttribute("value", "");
-  bbox.setAttribute("label", "");
+  var menu = document.getElementById("ljl-prefs-uidmap-select");
+  menu.selectedIndex = -1; // Unselect...
+  menu.removeAllItems(); // ...and clear.
 
   // Load up the uidmap.
   var uidmap = new Array();
@@ -187,23 +184,13 @@ function ljl_prefs_uidmap_init() {
     // Sort the keys:
     uidkeys = uidkeys.sort();
     // Now churn out the menu items.
-    var menu = document.getElementById("ljl-prefs-uidmap-menu");
-    var f = true;
     while (uidkeys.length > 0) {
       var uid = uidkeys.shift();
-      var mapnode = document.createElement("menuitem");
       var uuid = "u" + uid;
-      mapnode.setAttribute("value", uuid);
-      mapnode.setAttribute("label", uuid + " - " + uidmap[uuid]);
-      if (f) { // Select the first one by default.
-        // Apparently selected doesn't work here. So, brute it.
-        var box = document.getElementById("ljl-prefs-uidmap-select");
-        box.setAttribute("value", uuid);
-        box.setAttribute("label", uuid + " - " + uidmap[uuid]);
-        f = false;
-      }
-      menu.appendChild(mapnode);
+      var mapnode = menu.appendItem(uuid + " - " + uidmap[uuid], uuid);
     };
+    // Select the first, zero-ordered:
+    menu.selectedIndex = 0;
 
     // And now, make the menu and its related buttons available for action:
     document.getElementById("ljl-prefs-uidmap-select")
