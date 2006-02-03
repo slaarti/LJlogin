@@ -314,6 +314,59 @@ function ljl_prefs_account_remove() {
   return true;
 }
 
+function ljl_prefs_account_init() {
+  var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+                          .getService(Components.interfaces.nsIPromptService);
+  // Before we can build, we must first destroy:
+  ljl_cleanmenu("ljl-prefs-account-menu");
+  var bbox = document.getElementById("ljl-prefs-account-select");
+  bbox.setAttribute("value", "");
+  bbox.setAttribute("label", "");
+
+  // Get the user list to populate the menu.
+  var userlist = ljl_userlist();
+
+  if ((!userlist) || (userlist.length <= 0)) { // Nobody home, apparently.
+    document.getElementById("ljl-prefs-account-select")
+            .setAttribute("disabled", "true");
+    document.getElementById("ljl-prefs-account-passwd")
+            .setAttribute("disabled", "true");
+    document.getElementById("ljl-prefs-account-remove")
+            .setAttribute("disabled", "true");
+    return true;
+  } else {
+    var amenu = document.getElementById("ljl-prefs-account-menu");
+    var f = true;
+    while (userlist.length > 0) {
+      var ljuser = userlist.shift();
+      var aitem = document.createElement("menuitem");
+      aitem.setAttribute("value", ljuser);
+      aitem.setAttribute("label", ljuser);
+      aitem.setAttribute("image", "chrome://ljlogin/content/userinfo.gif");
+      aitem.setAttribute("class", "menuitem-iconic ljuser");
+      if (f) { // Auto-fill the account options list w/first item.
+        // Apparently selected doesn't work here. So, brute it.
+        var box = document.getElementById("ljl-prefs-account-select");
+        box.setAttribute("value", ljuser);
+        box.setAttribute("label", ljuser);
+        f = false;
+      }
+      // Do the adds.
+      amenu.appendChild(aitem);
+    }
+
+    // And now, make the menus and related buttons/boxes useable:
+    document.getElementById("ljl-prefs-account-select")
+            .setAttribute("disabled", "false");
+    document.getElementById("ljl-prefs-account-passwd")
+            .setAttribute("disabled", "false");
+    document.getElementById("ljl-prefs-account-remove")
+            .setAttribute("disabled", "false");
+  }
+
+  return true;
+}
+
 // Toggle the availability of the default-user select menu, as well as
 // setting the value of the relevant preference.
 function ljl_prefs_default_onoff() {
@@ -385,59 +438,6 @@ function ljl_prefs_default_setacct() {
   // wants to change it again.
   document.getElementById("ljl-prefs-default-setacct")
           .setAttribute("disabled", "true");
-}
-
-function ljl_prefs_account_init() {
-  var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-                          .getService(Components.interfaces.nsIPromptService);
-  // Before we can build, we must first destroy:
-  ljl_cleanmenu("ljl-prefs-account-menu");
-  var bbox = document.getElementById("ljl-prefs-account-select");
-  bbox.setAttribute("value", "");
-  bbox.setAttribute("label", "");
-
-  // Get the user list to populate the menu.
-  var userlist = ljl_userlist();
-
-  if ((!userlist) || (userlist.length <= 0)) { // Nobody home, apparently.
-    document.getElementById("ljl-prefs-account-select")
-            .setAttribute("disabled", "true");
-    document.getElementById("ljl-prefs-account-passwd")
-            .setAttribute("disabled", "true");
-    document.getElementById("ljl-prefs-account-remove")
-            .setAttribute("disabled", "true");
-    return true;
-  } else {
-    var amenu = document.getElementById("ljl-prefs-account-menu");
-    var f = true;
-    while (userlist.length > 0) {
-      var ljuser = userlist.shift();
-      var aitem = document.createElement("menuitem");
-      aitem.setAttribute("value", ljuser);
-      aitem.setAttribute("label", ljuser);
-      aitem.setAttribute("image", "chrome://ljlogin/content/userinfo.gif");
-      aitem.setAttribute("class", "menuitem-iconic ljuser");
-      if (f) { // Auto-fill the account options list w/first item.
-        // Apparently selected doesn't work here. So, brute it.
-        var box = document.getElementById("ljl-prefs-account-select");
-        box.setAttribute("value", ljuser);
-        box.setAttribute("label", ljuser);
-        f = false;
-      }
-      // Do the adds.
-      amenu.appendChild(aitem);
-    }
-
-    // And now, make the menus and related buttons/boxes useable:
-    document.getElementById("ljl-prefs-account-select")
-            .setAttribute("disabled", "false");
-    document.getElementById("ljl-prefs-account-passwd")
-            .setAttribute("disabled", "false");
-    document.getElementById("ljl-prefs-account-remove")
-            .setAttribute("disabled", "false");
-  }
-
-  return true;
 }
 
 function ljl_prefs_default_init() {
