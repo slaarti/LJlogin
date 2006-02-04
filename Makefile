@@ -7,7 +7,8 @@ chrome: chrome/ljlogin.jar
 
 chrome/ljlogin.jar: content/contents.rdf content/ljlogin.xul \
                     content/ljlogin.js content/ljlogin.css \
-		    content/logouterr.xul
+		    content/logouterr.xul content/ljl-lib.js \
+		    content/prefs.xul content/prefs.js
 	if [ ! -d chrome ]; then mkdir chrome; fi
 	zip -r0 chrome/ljlogin.jar content
 	zip -d chrome/ljlogin.jar content/CVS/* content/CVS
