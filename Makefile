@@ -2,6 +2,9 @@ all: ljlogin.xpi
 
 ljlogin.xpi: chrome install.rdf chrome.manifest defaults
 	zip -r9 ljlogin.xpi install.rdf chrome.manifest chrome defaults
+	zip -d ljlogin.xpi defaults/preferences/CVS/* \
+                           defaults/preferences/CVS \
+                           defaults/CVS/* defaults/CVS
 
 chrome: chrome/ljlogin.jar
 
