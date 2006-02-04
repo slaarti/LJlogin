@@ -322,9 +322,6 @@ function ljl_prefs_account_init() {
     while (userlist.length > 0) {
       var ljuser = userlist.shift(); // Get item content
       var item = menu.appendItem(ljuser, ljuser); // Add item
-      // Add the LJ-look attributes:
-      item.setAttribute("image", "chrome://ljlogin/content/userinfo.gif");
-      item.setAttribute("class", "menuitem-iconic ljuser");
     }
     menu.selectedIndex = 0; // Select first item by default;
                             // Remember that it's zero-indexed.
