@@ -194,11 +194,11 @@ function ljl_prefs_uidmap_init() {
 
     // And now, make the menu and its related buttons available for action:
     document.getElementById("ljl-prefs-uidmap-menu")
-            .setAttribute("disabled", "false");
+            .removeAttribute("disabled");
     document.getElementById("ljl-prefs-uidmap-rename")
-            .setAttribute("disabled", "false");
+            .removeAttribute("disabled");
     document.getElementById("ljl-prefs-uidmap-remove")
-            .setAttribute("disabled", "false");
+            .removeAttribute("disabled");
   }
   return true;
 }
@@ -334,11 +334,11 @@ function ljl_prefs_account_init() {
 
     // And now, make the menus and related buttons/boxes useable:
     document.getElementById("ljl-prefs-account-menu")
-            .setAttribute("disabled", "false");
+            .removeAttribute("disabled");
     document.getElementById("ljl-prefs-account-passwd")
-            .setAttribute("disabled", "false");
+            .removeAttribute("disabled");
     document.getElementById("ljl-prefs-account-remove")
-            .setAttribute("disabled", "false");
+            .removeAttribute("disabled");
   }
   // Reset the value of the default user entry:
   dmenu.value = defaultuser;
