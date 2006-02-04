@@ -46,8 +46,10 @@
   <hbox>
     <checkbox id="ljl-prefs-default-enable" label="Enable"
               oncommand="ljl_prefs_default_onoff();" />
-    <textbox id="ljl-prefs-default-ljuser" maxlength="15"
-             oninput="ljl_prefs_default_change();" />
+    <menulist id="ljl-prefs-default-ljuser" editable="true"
+              sizetopopup="none"
+              oncommand="ljl_prefs_default_change();"
+              oninput="ljl_prefs_default_change();" />
     <button id="ljl-prefs-default-setacct" label="Set Default Account"
             oncommand="ljl_prefs_default_setacct();" />
   </hbox>

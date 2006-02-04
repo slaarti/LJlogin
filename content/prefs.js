@@ -303,9 +303,15 @@ function ljl_prefs_account_init() {
   var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
                           .getService(Components.interfaces.nsIPromptService);
   // Before we can build, we must first destroy:
-  var menu = document.getElementById("ljl-prefs-account-menu");
-  menu.selectedIndex = -1; // Unselect...
-  menu.removeAllItems(); // ...and clear.
+  var amenu = document.getElementById("ljl-prefs-account-menu");
+  amenu.selectedIndex = -1; // Unselect...
+  amenu.removeAllItems(); // ...and clear.
+  var dmenu = document.getElementById("ljl-prefs-default-ljuser");
+  // Wait! First, save the current value of this menu, so we can
+  // restore it later, once we've rebuilt the menu.
+  var defaultuser = dmenu.value;
+  dmenu.selectedIndex = -1; // Unselect...
+  dmenu.removeAllItems(); // ...and clear.
 
   // Get the user list to populate the menu.
   var userlist = ljl_userlist();
@@ -317,14 +323,14 @@ function ljl_prefs_account_init() {
             .setAttribute("disabled", "true");
     document.getElementById("ljl-prefs-account-remove")
             .setAttribute("disabled", "true");
-    return true;
   } else {
     while (userlist.length > 0) {
       var ljuser = userlist.shift(); // Get item content
-      var item = menu.appendItem(ljuser, ljuser); // Add item
+      amenu.appendItem(ljuser, ljuser); // Add item to account menu
+      dmenu.appendItem(ljuser, ljuser); // Add item to defaults menu
     }
-    menu.selectedIndex = 0; // Select first item by default;
-                            // Remember that it's zero-indexed.
+    amenu.selectedIndex = 0; // Select first item by default;
+                             // Remember that it's zero-indexed.
 
     // And now, make the menus and related buttons/boxes useable:
     document.getElementById("ljl-prefs-account-menu")
@@ -334,6 +340,8 @@ function ljl_prefs_account_init() {
     document.getElementById("ljl-prefs-account-remove")
             .setAttribute("disabled", "false");
   }
+  // Reset the value of the default user entry:
+  dmenu.value = defaultuser;
 
   return true;
 }
@@ -438,7 +446,7 @@ function ljl_prefs_default_init() {
   }
   // Get the default username, and fill the field info:
   document.getElementById("ljl-prefs-default-ljuser")
-          .setAttribute("value", ljl_getdefaultlogin());
+          .value = ljl_getdefaultlogin();
 
   // Always toggle this off. It's only allowed when the user changes
   // the username in the box.
