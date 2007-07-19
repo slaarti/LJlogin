@@ -161,14 +161,14 @@ function ljl_savesession(mysession) {
   // The cookies, on the other hand, can be strings, but need to be
   // formatted like they were being handed back from a server.
   var ljsession = "ljsession=" + mysession +
-                  "; path=/; domain=.livejournal.com; HttpOnly";
+                  "; path=/; domain=.livejournal.com;";
   var ljmasters = "ljmastersession=" + mysession +
-                  "; path=/; domain=.livejournal.com; HttpOnly";
+                  "; path=/; domain=.livejournal.com;";
   // This bit's tricky: Gotta pull the uid and session id out of the
   // session info, and use that to build the ljloggedin cookie:
   var sessfields = mysession.split(":");
   var ljloggedin = "ljloggedin=" + sessfields[1]+":"+sessfields[2] +
-                   "; path=/; domain=.livejournal.com; HttpOnly";
+                   "; path=/; domain=.livejournal.com;";
   // Do the actual saves.
   try {
 //    var cookiejar = Components.classes["@mozilla.org/cookieService;1"]
