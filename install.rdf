@@ -7,7 +7,7 @@
 
   <em:id>{ad4ee9e5-49c7-4589-acf3-db9fa76a95c9}</em:id>
   <em:name>LJlogin</em:name>
-  <em:version>1.2.0</em:version>
+  <em:version>1.2.1</em:version>
   <em:description>Tells you which LiveJournal account you're logged in with, and lets you switch between them.</em:description>
   <em:iconURL>chrome://ljlogin/content/userinfo.gif</em:iconURL>
   <em:creator>Chris Pinard</em:creator>
