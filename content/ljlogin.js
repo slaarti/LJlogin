@@ -260,7 +260,7 @@ function ljl_dologin(ljuser, ljpass) {
   }
   ljl_endconn();
   var challenge = ljsaid["challenge"];
-  var response = hex_md5(challenge + hex_md5(ljpass));
+  var response = ljl_hex_md5(challenge + ljl_hex_md5(ljpass));
 
   // Login, Phase II: Send back the response.
   ljl_newconn(); // Create the connection.

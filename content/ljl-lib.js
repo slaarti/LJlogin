@@ -213,3 +213,33 @@ function ljl_userlist() {
 
   return userlist.sort();
 }
+
+// The meat of this function is lifted pretty much wholesale from the
+// page on nsICryptoHash on MozDevCenter. Take a string, pass it back
+// as hexified md5 hash. Presumably, this'll be cleaner than the md5
+// library that I'd previously been using.
+function ljl_hex_md5(plaintext) {
+  var converter =
+    Components.classes["@mozilla.org/intl/scriptableunicodeconverter"].
+      createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
+
+  // we use UTF-8 here, you can choose other encodings.
+  converter.charset = "UTF-8";
+  // result is an out parameter,
+  // result.value will contain the array length
+  var result = {};
+  // data is an array of bytes
+  var pt = converter.convertToByteArray(plaintext, result);
+  var ch = Components.classes["@mozilla.org/security/hash;1"]
+                     .createInstance(Components.interfaces.nsICryptoHash);
+  ch.init(ch.MD5);
+  ch.update(pt, pt.length);
+  var hash = ch.finish(false);
+
+  // Mmmmm, embedded function...
+  function toHexString(charCode) {
+    return ("0" + charCode.toString(16)).slice(-2);
+  }
+
+  return [toHexString(hash.charCodeAt(i)) for (i in hash)].join("");
+}
