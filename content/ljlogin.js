@@ -4,13 +4,13 @@ var ljl_conn = undefined;
 function ljlinit() {
   // We only care to have this stuff loaded up once.
   window.removeEventListener("load", ljlinit, true);
-  if (ljl_loaded) return;
+  if (ljl_loaded) return true;
 
   // Drop in a little something temporarily to indicate that yes, the
   // extension is loaded, even if it hasn't gotten to doing anything yet.
   document.getElementById("ljlogin").setAttribute("value", "LJlogin");
   document.getElementById("ljlogin-status").setAttribute("class","loaded");
-//  return;
+//  return true;
 
   // Hook into the Observer service so we can see when the ljsession
   // cookie changes and update the statusbar widget appropriately.
@@ -94,6 +94,7 @@ function ljlinit() {
 
   // Finally, flag that the extension is loaded.
   ljl_loaded = true;
+  return true;
 }
 
 function ljl_loggedin(ljcookie) {
@@ -196,13 +197,13 @@ function ljl_logmeout() {
         window.openDialog("chrome://ljlogin/content/logouterr.xul",
                           "ljl-logouterr", "chrome,dialog",
                           ljsaid["errmsg"]);
-        return;
+        return false;
       }
     } else { // Something else happened.
       window.openDialog("chrome://ljlogin/content/logouterr.xul",
                         "ljl-logouterr", "chrome,dialog",
                         ljl_conn.status + " " + ljl_conn.statusText);
-      return;
+      return false;
     }
     w.status = "Done";
     ljl_endconn();
