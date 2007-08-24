@@ -417,6 +417,7 @@ function ljl_prefs_default_setacct() {
   // wants to change it again.
   document.getElementById("ljl-prefs-default-setacct")
           .setAttribute("disabled", "true");
+  return true;
 }
 
 function ljl_prefs_default_init() {
