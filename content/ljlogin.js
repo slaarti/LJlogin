@@ -153,7 +153,10 @@ function ljl_parseljresponse(ljtext) {
   var ljsaid = new Object();
   var ljlines = ljtext.split("\n");
 
-  for (var i = 0; i < ljlines.length; i += 2) {
+  // The array containing the split-up response alternates between key and
+  // value, with the last element being a blank remainder of the split
+  // process. Thus, the jumping loop, and the ignoring of the last part.
+  for (var i = 0; i < ljlines.length - 1; i += 2) {
     ljsaid[ljlines[i]] = decodeURIComponent(ljlines[i+1]);
   }
 
