@@ -7,27 +7,18 @@
 }
 
 menuitem[class~="ljuser"],
-#ljlogin-status[class~="ljuser"] #ljlogin {
+#ljlogin-status[class~="ljuser"] {
   font-style: normal;
   font-weight: bold;
   color: blue;
 }
 
-#ljlogin-status[class~="ljuser"] #ljlogin {
-  background: transparent url(chrome://ljlogin/content/userinfo.gif) 0px 1px no-repeat;
-  padding: 1px 0px 1px 17px;
-}
-
-#ljlogin-status[class~="loggedout"] #ljlogin {
+#ljlogin-status[class~="loggedout"] {
   color: black;
   font-style: italic;
-  background: transparent url(chrome://ljlogin/content/anonymous.gif) 0px 1px no-repeat;
-  padding: 1px 0px 1px 17px;
 }
 
-#ljlogin-status[class~="unknown"] #ljlogin {
+#ljlogin-status[class~="unknown"] {
   color: red;
   font-style: italic;
-  background: transparent url(chrome://ljlogin/content/whoareyou.gif) 0px 1px no-repeat;
-  padding: 1px 0px 1px 17px;
 }

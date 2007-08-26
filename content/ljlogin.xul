@@ -19,25 +19,17 @@ try {
 </script>
 
 <statusbar id="status-bar">
-<!-- <statusbar id="status-bar" class="chromeclass-status">
-  <statusbarpanel id="ljlogin-status" insertbefore="statusbar-updates"
-                  collapsed="false"
-                  context="ljlogin-menu" popup="ljlogin-menu"> -->
   <statusbarpanel id="ljlogin-status"
-  xxinsertafter="statusbarpanel-progress,security-button,privacy-button,offline-status,popupIcon,statusbar-display,component-bar,"
+                  class="statusbarpanel-iconic-text loading"
                   collapsed="false"
-                  context="ljlogin-menu" popup="ljlogin-menu">
-    <label id="ljlogin" value="Loading..." />
-  </statusbarpanel>
+                  label="Loading..."
+                  context="ljlogin-menu" popup="ljlogin-menu" />
 </statusbar>
 
 <popupset id="mainPopupSet">
   <popup id="ljlogin-menu" position="after_start"
          onpopupshowing="ljl_createmenu();"
-         onpopuphiding="ljl_cleanmenu('ljlogin-menu');">
-<!--         onpopupshowing="ljl_listlogins();" onpopuphiding="ljl_cleanmenu();" / -->
-    <!-- menuitem label="Argh." / -->
-  </popup>
+         onpopuphiding="ljl_cleanmenu('ljlogin-menu');" />
 </popupset>
 
 </overlay>

@@ -8,8 +8,9 @@ function ljlinit() {
 
   // Drop in a little something temporarily to indicate that yes, the
   // extension is loaded, even if it hasn't gotten to doing anything yet.
-  document.getElementById("ljlogin").setAttribute("value", "LJlogin");
-  document.getElementById("ljlogin-status").setAttribute("class","loaded");
+  var sb = document.getElementById("ljlogin-status");
+  sb.label = "LJlogin";
+  sb.setAttribute("class", "statusbarpanel-iconic-text loaded");
 //  return true;
 
   // Hook into the Observer service so we can see when the ljsession
@@ -99,23 +100,27 @@ function ljlinit() {
 
 function ljl_loggedin(ljcookie) {
   var ljuser = ljl_getljuser(ljcookie);
+  var sb = document.getElementById("ljlogin-status");
   if (!ljuser) {
     // Oops. Nothing there, apparently.
     ljl_loggedout();
-    return;
   } else if (ljuser == "?UNKNOWN!") {
-    document.getElementById("ljlogin").setAttribute("value", "(Unknown user)");
-    document.getElementById("ljlogin-status").setAttribute("class", "unknown");
+    sb.label = "(Unknown user)";
+    sb.src = "chrome://ljlogin/content/whoareyou.gif";
+    sb.setAttribute("class", "statusbarpanel-iconic-text unknown");
   } else {
-    document.getElementById("ljlogin").setAttribute("value", ljuser);
-    document.getElementById("ljlogin-status").setAttribute("class", "ljuser");
-    return;
+    sb.label = ljuser;
+    sb.src = "chrome://ljlogin/content/userinfo.gif";
+    sb.setAttribute("class", "statusbarpanel-iconic-text ljuser");
   }
+  return;
 }
 
 function ljl_loggedout() {
-  document.getElementById("ljlogin").setAttribute("value", "Not logged in.");
-  document.getElementById("ljlogin-status").setAttribute("class", "loggedout");
+  var sb = document.getElementById("ljlogin-status");
+  sb.label = "Not logged in.";
+  sb.src = "chrome://ljlogin/content/anonymous.gif";
+  sb.setAttribute("class", "statusbarpanel-iconic-text loggedout");
 }
 
 // Prep a network connection. We should only be trying to do one network-y
