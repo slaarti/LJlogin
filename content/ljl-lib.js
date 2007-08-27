@@ -1,4 +1,5 @@
 // Get the default username
+// XXX Not multi-LJcode-capable yet!
 function ljl_getdefaultlogin() {
   var ljuser;
   var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
@@ -18,7 +19,7 @@ function ljl_getdefaultlogin() {
   return ljuser;
 }
 
-function ljl_getljsession() {
+function LJlogin_getljsession(siteid) {
   var cookiejar = Components.classes["@mozilla.org/cookiemanager;1"]
                   .getService(Components.interfaces.nsICookieManager);
   var handinjar = cookiejar.enumerator;
@@ -35,7 +36,7 @@ function ljl_getljsession() {
     // Make the cookie comprehensible.
     yumcookie = yumcookie.QueryInterface(Components.interfaces.nsICookie);
     // Check if it's the one we want.
-    var ljcookie = new RegExp("livejournal\.com$");
+    var ljcookie = new RegExp(LJlogin_sites[siteid].cookiere);
     if ((ljcookie.test(yumcookie.host)) && (yumcookie.name == "ljsession")) {
       return yumcookie.value;
     }
@@ -43,7 +44,7 @@ function ljl_getljsession() {
   return false; // Didn't find the cookie we wanted.
 }
 
-function ljl_getljuser(ljcookie) {
+function LJlogin_getljuser(siteid, ljcookie) {
   // Try to get the username out of the cookie.
 
   // First, we need to extract the userid from the ljsession:
@@ -68,7 +69,8 @@ function ljl_getljuser(ljcookie) {
       }
       // Translate the object into parts.
       uidmap = signon.QueryInterface(Components.interfaces.nsIPassword);
-      if ((uidmap.host == "ljlogin.uidmap") && (uidmap.password == ljuid)) {
+      if ((uidmap.host == "ljlogin." + siteid + ".uidmap") &&
+          (uidmap.password == ljuid)) {
         return uidmap.user; // Yay, we found it!
       }
     }
@@ -79,13 +81,14 @@ function ljl_getljuser(ljcookie) {
   return "?UNKNOWN!"; // No match found. Aw.
 }
 
-function ljl_trashsession() {
+function LJlogin_trashsession(siteid) {
   try {
     var cookiejar = Components.classes["@mozilla.org/cookiemanager;1"]
                     .getService(Components.interfaces.nsICookieManager);
-    cookiejar.remove(".livejournal.com", "ljsession", "/", false);
-    cookiejar.remove(".livejournal.com", "ljmastersession", "/", false);
-    cookiejar.remove(".livejournal.com", "ljloggedin", "/", false);
+    var cookiedom = LJlogin_sites[siteid].cookiedom;
+    cookiejar.remove(cookiedom, "ljsession", "/", false);
+    cookiejar.remove(cookiedom, "ljmastersession", "/", false);
+    cookiejar.remove(cookiedom, "ljloggedin", "/", false);
   } catch(e) {
     alert("Error removing login cookies: " + e);
   }
@@ -93,7 +96,7 @@ function ljl_trashsession() {
 }
 
 // Test a username for validity
-function ljl_validuser(ljuser) {
+function LJlogin_validuser(ljuser) {
   var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
                           .getService(Components.interfaces.nsIPromptService);
   // First is the bad-character check. Uppercase characters are technically
@@ -126,11 +129,11 @@ function ljl_validuser(ljuser) {
 
 // Stash a username/userid pair into the Password Manager to make available
 // later for getting a username from a uid.
-function ljl_mkuidmap(ljuser, ljuid) {
+function LJlogin_mkuidmap(siteid, ljuser, ljuid) {
   try {
     var passman = Components.classes["@mozilla.org/passwordmanager;1"]
                   .getService(Components.interfaces.nsIPasswordManagerInternal);
-    passman.addUserFull("ljlogin.uidmap",
+    passman.addUserFull("ljlogin." + siteid + ".uidmap",
                          ljuser,     ljuid,
                         "username", "userid");
   } catch(e) {
@@ -141,8 +144,10 @@ function ljl_mkuidmap(ljuser, ljuid) {
 }
 
 // Take an ljsession and make the requisite cookies.
-function ljl_savesession(mysession) {
+function LJlogin_savesession(siteid, mysession) {
   if (!mysession) return false; // No point if no session.
+  // Also no point if invalid siteid.
+  if (!LJlogin_sites.hasOwnProperty(siteid)) return false;
 // This code was written on the assumption that the nsICookieManager2
 // interface, which had this nifty add() method that did just what you'd
 // expect, would be available. Alas, it's not, so we have to do some
@@ -157,18 +162,19 @@ function ljl_savesession(mysession) {
   // string, like our IQ was normal.
   var ljuri = Components.classes["@mozilla.org/network/standard-url;1"]
                         .createInstance(Components.interfaces.nsIURI);
-  ljuri.spec = "http://www.livejournal.com/";
+  ljuri.spec = LJlogin_sites[siteid].cookieurl;
   // The cookies, on the other hand, can be strings, but need to be
   // formatted like they were being handed back from a server.
+  var cookiedom = LJlogin_sites[siteid].cookiedom;
   var ljsession = "ljsession=" + mysession +
-                  "; path=/; domain=.livejournal.com;";
+                  "; path=/; domain=" + cookiedom + ";";
   var ljmasters = "ljmastersession=" + mysession +
-                  "; path=/; domain=.livejournal.com;";
+                  "; path=/; domain=" + cookiedom + ";";
   // This bit's tricky: Gotta pull the uid and session id out of the
   // session info, and use that to build the ljloggedin cookie:
   var sessfields = mysession.split(":");
   var ljloggedin = "ljloggedin=" + sessfields[1]+":"+sessfields[2] +
-                   "; path=/; domain=.livejournal.com;";
+                   "; path=/; domain=" + cookiedom + ";";
   // Do the actual saves.
   try {
 //    var cookiejar = Components.classes["@mozilla.org/cookieService;1"]
@@ -186,7 +192,7 @@ function ljl_savesession(mysession) {
 }
 
 // Pull a list of usernames from the PM, hand them back as a sorted array.
-function ljl_userlist() {
+function LJlogin_userlist(siteid) {
   var userlist = new Array();
   try {
     // Grab logins to form menu.
@@ -198,7 +204,7 @@ function ljl_userlist() {
       if (!signon) continue; // Oops. No actual password info there.
       // Translate the object into parts.
       signon = signon.QueryInterface(Components.interfaces.nsIPassword);
-      if (signon.host == "http://www.livejournal.com") {
+      if (signon.host == LJlogin_sites[siteid].passmanurl) {
         // We have a winner! Add the username to the list.
         userlist.push(signon.user);
       }
@@ -218,7 +224,7 @@ function ljl_userlist() {
 // page on nsICryptoHash on MozDevCenter. Take a string, pass it back
 // as hexified md5 hash. Presumably, this'll be cleaner than the md5
 // library that I'd previously been using.
-function ljl_hex_md5(plaintext) {
+function LJlogin_hex_md5(plaintext) {
   var converter =
     Components.classes["@mozilla.org/intl/scriptableunicodeconverter"].
       createInstance(Components.interfaces.nsIScriptableUnicodeConverter);

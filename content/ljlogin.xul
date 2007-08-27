@@ -6,6 +6,8 @@
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
 <script type="application/x-javascript"
+        src="chrome://ljlogin/content/LJcode-sites.js" />
+<script type="application/x-javascript"
         src="chrome://ljlogin/content/ljl-lib.js" />
 <script type="application/x-javascript"
         src="chrome://ljlogin/content/ljlogin.js" />
@@ -13,7 +15,7 @@
 <script type="application/x-javascript">
 <![CDATA[
 try {
-  window.addEventListener("load", ljlinit, true);
+  window.addEventListener("load", LJlogin_init, true);
 } catch(e) {}
 ]]>
 </script>

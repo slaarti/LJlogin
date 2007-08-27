@@ -1,10 +1,10 @@
-var ljl_loaded = false;
+var LJlogin_loaded = false;
 var ljl_conn = undefined;
 
-function ljlinit() {
+function LJlogin_init() {
   // We only care to have this stuff loaded up once.
-  window.removeEventListener("load", ljlinit, true);
-  if (ljl_loaded) return true;
+  window.removeEventListener("load", LJlogin_init, true);
+  if (LJlogin_loaded) return true;
 
   // Drop in a little something temporarily to indicate that yes, the
   // extension is loaded, even if it hasn't gotten to doing anything yet.
@@ -19,27 +19,31 @@ function ljlinit() {
     observe: function(subject, topic, data) {
       // Get the cookie
       var yumcookie = subject.QueryInterface(Components.interfaces.nsICookie);
-      // Do we even care about this cookie?
-      var ljcookie = new RegExp("livejournal\.com$");
-      if ((!ljcookie.test(yumcookie.host)) ||
-          (yumcookie.name != "ljsession")) {
-        return;
-      }
-      // Okay. We got this far, so this should be a cookie we want. Now
-      // to handle it accordingly.
-      switch(data) {
-        // Yay, logging in!
-        case "added":
-        case "changed":
-          ljl_loggedin(yumcookie.value);
-          break;
-        // Aw. Logged out.
-        case "deleted":
-        case "cleared":
-          ljl_loggedout();
-          break;
-        default:
-          break;
+      // Loop over active sites
+      // XXX Change this to the list of actually enabled sites.
+      for (var siteid in LJlogin_sites) {
+        // Do we even care about this cookie?
+        var ljcookie = new RegExp(LJlogin_sites[siteid].cookiere);
+        if ((!ljcookie.test(yumcookie.host)) ||
+            (yumcookie.name != "ljsession")) {
+          return;
+        }
+        // Okay. We got this far, so this should be a cookie we want. Now
+        // to handle it accordingly.
+        switch(data) {
+          // Yay, logging in!
+          case "added":
+          case "changed":
+            LJlogin_loggedin(siteid, yumcookie.value);
+            break;
+          // Aw. Logged out.
+          case "deleted":
+          case "cleared":
+            LJlogin_loggedout(siteid);
+            break;
+          default:
+            break;
+        }
       }
     }
   };
@@ -47,63 +51,101 @@ function ljlinit() {
                         .getService(Components.interfaces.nsIObserverService);
   observerService.addObserver(cookiemonster,"cookie-changed",false);
 
-  // First, assume we're logged out:
-  ljl_loggedout();
-
-  // And then we need to set the login status as it currently is, in case
-  // we're already logged in via a persistent cookie or something.
-  var ljsession = ljl_getljsession();
-  if (ljsession) {
-    // Make extra certain *all* of the cookies are there:
-    ljl_trashsession();
-    ljl_savesession(ljsession);
-  } else {
-    // We're not logged in. Check to see if we should log in
-    // as a default user:
-    var defenabled;
-    try {
-      var prefs = Components.classes["@mozilla.org/preferences-service;1"]
-                            .getService(Components.interfaces.nsIPrefService);
-      prefs = prefs.getBranch("extensions.ljlogin.");
-      defenabled = prefs.getBoolPref("defaultlogin.enable");
-    } catch(e) {
-      var prompts = Components
-                     .classes["@mozilla.org/embedcomp/prompt-service;1"]
-                     .getService(Components.interfaces.nsIPromptService);
-      prompts.alert(window, "LJlogin",
-                            "Problem getting default login enable pref: " + e);
-      return false;
-    }
-    if (defenabled) { // Yes, log in as a default user.
-      var ljuser = ljl_getdefaultlogin();
-      if (ljuser) { // Make sure there's actually a user to log in as.
-        // Is this a user for whom we have an account stored?
-        if (ljl_userlist().indexOf(ljuser) > -1) {
-          // Yes. Hand off to automated login:
-          ljl_userlogin(ljuser);
-        } else {
-          // No, hand off to user-prompted login:
-          ljl_loginas(ljuser);
-        }
-      } else { // Blank username. Don't bother.
-        ljl_loggedout();
-      }
-    } else { // No, no default login, start as logged out.
-      ljl_loggedout();
-    }
-  }
+  // Get the statusbar widgets into shape.
+  LJlogin_statusbar_refresh();
 
   // Finally, flag that the extension is loaded.
-  ljl_loaded = true;
+  LJlogin_loaded = true;
   return true;
 }
 
-function ljl_loggedin(ljcookie) {
-  var ljuser = ljl_getljuser(ljcookie);
-  var sb = document.getElementById("ljlogin-status");
+function LJlogin_statusbar_refresh() {
+  // Loop over enabled sites to set up statusbar widgets for
+  // enabled LJcode sites.
+
+  // XXX Make sure to change this to check for being enabled.
+  for (var siteid in LJlogin_sites) {
+    // First things first: Create the widget
+    // and associated popup menu.
+    var thepanel = document.createElement("statusbarpanel");
+    thepanel.setAttribute("id", "ljlogin-" + siteid + "-status");
+    thepanel.setAttribute("class", "statusbarpanel-iconic-text loading");
+    thepanel.setAttribute("collapsed", "false");
+    thepanel.setAttribute("label", LJlogin_sites[siteid].name);
+    thepanel.setAttribute("context", "ljlogin-" + siteid + "-menu");
+    thepanel.setAttribute("popup", "ljlogin-" + siteid + "-menu");
+    var sb = document.getElementById("status-bar");
+    var ljsb = document.getElementById("ljlogin-status");
+    ljsb.collapsed = true;
+    sb.insertBefore(thepanel, ljsb);
+
+    var themenu = document.createElement("popup");
+    themenu.setAttribute("id", "ljlogin-" + siteid + "-menu");
+    themenu.setAttribute("position", "after_start");
+    themenu.setAttribute("onpopupshowing",
+                         "LJlogin_createmenu('" + siteid + "');");
+    themenu.setAttribute("onpopuphidden",
+                         "LJlogin_cleanmenu('ljlogin-" + siteid + "-menu');");
+    var popupset = document.getElementById("mainPopupSet");
+    popupset.appendChild(themenu);
+
+    // Now that we have the widget, we can set its state appropriately.
+    // First, assume we're logged out:
+    LJlogin_loggedout(siteid);
+
+    // And then we need to set the login status as it currently is, in case
+    // we're already logged in via a persistent cookie or something.
+    var ljsession = LJlogin_getljsession(siteid);
+    if (ljsession) {
+      // Make extra certain *all* of the cookies are there:
+      LJlogin_trashsession(siteid);
+      LJlogin_savesession(siteid, ljsession);
+    } else {
+      // We're not logged in. Check to see if we should log in
+      // as a default user:
+      // XXX Not multi-LJcode-capable yet!
+      var defenabled;
+      try {
+        var prefs = Components.classes["@mozilla.org/preferences-service;1"]
+                              .getService(Components.interfaces.nsIPrefService);
+        prefs = prefs.getBranch("extensions.ljlogin.");
+        defenabled = prefs.getBoolPref("defaultlogin.enable");
+      } catch(e) {
+        var prompts = Components
+                       .classes["@mozilla.org/embedcomp/prompt-service;1"]
+                       .getService(Components.interfaces.nsIPromptService);
+        prompts.alert(window, "LJlogin",
+                              "Problem getting default login enable pref: " + e);
+        return false;
+      }
+      if (defenabled) { // Yes, log in as a default user.
+        var ljuser = ljl_getdefaultlogin();
+        if (ljuser) { // Make sure there's actually a user to log in as.
+          // Is this a user for whom we have an account stored?
+          if (LJlogin_userlist(siteid).indexOf(ljuser) > -1) {
+            // Yes. Hand off to automated login:
+            LJlogin_userlogin(siteid, ljuser);
+          } else {
+            // No, hand off to user-prompted login:
+            LJlogin_loginas(siteid, ljuser);
+          }
+        } else { // Blank username. Don't bother.
+          LJlogin_loggedout(siteid);
+        }
+      } else { // No, no default login, start as logged out.
+        LJlogin_loggedout(siteid);
+      }
+    }
+  }
+  return true;
+}
+
+function LJlogin_loggedin(siteid, ljcookie) {
+  var ljuser = LJlogin_getljuser(siteid, ljcookie);
+  var sb = document.getElementById("ljlogin-" + siteid + "-status");
   if (!ljuser) {
     // Oops. Nothing there, apparently.
-    ljl_loggedout();
+    LJlogin_loggedout(siteid);
   } else if (ljuser == "?UNKNOWN!") {
     sb.label = "(Unknown user)";
     sb.src = "chrome://ljlogin/content/whoareyou.gif";
@@ -116,8 +158,8 @@ function ljl_loggedin(ljcookie) {
   return;
 }
 
-function ljl_loggedout() {
-  var sb = document.getElementById("ljlogin-status");
+function LJlogin_loggedout(siteid) {
+  var sb = document.getElementById("ljlogin-" + siteid + "-status");
   sb.label = "Not logged in.";
   sb.src = "chrome://ljlogin/content/anonymous.gif";
   sb.setAttribute("class", "statusbarpanel-iconic-text loggedout");
@@ -126,35 +168,35 @@ function ljl_loggedout() {
 // Prep a network connection. We should only be trying to do one network-y
 // thing at a time (especially since we're using synchronous connection),
 // so this will cancel any existing connection before allocating the new one.
-function ljl_newconn() {
-  ljl_cancelconn(); // Kill any possibly existing connection.
+function LJlogin_newconn(siteid) {
+  LJlogin_cancelconn(); // Kill any possibly existing connection.
   ljl_conn = new XMLHttpRequest(); // Allocate the new connection.
   // Since we're always going to do these, may as well do them here
   // once and for all. Point the connection at LJ's flat interface,
   // and prep for form posting.
-  ljl_conn.open("POST", "http://www.livejournal.com/interface/flat", false);
+  ljl_conn.open("POST", LJlogin_sites[siteid].interfaceurl, false);
   ljl_conn.setRequestHeader("Content-Type",
                             "application/x-www-form-urlencoded");
 //  ljl_conn.timeout = window.setTimeout("ljl_cancelconn()", 30000);
 }
 
 // Finalize the connection.
-function ljl_endconn() {
+function LJlogin_endconn() {
   ljl_conn = undefined;
 //  window.clearTimeout(ljl_conn.timeout);
 }
 
 // Allow the user (or the extension, should the connection take too long)
 // to cancel the current connection attempt.
-function ljl_cancelconn() {
+function LJlogin_cancelconn() {
   if (ljl_conn !== undefined) {
     ljl_conn.abort();
-    ljl_endconn();
+    LJlogin_endconn();
   }
 }
 
 // Turns the response handed back by LJ's flat interface into a hash object.
-function ljl_parseljresponse(ljtext) {
+function LJlogin_parseljresponse(ljtext) {
   var ljsaid = new Object();
   var ljlines = ljtext.split("\n");
 
@@ -168,15 +210,15 @@ function ljl_parseljresponse(ljtext) {
   return ljsaid;
 }
 
-function ljl_logmeout() {
+function LJlogin_logmeout(siteid) {
   // Get the session cookie. If this isn't there, then there's no point in
   // trying to do anything, 'cause we're not even logged in.
-  var ljsession = ljl_getljsession();
+  var ljsession = LJlogin_getljsession(siteid);
   if (!ljsession) return true;
 
   // Okay, we're logged in, but are we logged in as someone whose username
   // we can get from the userid?
-  var ljuser = ljl_getljuser(ljsession);
+  var ljuser = LJlogin_getljuser(siteid, ljsession);
   if ((ljuser) && (ljuser != "?UNKNOWN!")) {
     // Yup. We're good to go.
 
@@ -184,7 +226,7 @@ function ljl_logmeout() {
     var w = window;
 
     // Tell LJ that we want to expire this session.
-    ljl_newconn(); // Create the connection.
+    LJlogin_newconn(siteid); // Create the connection.
     // Give the connection our existing login credentials, which we're expiring.
     ljl_conn.setRequestHeader("X-LJ-Auth", "cookie");
     ljl_conn.setRequestHeader("Cookie", "ljsession=" + ljsession);
@@ -193,13 +235,13 @@ function ljl_logmeout() {
     ljl_conn.setRequestHeader("Cookie", "ljloggedin=" +
                                          sessfields[1]+":"+sessfields[2]);
     // Aaaaaand, go!
-    w.status = "Logging out of LiveJournal...";
+    w.status = "Logging out of " + LJlogin_sites[siteid].name + "...";
     ljl_conn.send("mode=sessionexpire&user="
                  + encodeURIComponent(ljuser) +
                  "&auth_method=cookie");
     if (ljl_conn.status == 200) { // Assuming a successful request...
       // Check whether the request accomplished the job.
-      var ljsaid = ljl_parseljresponse(ljl_conn.responseText);
+      var ljsaid = LJlogin_parseljresponse(ljl_conn.responseText);
       if ((ljsaid["success"] != "OK") || (ljsaid["errmsg"])) {
         // Something went wrong here.
         window.openDialog("chrome://ljlogin/content/logouterr.xul",
@@ -214,7 +256,7 @@ function ljl_logmeout() {
       return false;
     }
     w.status = "Done";
-    ljl_endconn();
+    LJlogin_endconn();
   } else if (ljuser == "?UNKNOWN!") {
     // No username/uid mapping available. Make just trashing the session
     // an option:
@@ -222,58 +264,61 @@ function ljl_logmeout() {
                             .getService(Components.interfaces.nsIPromptService);
     if (!prompts.confirm(window, "LJlogin: Unknown username",
                          "Unknown username. Unable to request session " +
-                         "close from LiveJournal. Log out anyway?")) {
+                         "close from " + LJlogin_sites[siteid].name +
+                         ". Log out anyway?")) {
       return false; // No, never mind.
     }
   }
   // Okay, we're done. Trash the session. Updating the display in the
   // status bar should happen automagically via the Observer service.
-  ljl_trashsession();
+  LJlogin_trashsession(siteid);
   return true;
 }
 
-function ljl_dologin(ljuser, ljpass) {
+function LJlogin_dologin(siteid, ljuser, ljpass) {
   var ljsaid;
   var w = window;
 
   // First thing's first: Is this user okay to log in as?
-  if (!ljl_validuser(ljuser)) {
+  if (!LJlogin_validuser(ljuser)) {
     return false;
   }
 
   // Before we try to log in as someone, we should log out first.
   // Assuming we are logged in, but the logout function handles checking
   // for that, so we don't have to.
-  ljl_logmeout();
+  LJlogin_logmeout(siteid);
 
   // Login, Phase I: Get the challenge
-  ljl_newconn(); // Create the connection.
-  w.status = "Getting challenge from LiveJournal...";
+  LJlogin_newconn(siteid); // Create the connection.
+  w.status = "Getting challenge from " +
+             LJlogin_sites[siteid].name + "...";
   ljl_conn.send("mode=getchallenge");
   if (ljl_conn.status != 200) { // If something went wrong
-    alert("Could not get login challenge from LiveJournal: "
-          + ljl_conn.status + " " + ljl_conn.statusText);
+    alert("Could not get login challenge from " +
+          LJlogin_sites[siteid].name + ": " +
+          ljl_conn.status + " " + ljl_conn.statusText);
     w.status = "Done";
-    ljl_endconn();
+    LJlogin_endconn();
     return false;
   } else { // Transaction itself was OK, but did it work?
-    ljsaid = ljl_parseljresponse(ljl_conn.responseText);
+    ljsaid = LJlogin_parseljresponse(ljl_conn.responseText);
     if ((ljsaid["success"] != "OK") || (ljsaid["errmsg"])) {
       // Trouble in getchallenge land...
-      alert("Could not get login challenge from LiveJournal: "
-            + ljsaid["errmsg"]);
+      alert("Could not get login challenge from " +
+            LJlogin_sites[siteid].name + ": " + ljsaid["errmsg"]);
       w.status = "Done";
-      ljl_endconn();
+      LJlogin_endconn();
       return false;
     }
   }
-  ljl_endconn();
+  LJlogin_endconn();
   var challenge = ljsaid["challenge"];
-  var response = ljl_hex_md5(challenge + ljl_hex_md5(ljpass));
+  var response = LJlogin_hex_md5(challenge + LJlogin_hex_md5(ljpass));
 
   // Login, Phase II: Send back the response.
-  ljl_newconn(); // Create the connection.
-  w.status = "Sending response to LiveJournal...";
+  LJlogin_newconn(siteid); // Create the connection.
+  w.status = "Sending response to " + LJlogin_sites[siteid].name + "...";
   ljl_conn.send("mode=sessiongenerate&auth_method=challenge"
                 + "&user=" + encodeURIComponent(ljuser)
                 + "&auth_challenge=" + encodeURIComponent(challenge)
@@ -282,19 +327,19 @@ function ljl_dologin(ljuser, ljpass) {
     alert("Login connection failed: "
           + ljl_conn.status + " " + ljl_conn.statusText);
     w.status = "Done";
-    ljl_endconn();
+    LJlogin_endconn();
     return false;
   } else { // Transaction itself was OK, but did it work?
-    ljsaid = ljl_parseljresponse(ljl_conn.responseText);
+    ljsaid = LJlogin_parseljresponse(ljl_conn.responseText);
     if ((ljsaid["success"] != "OK") || (ljsaid["errmsg"])) {
       // Oops. Login failed. Tell us how.
       alert("Login failed: " + ljsaid["errmsg"]);
       w.status = "Done";
-      ljl_endconn();
+      LJlogin_endconn();
       return false;
     }
   }
-  ljl_endconn();
+  LJlogin_endconn();
   var mysession = ljsaid["ljsession"]; // Hooray!
 
   // Login, Phase III: We've gone through the challenge/response hoops,
@@ -307,18 +352,18 @@ function ljl_dologin(ljuser, ljpass) {
   // username to userid in the PM, so that other functions that need
   // to know the username can find out, now that LJ's taken the usernames
   // out of ljsession:
-  ljl_mkuidmap(ljuser, mysession.split(":")[1]);
+  LJlogin_mkuidmap(siteid, ljuser, mysession.split(":")[1]);
   // Now save:
-  ljl_savesession(mysession);
+  LJlogin_savesession(siteid, mysession);
 
   // Aaaaand, done.
   w.status = "Done";
   return true;
 }
 
-function ljl_loginas() {
+function LJlogin_loginas(siteid) {
   // Were we handed a username to log in as?
-  var username = ((arguments.length > 0) ? arguments[0] : "");
+  var username = ((arguments.length > 1) ? arguments[1] : "");
   // Ask the user for the account information to log in with, and optionally
   // if they want to save is in the Password Manager.
   var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
@@ -334,7 +379,7 @@ function ljl_loginas() {
                        "Use Password Manager to remember this password.",
                        saveit);
     if (!doit) return false; // User canceled.
-    if (ljl_validuser(ljuser.value)) needuser = false; // Validity check
+    if (LJlogin_validuser(ljuser.value)) needuser = false; // Validity check
   }
 
   // First thing, saving the login into the Password Manager, if that
@@ -343,7 +388,7 @@ function ljl_loginas() {
     try {
       var passman = Components.classes["@mozilla.org/passwordmanager;1"]
           .getService(Components.interfaces.nsIPasswordManagerInternal);
-      passman.addUserFull("http://www.livejournal.com",
+      passman.addUserFull(LJlogin_sites[siteid].passmanurl,
                           ljuser.value, ljpass.value,
                           "user",       "password");
     } catch(e) {
@@ -352,10 +397,10 @@ function ljl_loginas() {
   }
 
   // Hand off main logging-in duties:
-  return ljl_dologin(ljuser.value, ljpass.value);
+  return LJlogin_dologin(siteid, ljuser.value, ljpass.value);
 }
 
-function ljl_userlogin(username) {
+function LJlogin_userlogin(siteid, username) {
   var password = '';
   // Get the password for the given username from the Password Manager.
   try {
@@ -364,7 +409,7 @@ function ljl_userlogin(username) {
     var temphost = new Object();
     var tempuser = new Object();
     var temppass = new Object();
-    passman.findPasswordEntry("http://www.livejournal.com", username, null,
+    passman.findPasswordEntry(LJlogin_sites[siteid].passmanurl, username, null,
                               temphost, tempuser, temppass);
     password = temppass.value;
   } catch(e) {
@@ -372,22 +417,22 @@ function ljl_userlogin(username) {
   }
 
   // And, now that we have that, make the hand-off to the logging-in function:
-  return ljl_dologin(username, password);
+  return LJlogin_dologin(siteid, username, password);
 }
 
 // Allow a user to name an account for which no username/uid map exists.
-function ljl_uidfix() {
+function LJlogin_uidfix(siteid) {
   var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
                           .getService(Components.interfaces.nsIPromptService);
   // Get the ljsession:
-  var ljsession = ljl_getljsession();
+  var ljsession = LJlogin_getljsession(siteid);
   if (!ljsession) {
     // Guess we weren't really logged in.
     prompts.alert(window, "LJlogin", "Not logged in!");
     return false;
   }
   // Is this actually a uid for which we have no username?
-  if (ljl_getljuser(ljsession) != "?UNKNOWN!") {
+  if (LJlogin_getljuser(siteid, ljsession) != "?UNKNOWN!") {
     prompts.alert(window, "LJlogin", "Username already on file " +
                                      "or not logged in!");
     return false;
@@ -403,7 +448,7 @@ function ljl_uidfix() {
                        "What is the username for the currently " +
                        "logged-in account?", ljuser, null, chkbx);
     if (!doit) return false; // User canceled.
-    if (ljl_validuser(ljuser.value)) needuser = false; // Validity check
+    if (LJlogin_validuser(ljuser.value)) needuser = false; // Validity check
   }
 
   // Extract the uid from the ljsession for mapping:
@@ -411,32 +456,45 @@ function ljl_uidfix() {
   var ljuid = ljsession.split(":")[1];
 
   // Stash the username/uid pair into the PM:
-  if (!ljl_mkuidmap(ljuser.value, ljuid)) return false;
+  if (!LJlogin_mkuidmap(siteid, ljuser.value, ljuid)) return false;
 
   // Update the display of the status widget:
-  ljl_loggedin(ljsession);
+  LJlogin_loggedin(siteid, ljsession);
 
   return true;
 }
 
-function ljl_prefs() {
+function LJlogin_prefs() {
   window.openDialog("chrome://ljlogin/content/prefs.xul",
                     "ljl-prefs", "chrome,dialog");
 }
 
-function ljl_createmenu() {
-  var themenu = document.getElementById("ljlogin-menu");
+function LJlogin_createmenu(siteid) {
+  // Get the parent popup to populate.
+  var themenu = document.getElementById("ljlogin-" + siteid + "-menu");
 
-  // First, offer the option of naming the account we're logged in with,
+  // First, since we're providing login capabilities for a range of
+  // LJcode systems, we should probably label which one this menu
+  // exists for. Since there isn't an attribute for putting a label
+  // on a popup menu itself, we'll have to get a little tricky by
+  // using the elements we can attach to the popup.
+  var headtext = document.createElement("menuitem");
+  headtext.setAttribute("label", LJlogin_sites[siteid].name);
+  headtext.setAttribute("disabled", "true");
+  themenu.appendChild(headtext);
+  var headsep = document.createElement("menuseparator");
+  themenu.appendChild(headsep);
+
+  // Next, offer the option of naming the account we're logged in with,
   // if we're logged into one whose username we don't know.
   // Get the ljsession:
-  var ljsession = ljl_getljsession();
+  var ljsession = LJlogin_getljsession(siteid);
   if (ljsession) {
     // Is this actually a uid for which we have no username?
-    if (ljl_getljuser(ljsession) == "?UNKNOWN!") {
+    if (LJlogin_getljuser(siteid, ljsession) == "?UNKNOWN!") {
       var nameacct = document.createElement("menuitem");
       nameacct.setAttribute("label", "Assign username to this login");
-      nameacct.setAttribute("oncommand", "ljl_uidfix();");
+      nameacct.setAttribute("oncommand", "LJlogin_uidfix(siteid);");
       themenu.appendChild(nameacct);
       var namesep = document.createElement("menuseparator");
       themenu.appendChild(namesep);
@@ -444,7 +502,7 @@ function ljl_createmenu() {
   }
 
   // Get the user list:
-  var userlist = ljl_userlist();
+  var userlist = LJlogin_userlist(siteid);
 
   // Did we get anything for display?
   if (userlist.length > 0) {
@@ -455,7 +513,9 @@ function ljl_createmenu() {
       ljnode.setAttribute("image", "chrome://ljlogin/content/userinfo.gif");
       ljnode.setAttribute("label", ljuser);
       ljnode.setAttribute("class", "menuitem-iconic ljuser");
-      ljnode.setAttribute("oncommand", "ljl_userlogin('" + ljuser + "');");
+      ljnode.setAttribute("oncommand",
+                          "LJlogin_userlogin('" + siteid + "', '"
+                                                + ljuser + "');");
       themenu.appendChild(ljnode);
     }
     // To top it off, a separator to keep the userlist away from
@@ -468,15 +528,15 @@ function ljl_createmenu() {
   // the logout option, and access to the Preferences box.
   var loginas = document.createElement("menuitem");
   loginas.setAttribute("label", "Log in as...");
-  loginas.setAttribute("oncommand", "ljl_loginas();");
+  loginas.setAttribute("oncommand", "LJlogin_loginas('" + siteid + "');");
   themenu.appendChild(loginas);
   var logout = document.createElement("menuitem");
-  logout.setAttribute("label", "Log out of LiveJournal");
-  logout.setAttribute("oncommand", "ljl_logmeout();");
+  logout.setAttribute("label", "Log out of " + LJlogin_sites[siteid].name);
+  logout.setAttribute("oncommand", "LJlogin_logmeout('" + siteid + "');");
   themenu.appendChild(logout);
   var prefs = document.createElement("menuitem");
   prefs.setAttribute("label", "Preferences");
-  prefs.setAttribute("oncommand", "ljl_prefs();");
+  prefs.setAttribute("oncommand", "LJlogin_prefs();");
   themenu.appendChild(prefs);
 
   // Done and done.
@@ -484,7 +544,7 @@ function ljl_createmenu() {
 }
 
 // Clean out the contents of the ljlogin-menu.
-function ljl_cleanmenu(menuname) {
+function LJlogin_cleanmenu(menuname) {
   var themenu = document.getElementById(menuname);
   while (themenu.hasChildNodes()) {
     themenu.removeChild(themenu.firstChild);
