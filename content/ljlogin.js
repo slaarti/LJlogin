@@ -245,13 +245,13 @@ function LJlogin_logmeout(siteid) {
       if ((ljsaid["success"] != "OK") || (ljsaid["errmsg"])) {
         // Something went wrong here.
         window.openDialog("chrome://ljlogin/content/logouterr.xul",
-                          "ljl-logouterr", "chrome,dialog",
-                          ljsaid["errmsg"]);
+                          "ljlogin-logouterr", "chrome,dialog",
+                          siteid, ljsaid["errmsg"]);
         return false;
       }
     } else { // Something else happened.
       window.openDialog("chrome://ljlogin/content/logouterr.xul",
-                        "ljl-logouterr", "chrome,dialog",
+                        "ljlogin-logouterr", "chrome,dialog", siteid,
                         ljl_conn.status + " " + ljl_conn.statusText);
       return false;
     }
