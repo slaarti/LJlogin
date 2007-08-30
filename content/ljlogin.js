@@ -76,7 +76,7 @@ function LJlogin_statusbar_refresh() {
     thepanel.setAttribute("popup", "ljlogin-" + siteid + "-menu");
     var sb = document.getElementById("status-bar");
     var ljsb = document.getElementById("ljlogin-status");
-    ljsb.collapsed = true;
+//    ljsb.collapsed = true;
     sb.insertBefore(thepanel, ljsb);
 
     var themenu = document.createElement("popup");
@@ -543,7 +543,7 @@ function LJlogin_createmenu(siteid) {
   return true;
 }
 
-// Clean out the contents of the ljlogin-menu.
+// Clean out the contents of an LJlogin menu.
 function LJlogin_cleanmenu(menuname) {
   var themenu = document.getElementById(menuname);
   while (themenu.hasChildNodes()) {
