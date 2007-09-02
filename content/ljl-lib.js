@@ -214,7 +214,7 @@ function LJlogin_userlist(siteid) {
                             .getService(Components.interfaces.nsIPromptService);
     prompts.alert(window, "LJlogin",
                   "Error loading username list: " + e);
-    return false;
+    return []; // Null list for failure.
   }
 
   return userlist.sort();
