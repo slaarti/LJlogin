@@ -385,15 +385,7 @@ function LJlogin_loginas(siteid) {
   // First thing, saving the login into the Password Manager, if that
   // checkbox were clicked.
   if (saveit.value) {
-    try {
-      var passman = Components.classes["@mozilla.org/passwordmanager;1"]
-          .getService(Components.interfaces.nsIPasswordManagerInternal);
-      passman.addUserFull(LJlogin_sites[siteid].passmanurl,
-                          ljuser.value, ljpass.value,
-                          "user",       "password");
-    } catch(e) {
-      alert("Password saving failed: " + e);
-    }
+    LJlogin_savepassword(siteid, ljuser.value, ljpass.value);
   }
 
   // Hand off main logging-in duties:

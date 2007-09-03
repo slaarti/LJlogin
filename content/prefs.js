@@ -1,3 +1,10 @@
+function LJlogin_prefs_siteid() {
+  // Extract and return the current siteid.
+  // For use with per-site preference settings.
+  var sitemenu = document.getElementById("ljlogin-prefs-site-select");
+  return sitemenu.value;
+}
+
 // Rename an account in the uidmap
 function ljl_prefs_uidmap_rename() {
   var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
@@ -206,19 +213,21 @@ function LJlogin_prefs_uidmap_init(siteid) {
   return;
 }
 
-function ljl_prefs_account_passwd() {
+function LJlogin_prefs_account_passwd() {
+  var siteid = LJlogin_prefs_siteid();
+
   var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
                           .getService(Components.interfaces.nsIPromptService);
 
   // Get the uid to rename, and make sure it's actually there.
-  var ljuser = document.getElementById("ljl-prefs-account-menu").value;
+  var ljuser = document.getElementById("ljlogin-prefs-account-menu").value;
   if (!ljuser) {
     prompts.alert(window, "LJlogin",
                           "No username provided for password change!");
-    return false;
+    return;
   }
 
-  // Ask for the new oassword, and get confirmation of it as well.
+  // Ask for the new password, and get confirmation of it as well.
   var passwd = { value: "" }; // Copy the object for editing
   var chkbx = { value: false }; // Unused but required
   var needpw = true;
@@ -228,14 +237,14 @@ function ljl_prefs_account_passwd() {
                       "(Keep in mind that this does not change the " +
                       "password on LiveJournal's servers.)",
                       passwd, null, chkbx);
-    if (!doit) return false; // User canceled.
+    if (!doit) return; // User canceled.
 
     // Now we need confirmation:
     var confpw = { value: "" };
     doit = prompts.promptPassword(window, "LJlogin: Change Password",
                   "Please re-enter the new password to confirm:",
                   confpw, null, chkbx);
-    if (!doit) return false; // User canceled.
+    if (!doit) return; // User canceled.
 
     if (passwd.value == confpw.value) {
       needpw = false; // Got a confirmation match.
@@ -256,24 +265,27 @@ function ljl_prefs_account_passwd() {
   } catch(e) {
     prompts.alert(window, "LJlogin",
                           "Error while attempting to save password: " + e);
-    return false;
+    return;
   }
 
-  prompts.alert(window, "LJlogin: Change Password",
-                        "Password change successful!");
-  return true;
+  if (LJlogin_savepassword(siteid, ljuser, passwd.value)) {
+    prompts.alert(window, "LJlogin: Change Password",
+                          "Password change successful!");
+  }
 }
 
 // Remove an account from the Password Manager:
-function ljl_prefs_account_remove() {
+function LJlogin_prefs_account_remove() {
+  var siteid = LJlogin_prefs_siteid();
+
   var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
                           .getService(Components.interfaces.nsIPromptService);
 
   // Get the username, and make sure it's actually there.
-  var ljuser = document.getElementById("ljl-prefs-account-menu").value;
+  var ljuser = document.getElementById("ljlogin-prefs-account-menu").value;
   if (!ljuser) {
     prompts.alert(window, "LJlogin", "No username provided for removal!");
-    return false;
+    return;
   }
 
   // Give the user a chance to cancel:
@@ -282,24 +294,28 @@ function ljl_prefs_account_remove() {
                        "(" + ljuser + ") " +
                        "(Note: Does not log you out if logged in to " +
                        "this account.)")) {
-    return false; // Never mind!
+    return; // Never mind!
   }
 
   // Do the removal:
   try {
     var passman = Components.classes["@mozilla.org/passwordmanager;1"]
         .getService().QueryInterface(Components.interfaces.nsIPasswordManager);
-    passman.removeUser("http://www.livejournal.com", ljuser);
+    passman.removeUser(LJlogin_sites[siteid].passmanurl, ljuser);
   } catch(e) {
     prompts.alert(window, "LJlogin", "Error removing account: " + e);
-    return false;
+    return;
   }
 
-  // Finally, reload the account section of the Prefs window:
-  ljl_prefs_account_init();
+  // Finally, reload the account and default user
+  // sections of the Prefs window. (Yes, this will
+  // trash any unsaved state in the default user
+  // section, but c'est la vie, should've saved.)
+  LJlogin_prefs_account_init(siteid);
+  LJlogin_prefs_default_init(siteid);
 
   // And, done.
-  return true;
+  return;
 }
 
 function LJlogin_prefs_account_init(siteid) {
@@ -344,76 +360,50 @@ function LJlogin_prefs_account_init(siteid) {
 
 // Toggle the availability of the default-user select menu, as well as
 // setting the value of the relevant preference.
-function ljl_prefs_default_onoff() {
-  var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-                          .getService(Components.interfaces.nsIPromptService);
+function LJlogin_prefs_default_onoff() {
+  var siteid = LJlogin_prefs_siteid();
+
   // Get checkbox state:
-  var checked = document.getElementById("ljl-prefs-default-enable")
-                        .getAttribute("checked");
+  var checked = document.getElementById("ljlogin-prefs-default-enable")
+                        .checked;
+
   // Remember that checked means enabled means "disabled" must be false
   // and vice versa:
-  if (checked == "true") {
-    document.getElementById("ljl-prefs-default-ljuser")
-            .removeAttribute("disabled");
-  } else {
-    document.getElementById("ljl-prefs-default-ljuser")
-            .setAttribute("disabled", "true");
-  }
+  document.getElementById("ljlogin-prefs-default-ljuser")
+          .disabled = !checked;
+
   // We always disable this, because it's only allowed by entering text
   // in the account name box:
-  document.getElementById("ljl-prefs-default-setacct")
-          .setAttribute("disabled", "true");
+  document.getElementById("ljlogin-prefs-default-setacct")
+          .disabled = true;
 
   // Save the enable/disable value to the preference system:
-  try {
-    var prefs = Components.classes["@mozilla.org/preferences-service;1"]
-                          .getService(Components.interfaces.nsIPrefService);
-    prefs = prefs.getBranch("extensions.ljlogin.");
-    prefs.setBoolPref("defaultlogin.enable",
-                      (checked == "true" ? true : false));
-  } catch(e) {
-    prompts.alert(window, "LJlogin: Default login on/off",
-                          "Problem saving preference: " + e);
-    return false;
-  }
-
-  return true;
+  LJlogin_sites_defaultlogin_enabled(siteid, checked);
 }
 
 // Make sure we can set a default account when the menu is changed
-function ljl_prefs_default_change() {
-  document.getElementById("ljl-prefs-default-setacct")
-          .removeAttribute("disabled");
-  return true;
+function LJlogin_prefs_default_change() {
+  document.getElementById("ljlogin-prefs-default-setacct").disabled = false;
 }
 
 // Set the default account preference
-function ljl_prefs_default_setacct() {
-  var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-                          .getService(Components.interfaces.nsIPromptService);
-  // Get the username, and make sure it's actually there.
-  var ljuser = document.getElementById("ljl-prefs-default-ljuser").value;
-  // Check that it's an okay username, but first check if it's set to
-  // anything at all, because ljl_validuser() doesn't allow that but
-  // we should probably let the user do that here.
-  if ((!ljuser) || (!ljl_validuser(ljuser))) return false;
+function LJlogin_prefs_default_setacct() {
+  var siteid = LJlogin_prefs_siteid();
 
-  try {
-    var prefs = Components.classes["@mozilla.org/preferences-service;1"]
-                          .getService(Components.interfaces.nsIPrefService);
-    prefs = prefs.getBranch("extensions.ljlogin.");
-    prefs.setCharPref("defaultlogin.ljuser", ljuser);
-  } catch(e) {
-    prompts.alert(window, "LJlogin: Default login username",
-                          "Problem saving preference: " + e);
-    return false;
-  }
+  // Get the username, and make sure it's actually there.
+  var ljuser = document.getElementById("ljlogin-prefs-default-ljuser").value;
+
+  // Check that it's an okay username, but first check if it's set to
+  // anything at all, because LJlogin_validuser() doesn't allow that but
+  // we should probably let the user do that here.
+  if ((ljuser.length > 0) && (!LJlogin_validuser(ljuser))) return;
+
+  // Set the username
+  LJlogin_sites_defaultlogin_ljuser(siteid, ljuser);
 
   // We've set the default, so disable the button until the user
   // wants to change it again.
-  document.getElementById("ljl-prefs-default-setacct")
-          .setAttribute("disabled", "true");
-  return true;
+  document.getElementById("ljlogin-prefs-default-setacct").disabled = true;
 }
 
 function LJlogin_prefs_default_init(siteid) {

@@ -41,9 +41,9 @@
     <hbox>
       <menulist id="ljlogin-prefs-account-menu" flex="1" minwidth="300" />
       <button id="ljlogin-prefs-account-passwd" label="Change Password"
-              oncommand="ljl_prefs_account_passwd();" />
+              oncommand="LJlogin_prefs_account_passwd();" />
       <button id="ljlogin-prefs-account-remove" label="Remove Account"
-              oncommand="ljl_prefs_account_remove();" />
+              oncommand="LJlogin_prefs_account_remove();" />
     </hbox>
   </groupbox>
 
@@ -54,13 +54,13 @@
     </description>
     <hbox>
       <checkbox id="ljlogin-prefs-default-enable" label="Enable"
-                oncommand="ljl_prefs_default_onoff();" />
+                oncommand="LJlogin_prefs_default_onoff();" />
       <menulist id="ljlogin-prefs-default-ljuser" editable="true"
                 sizetopopup="none"
-                oncommand="ljl_prefs_default_change();"
-                oninput="ljl_prefs_default_change();" />
+                oncommand="LJlogin_prefs_default_change();"
+                oninput="LJlogin_prefs_default_change();" />
       <button id="ljlogin-prefs-default-setacct" label="Set Default Account"
-              oncommand="ljl_prefs_default_setacct();" />
+              oncommand="LJlogin_prefs_default_setacct();" />
     </hbox>
   </groupbox>
 </groupbox>

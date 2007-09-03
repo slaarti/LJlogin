@@ -72,6 +72,25 @@ function LJlogin_preference(pref, failval) {
   return pval;
 }
 
+function LJlogin_savepassword(siteid, ljuser, ljpass) {
+  // Save a username/password pair in the Password Manager.
+  try {
+    var passman = Components.classes["@mozilla.org/passwordmanager;1"]
+        .getService(Components.interfaces.nsIPasswordManagerInternal);
+    passman.addUserFull(LJlogin_sites[siteid].passmanurl,
+                        ljuser, ljpass,
+                        "user", "password");
+  } catch(e) {
+    var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+                            .getService(Components.interfaces.nsIPromptService);
+    prompts.alert(window, "LJlogin",
+                          "Error while attempting to save password: " + e);
+    return false;
+  }
+
+  return true;
+}
+
 function LJlogin_getljsession(siteid) {
   var cookiejar = Components.classes["@mozilla.org/cookiemanager;1"]
                   .getService(Components.interfaces.nsICookieManager);
