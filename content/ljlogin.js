@@ -486,7 +486,7 @@ function LJlogin_createmenu(siteid) {
     if (LJlogin_getljuser(siteid, ljsession) == "?UNKNOWN!") {
       var nameacct = document.createElement("menuitem");
       nameacct.setAttribute("label", "Assign username to this login");
-      nameacct.setAttribute("oncommand", "LJlogin_uidfix(siteid);");
+      nameacct.setAttribute("oncommand", "LJlogin_uidfix('" + siteid + "');");
       themenu.appendChild(nameacct);
       var namesep = document.createElement("menuseparator");
       themenu.appendChild(namesep);
