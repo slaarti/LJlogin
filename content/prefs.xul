@@ -7,50 +7,62 @@
         buttons="accept"
         buttonlabelaccept="Close"
         ondialogaccept="return true;"
-        onload="ljl_prefs_init();">
+        onload="LJlogin_prefs_init();">
 
+<script type="application/x-javascript"
+        src="chrome://ljlogin/content/LJcode-sites.js" />
 <script type="application/x-javascript"
         src="chrome://ljlogin/content/ljl-lib.js" />
 <script type="application/x-javascript"
         src="chrome://ljlogin/content/prefs.js" />
 
 <groupbox>
-  <caption label="UserID Mapping Maintenance" />
-  <hbox>
-    <menulist id="ljl-prefs-uidmap-menu" />
-    <button id="ljl-prefs-uidmap-rename" label="Change Username"
-            oncommand="ljl_prefs_uidmap_rename();" />
-    <button id="ljl-prefs-uidmap-remove" label="Remove From UID Map"
-            oncommand="ljl_prefs_uidmap_remove();" />
-  </hbox>
+  <caption label="Enabled LJcode Sites" />
+  <vbox id="ljlogin-prefs-ljcode-menu" />
 </groupbox>
 
 <groupbox>
-  <caption label="Account Maintenance" />
-  <hbox>
-    <menulist id="ljl-prefs-account-menu" />
-    <button id="ljl-prefs-account-passwd" label="Change Password"
-            oncommand="ljl_prefs_account_passwd();" />
-    <button id="ljl-prefs-account-remove" label="Remove Account"
-            oncommand="ljl_prefs_account_remove();" />
-  </hbox>
-</groupbox>
+  <menulist id="ljlogin-prefs-site-select"
+            oncommand="LJlogin_prefs_site_select();" />
 
-<groupbox>
-  <caption label="Default login" />
-  <description>
-    These options exist to set a user to log in as on browser start.
-  </description>
-  <hbox>
-    <checkbox id="ljl-prefs-default-enable" label="Enable"
-              oncommand="ljl_prefs_default_onoff();" />
-    <menulist id="ljl-prefs-default-ljuser" editable="true"
-              sizetopopup="none"
-              oncommand="ljl_prefs_default_change();"
-              oninput="ljl_prefs_default_change();" />
-    <button id="ljl-prefs-default-setacct" label="Set Default Account"
-            oncommand="ljl_prefs_default_setacct();" />
-  </hbox>
+  <groupbox>
+    <caption label="UserID Mapping Maintenance" />
+    <hbox>
+      <menulist id="ljlogin-prefs-uidmap-menu" flex="1" minwidth="300" />
+      <button id="ljlogin-prefs-uidmap-rename" label="Change Username"
+              oncommand="ljl_prefs_uidmap_rename();" />
+      <button id="ljlogin-prefs-uidmap-remove" label="Remove From UID Map"
+              oncommand="ljl_prefs_uidmap_remove();" />
+    </hbox>
+  </groupbox>
+
+  <groupbox>
+    <caption label="Account Maintenance" />
+    <hbox>
+      <menulist id="ljlogin-prefs-account-menu" flex="1" minwidth="300" />
+      <button id="ljlogin-prefs-account-passwd" label="Change Password"
+              oncommand="ljl_prefs_account_passwd();" />
+      <button id="ljlogin-prefs-account-remove" label="Remove Account"
+              oncommand="ljl_prefs_account_remove();" />
+    </hbox>
+  </groupbox>
+
+  <groupbox>
+    <caption label="Default login" />
+    <description>
+      These options exist to set a user to log in as on browser start.
+    </description>
+    <hbox>
+      <checkbox id="ljlogin-prefs-default-enable" label="Enable"
+                oncommand="ljl_prefs_default_onoff();" />
+      <menulist id="ljlogin-prefs-default-ljuser" editable="true"
+                sizetopopup="none"
+                oncommand="ljl_prefs_default_change();"
+                oninput="ljl_prefs_default_change();" />
+      <button id="ljlogin-prefs-default-setacct" label="Set Default Account"
+              oncommand="ljl_prefs_default_setacct();" />
+    </hbox>
+  </groupbox>
 </groupbox>
 
 </dialog>

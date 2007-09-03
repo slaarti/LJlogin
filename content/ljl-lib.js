@@ -1,22 +1,75 @@
-// Get the default username
-// XXX Not multi-LJcode-capable yet!
-function ljl_getdefaultlogin() {
-  var ljuser;
+function LJlogin_preference(pref, failval) {
+  // Get (or, optionally, set) a preference.
+
   var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
                           .getService(Components.interfaces.nsIPromptService);
   try {
     var prefs = Components.classes["@mozilla.org/preferences-service;1"]
                           .getService(Components.interfaces.nsIPrefService);
     prefs = prefs.getBranch("extensions.ljlogin.");
-    ljuser = prefs.getCharPref("defaultlogin.ljuser");
   } catch(e) {
     prompts.alert(window, "LJlogin",
-                          "Problem getting default login preferences: " + e);
-    return false;
+                          "Problem accessing preferences: " + e);
+    return null;
   }
 
-  // Now, hand back results:
-  return ljuser;
+  // Being called with a third argument means that we want to save
+  // a value to the preference, so do that first.
+  if (arguments.length > 2) {
+    try {
+      var value = arguments[2]; // Get what we're setting the pref to.
+
+      // Just how we save the pref depends on what kind it is.
+      switch (typeof value) {
+        case 'boolean':
+          prefs.setBoolPref(pref, value);
+          break;
+        case 'string':
+          prefs.setCharPref(pref, value);
+          break;
+        case 'number':
+          prefs.setIntPref(pref, value);
+          break;
+      }
+    } catch(e) { // Oops.
+      prompts.alert(window, "LJlogin",
+                            "Problem saving preference: " + e);
+      return null;
+    }
+  }
+
+  try { // Get the current preference value.
+    // Need to handle based on type. This determines not only which
+    // function we use, but also what kind of value needs to be
+    // returned in the event of a failure.
+    switch(prefs.getPrefType(pref)) {
+      case prefs.PREF_BOOL:
+        var pval = prefs.getBoolPref(pref);
+        break;
+      case prefs.PREF_STRING:
+        var pval = prefs.getCharPref(pref);
+        break;
+      case prefs.PREF_INT:
+        var pval = prefs.getIntPref(pref);
+        break;
+      default: // No type probably means it doesn't exist, so punt.
+        return failval;
+    }
+  } catch(e if e instanceof Components.Exception) { // Oops. Probably no value.
+    if (e.result == Components.results.NS_ERROR_UNEXPECTED) {
+      return failval;
+    } else {
+      prompts.alert(window, "LJlogin",
+                            "Problem getting preference: " + e);
+      return failval;
+    }
+  } catch(e) { // Other oops.
+    prompts.alert(window, "LJlogin",
+                          "Problem getting preference: " + e);
+    return failval;
+  }
+
+  return pval;
 }
 
 function LJlogin_getljsession(siteid) {

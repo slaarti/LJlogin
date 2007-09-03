@@ -118,7 +118,7 @@ function ljl_prefs_uidmap_remove() {
   // username for the currently logged-in user:
   var ljsession = ljl_getljsession();
   if ((ljsession) && (ljsession.split(":")[1] == ljuid)) {
-    // Can'tG use ljl_loggedin(), since we're not in the right window, so
+    // Can't use ljl_loggedin(), since we're not in the right window, so
     // trash and remake the session cookies instead:
     ljl_trashsession();
     ljl_savesession(ljsession);
@@ -132,13 +132,23 @@ function ljl_prefs_uidmap_remove() {
 }
 
 // Initialize the uidmap box
-function ljl_prefs_uidmap_init() {
-  var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-                          .getService(Components.interfaces.nsIPromptService);
+function LJlogin_prefs_uidmap_init(siteid) {
   // Before we can build, we must first destroy:
-  var menu = document.getElementById("ljl-prefs-uidmap-menu");
+  var menu = document.getElementById("ljlogin-prefs-uidmap-menu");
   menu.selectedIndex = -1; // Unselect...
   menu.removeAllItems(); // ...and clear.
+
+  // Disable all of the elements; we'll re-enable if we have uidmap
+  // elements to deal with for this siteid (assuming it's a real one.)
+  document.getElementById("ljlogin-prefs-uidmap-menu").disabled = true;
+  document.getElementById("ljlogin-prefs-uidmap-rename").disabled = true;
+  document.getElementById("ljlogin-prefs-uidmap-remove").disabled = true;
+
+  // If we got handed the empty siteid, then we're actually just here
+  // to disable this set of elements, so we're done.
+  if (siteid == '') {
+    return;
+  }
 
   // Load up the uidmap.
   var uidmap = new Object();
@@ -146,61 +156,54 @@ function ljl_prefs_uidmap_init() {
                     // doesn't work on hashes.
   try {
     var passman = Components.classes["@mozilla.org/passwordmanager;1"]
-                         .getService(Components.interfaces.nsIPasswordManager);
+                  .getService(Components.interfaces.nsIPasswordManager);
     var uidload = passman.enumerator;
     while (uidload.hasMoreElements()) {
       var mapping = uidload.getNext(); // Get the mapping.
       if (!mapping) continue; // Oops. Nothing actually there.
       // Break it down.
       mapping = mapping.QueryInterface(Components.interfaces.nsIPassword);
-      if (mapping.host == "ljlogin.uidmap") { // Make sure it is one of ours.
+      // Make sure it is one of ours.
+      if (mapping.host == "ljlogin." + siteid + ".uidmap") {
         uidmap[mapping.password] = mapping.user; // Add to the list.
         uidcount++; // Up the count.
       }
     }
   } catch(e) {
+    var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+                            .getService(Components.interfaces.nsIPromptService);
     prompts.alert(window, "LJlogin", "Error populating uidmap: " + e);
-    return false;
+    return;
   }
 
-  if (uidcount <= 0) { // Nobody home, apparently.
-    document.getElementById("ljl-prefs-uidmap-menu")
-            .setAttribute("disabled", "true");
-    document.getElementById("ljl-prefs-uidmap-rename")
-            .setAttribute("disabled", "true");
-    document.getElementById("ljl-prefs-uidmap-remove")
-            .setAttribute("disabled", "true");
-    return true;
+  if (uidcount <= 0) { // Nobody home, apparently, so we're done.
+    return;
   } else {
-    // Since I don't think there are Perl-like ways of handling hashes in
-    // JavaScript, we'll instead have to load all the keys into their own
-    // array, sort on that, and use the array of keys to get usernames out
-    // of uidmap.
-    var uidkeys = new Array();
-    for (uid in uidmap) {
-      var uuid = Number(uid.substring(1))
-      uidkeys.push(uuid);
+    // This function will allow for sorting on the uids, numerically,
+    // ignoring that uids are stored in the PM with an initial "u".
+    function uidsort(a, b) {
+      var ua = Number(a.substring(1));
+      var ub = Number(b.substring(1));
+      return ua - ub;
     }
-    // Sort the keys:
-    uidkeys = uidkeys.sort();
-    // Now churn out the menu items.
-    while (uidkeys.length > 0) {
-      var uid = uidkeys.shift();
-      var uuid = "u" + uid;
-      var mapnode = menu.appendItem(uuid + " - " + uidmap[uuid], uuid);
-    };
+
+    // Extract the uids into an array and sort...
+    var uida = [ i for (i in uidmap) ].sort(uidsort);
+    // ...Then use them to format the menu items.
+    for (var uidn = 0; uidn < uida.length; uidn++) {
+      var uid = uida[uidn]; // Turn index into uid
+      menu.appendItem(uid + " - " + uidmap[uid], uid);
+    }
+
     // Select the first, zero-ordered:
     menu.selectedIndex = 0;
 
     // And now, make the menu and its related buttons available for action:
-    document.getElementById("ljl-prefs-uidmap-menu")
-            .removeAttribute("disabled");
-    document.getElementById("ljl-prefs-uidmap-rename")
-            .removeAttribute("disabled");
-    document.getElementById("ljl-prefs-uidmap-remove")
-            .removeAttribute("disabled");
+    document.getElementById("ljlogin-prefs-uidmap-menu").disabled = false;
+    document.getElementById("ljlogin-prefs-uidmap-rename").disabled = false;
+    document.getElementById("ljlogin-prefs-uidmap-remove").disabled = false;
   }
-  return true;
+  return;
 }
 
 function ljl_prefs_account_passwd() {
@@ -299,51 +302,44 @@ function ljl_prefs_account_remove() {
   return true;
 }
 
-function ljl_prefs_account_init() {
-  var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-                          .getService(Components.interfaces.nsIPromptService);
+function LJlogin_prefs_account_init(siteid) {
   // Before we can build, we must first destroy:
-  var amenu = document.getElementById("ljl-prefs-account-menu");
+  var amenu = document.getElementById("ljlogin-prefs-account-menu");
   amenu.selectedIndex = -1; // Unselect...
   amenu.removeAllItems(); // ...and clear.
-  var dmenu = document.getElementById("ljl-prefs-default-ljuser");
-  // Wait! First, save the current value of this menu, so we can
-  // restore it later, once we've rebuilt the menu.
-  var defaultuser = dmenu.value;
-  dmenu.selectedIndex = -1; // Unselect...
-  dmenu.removeAllItems(); // ...and clear.
+
+  // Disable all of the elements; we'll re-enable if we have account
+  // elements to deal with for this siteid (assuming it's a real one.)
+  document.getElementById("ljlogin-prefs-account-menu").disabled = true;
+  document.getElementById("ljlogin-prefs-account-passwd").disabled = true;
+  document.getElementById("ljlogin-prefs-account-remove").disabled = true;
+
+  // If empty siteid, then everything's clear and disabled and we're done.
+  if (siteid == '') {
+    return;
+  }
 
   // Get the user list to populate the menu.
-  var userlist = ljl_userlist();
+  var userlist = LJlogin_userlist(siteid);
 
-  if ((!userlist) || (userlist.length <= 0)) { // Nobody home, apparently.
-    document.getElementById("ljl-prefs-account-menu")
-            .setAttribute("disabled", "true");
-    document.getElementById("ljl-prefs-account-passwd")
-            .setAttribute("disabled", "true");
-    document.getElementById("ljl-prefs-account-remove")
-            .setAttribute("disabled", "true");
+  if (userlist.length <= 0) { // Nobody home, apparently; done.
+    return;
   } else {
-    while (userlist.length > 0) {
-      var ljuser = userlist.shift(); // Get item content
+    for (var i = 0; i < userlist.length; i++) { // Make the menu.
+      var ljuser = userlist[i]; // Get item content
       amenu.appendItem(ljuser, ljuser); // Add item to account menu
-      dmenu.appendItem(ljuser, ljuser); // Add item to defaults menu
     }
+
     amenu.selectedIndex = 0; // Select first item by default;
                              // Remember that it's zero-indexed.
 
     // And now, make the menus and related buttons/boxes useable:
-    document.getElementById("ljl-prefs-account-menu")
-            .removeAttribute("disabled");
-    document.getElementById("ljl-prefs-account-passwd")
-            .removeAttribute("disabled");
-    document.getElementById("ljl-prefs-account-remove")
-            .removeAttribute("disabled");
+    document.getElementById("ljlogin-prefs-account-menu").disabled = false;
+    document.getElementById("ljlogin-prefs-account-passwd").disabled = false;
+    document.getElementById("ljlogin-prefs-account-remove").disabled = false;
   }
-  // Reset the value of the default user entry:
-  dmenu.value = defaultuser;
 
-  return true;
+  return;
 }
 
 // Toggle the availability of the default-user select menu, as well as
@@ -420,46 +416,138 @@ function ljl_prefs_default_setacct() {
   return true;
 }
 
-function ljl_prefs_default_init() {
+function LJlogin_prefs_default_init(siteid) {
+  // Elements at play:
+  var menu = document.getElementById("ljlogin-prefs-default-ljuser");
+  var chx = document.getElementById("ljlogin-prefs-default-enable");
+
+  // Before we can build, we must first destroy:
+  menu.value = ''; // Blank out any possible custom text.
+  menu.selectedIndex = -1; // Unselect...
+  menu.removeAllItems(); // ...and clear.
+
+  // Disable all of the elements; we'll re-enable if we have account
+  // elements to deal with for this siteid (assuming it's a real one.)
+  chx.disabled = true;
+  menu.disabled = true;
+  document.getElementById("ljlogin-prefs-default-setacct").disabled = true;
+
+  // If we got handed the empty siteid, then we're actually just here
+  // to disable this set of elements, so we're done.
+  if (siteid == '') {
+    return;
+  }
+
+  // Get the user list to populate the menu.
+  var userlist = LJlogin_userlist(siteid);
+
+  for (var i = 0; i < userlist.length; i++) { // Make the menu.
+    var ljuser = userlist[i]; // Get item content
+    menu.appendItem(ljuser, ljuser); // Add item to defaults menu
+  }
+
+  // Get the default username, and fill the field info:
+  menu.value = LJlogin_sites_defaultlogin_ljuser(siteid);
+
   // Get the default account enable preference, and set the state of the
   // default-account checkbox and menu being enabled accordingly:
-  var defchecked;
-  try {
-    var prefs = Components.classes["@mozilla.org/preferences-service;1"]
-                          .getService(Components.interfaces.nsIPrefService);
-    prefs = prefs.getBranch("extensions.ljlogin.");
-    defchecked = prefs.getBoolPref("defaultlogin.enable");
-  } catch(e) {
-    var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-                            .getService(Components.interfaces.nsIPromptService);
-    prompts.alert(window, "LJlogin",
-                          "Problem getting default login preference: " + e);
-    return false;
+  var defchecked = LJlogin_sites_defaultlogin_enabled(siteid);
+  chx.checked = defchecked;
+  menu.disabled = !defchecked;
+
+  // And enable the default enable checkbox. The account setter
+  // button stays disabled, because it's only allowed when the
+  // user changes the username in the box.
+  chx.disabled = false;
+
+  // And now we're done.
+  return;
+}
+
+function LJlogin_prefs_ljcode_select(siteid) {
+  var site = document.getElementById("ljlogin-prefs-ljcode-" + siteid);
+  var enable = site.checked;
+  window.alert(siteid + ": " + (enable ? "enable" : "disable"));
+}
+
+function LJlogin_prefs_site_select() {
+  var menu = document.getElementById("ljlogin-prefs-site-select");
+
+  // A bit of tricksy-ness: If called with an index argument, then
+  // set the index to select the menu item in question before letting
+  // the rest of the function decide what to do about which item
+  // is selected.
+  if (arguments.length > 0) {
+    menu.selectedIndex = arguments[0];
   }
-  document.getElementById("ljl-prefs-default-enable")
-          .setAttribute("checked", (defchecked ? "true" : ""));
-  if (defchecked) {
-    document.getElementById("ljl-prefs-default-ljuser")
-            .removeAttribute("disabled");
+
+  // Get the siteid from the menu (assuming there is one;
+  // non-selection is possible, and will yield an empty value,
+  // but there's still use for it as a signal to disable everything.)
+  var siteid = menu.value;
+  // ...and then get per-site set up accordingly.
+  LJlogin_prefs_uidmap_init(siteid);
+  LJlogin_prefs_account_init(siteid);
+  LJlogin_prefs_default_init(siteid);
+}
+
+function LJlogin_prefs_site_menu(gotosite) {
+  // Creates/refreshes the drop-down menu to select which site to set
+  // site-specific preferences, and selects the site specified in the
+  // argument.
+  // ('' is the null siteid, and will yield a selection of no site.)
+  // If there are no enabled siteids, disable the menu.
+
+  var sitemenu = document.getElementById("ljlogin-prefs-site-select");
+  var enabledsites = LJlogin_enabled_sites();
+
+  // First things first: Unselect the menu and remove its existing
+  // elements, if any. Unselecting this way will have the bonus effect
+  // of disabling all fields of the per-site section of the prefs box,
+  // which will be automatically re-enabled if there's an actual siteid
+  // to select/go to, or left disabled if its either left un-selected or
+  // if there are no enabled sites to select.
+  LJlogin_prefs_site_select(-1);
+  sitemenu.removeAllItems();
+
+  if (enabledsites.length == 0) {
+    // No enabled sites? Disable the menu entirely.
+    sitemenu.disabled = true;
   } else {
-    document.getElementById("ljl-prefs-default-ljuser")
-            .setAttribute("disabled", "true");
+    // There are sites, so create the menu and possibly select a site.
+    var gotoidx = -1; // No selection by default.
+
+    // Loop through the enabled siteids.
+    for (var idx = 0; idx < enabledsites.length; idx++) {
+      var siteid = enabledsites[idx];
+
+      if (siteid == gotosite) { // A match! Save this index for later.
+        gotoidx = idx;
+      }
+
+      sitemenu.appendItem(LJlogin_sites[siteid].name, siteid);
+    }
+
+    // And select the site we need, or none if needed.
+    LJlogin_prefs_site_select(gotoidx);
   }
-  // Get the default username, and fill the field info:
-  document.getElementById("ljl-prefs-default-ljuser")
-          .value = ljl_getdefaultlogin();
-
-  // Always toggle this off. It's only allowed when the user changes
-  // the username in the box.
-  document.getElementById("ljl-prefs-default-setacct")
-          .setAttribute("disabled", "true");
-
-  return true;
 }
 
 // Initialize the Preferences window
-function ljl_prefs_init() {
-  ljl_prefs_uidmap_init();
-  ljl_prefs_account_init();
-  ljl_prefs_default_init();
+function LJlogin_prefs_init() {
+  var enabledsites = LJlogin_enabled_sites();
+  var sitebox = document.getElementById("ljlogin-prefs-ljcode-menu");
+  for (var siteid in LJlogin_sites) {
+    var item = document.createElement("checkbox");
+    item.setAttribute("id", "ljlogin-prefs-ljcode-" + siteid);
+    item.setAttribute("label", LJlogin_sites[siteid].name);
+    item.setAttribute("oncommand",
+                      "LJlogin_prefs_ljcode_select('" + siteid + "');");
+    if (enabledsites.indexOf(siteid) != -1) {
+      item.setAttribute("checked", "true");
+    }
+    sitebox.appendChild(item);
+  }
+
+  LJlogin_prefs_site_menu('dj');
 }
