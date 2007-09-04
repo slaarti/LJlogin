@@ -5,7 +5,7 @@
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         title="LJlogin: Error During Log Out"
         buttons="accept,cancel,disclosure"
-        ondialogaccept="LJlogin_trashsession(siteid); return true;"
+        ondialogaccept="LJlogin_trashsession(window.arguments[0]); return true;"
         ondialogcancel="return true;"
         ondialogdisclosure="window.alert(window.arguments[1]); return false;">
 
@@ -20,7 +20,7 @@
 <![CDATA[
 document.getElementById("error-desc").value = "An error occurred " +
 "while requesting session close from " + 
-LJlogin_sites[arguments[0]].name + ". Log out anyway?";
+LJlogin_sites[window.arguments[0]].name + ". Log out anyway?";
 ]]>
 </script>
 
