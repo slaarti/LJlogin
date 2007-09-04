@@ -456,9 +456,9 @@ function LJlogin_uidfix(siteid) {
   return true;
 }
 
-function LJlogin_prefs() {
+function LJlogin_prefs(siteid) {
   window.openDialog("chrome://ljlogin/content/prefs.xul",
-                    "ljl-prefs", "chrome,dialog");
+                    "ljl-prefs", "chrome,dialog", siteid);
 }
 
 function LJlogin_createmenu(siteid) {
@@ -528,7 +528,7 @@ function LJlogin_createmenu(siteid) {
   themenu.appendChild(logout);
   var prefs = document.createElement("menuitem");
   prefs.setAttribute("label", "Preferences");
-  prefs.setAttribute("oncommand", "LJlogin_prefs();");
+  prefs.setAttribute("oncommand", "LJlogin_prefs('" + siteid + "');");
   themenu.appendChild(prefs);
 
   // Done and done.

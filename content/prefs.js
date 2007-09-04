@@ -420,9 +420,45 @@ function LJlogin_prefs_default_init(siteid) {
 }
 
 function LJlogin_prefs_ljcode_select(siteid) {
+  var enabledsites = LJlogin_enabled_sites();
+
   var site = document.getElementById("ljlogin-prefs-ljcode-" + siteid);
   var enable = site.checked;
-  window.alert(siteid + ": " + (enable ? "enable" : "disable"));
+  var destid = ''; // Where we'll go after this; nowhere by default.
+
+  if (enable) { // Activate this siteid.
+    // Make sure it's not already there.
+    if (enabledsites.indexOf(siteid) == -1) {
+      enabledsites.push(siteid);
+      destid = siteid; // Always go to the siteid we just enabled.
+    } else {
+      window.alert("Attempt to enable site that's already enabled!");
+      return;
+    }
+  } else { // Actually, disable.
+    var idx = enabledsites.indexOf(siteid); // Find it in the list.
+    if (idx != -1) { // Make sure that it is, in fact, already enabled.
+      enabledsites.splice(idx, 1);
+      var cursite = LJlogin_prefs_siteid();
+      // If we're disabling the current site, then go nowhere, else stay.
+      if (siteid == cursite) {
+        destid = '';
+      } else {
+        destid = cursite;
+      }
+    } else {
+      window.alert("Attempt to disable site that's already disabled!");
+      return;
+    }
+  }
+
+  // Update the preference
+  LJlogin_enabled_sites(enabledsites);
+
+  // And update the site selection menu and either go to the newly-enabled
+  // site, or to no site if we're disabling one.
+  LJlogin_prefs_site_menu(destid);
+  return;
 }
 
 function LJlogin_prefs_site_select() {
@@ -483,26 +519,37 @@ function LJlogin_prefs_site_menu(gotosite) {
       sitemenu.appendItem(LJlogin_sites[siteid].name, siteid);
     }
 
+    // And enable the menu.
+    sitemenu.disabled = false;
+
     // And select the site we need, or none if needed.
     LJlogin_prefs_site_select(gotoidx);
   }
 }
 
 // Initialize the Preferences window
-function LJlogin_prefs_init() {
+function LJlogin_prefs_init(mysite) {
+  // What sites are already enabled?
   var enabledsites = LJlogin_enabled_sites();
+
+  // Create the list of enable/disable checkboxes for all sites.
   var sitebox = document.getElementById("ljlogin-prefs-ljcode-menu");
   for (var siteid in LJlogin_sites) {
     var item = document.createElement("checkbox");
+
     item.setAttribute("id", "ljlogin-prefs-ljcode-" + siteid);
     item.setAttribute("label", LJlogin_sites[siteid].name);
     item.setAttribute("oncommand",
                       "LJlogin_prefs_ljcode_select('" + siteid + "');");
-    if (enabledsites.indexOf(siteid) != -1) {
+
+    if (enabledsites.indexOf(siteid) != -1) { // Check if enabled.
       item.setAttribute("checked", "true");
     }
+
+    // Add to the box.
     sitebox.appendChild(item);
   }
 
-  LJlogin_prefs_site_menu('dj');
+  // Finally go to the site matching the menu that called us here.
+  LJlogin_prefs_site_menu(mysite);
 }

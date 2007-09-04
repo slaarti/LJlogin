@@ -32,7 +32,7 @@ try {
   <popup id="ljlogin-menu" position="after_start">
     <menuitem label="LJlogin" disabled="true" />
     <menuseparator />
-    <menuitem label="Preferences" oncommand="LJlogin_prefs();" />
+    <menuitem label="Preferences" oncommand="LJlogin_prefs('');" />
   </popup>
 </popupset>
 
