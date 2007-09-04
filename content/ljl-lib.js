@@ -116,6 +116,40 @@ function LJlogin_getljsession(siteid) {
   return false; // Didn't find the cookie we wanted.
 }
 
+function LJlogin_uidmap_lookup(siteid, ljuid) {
+  // Do a lookup on the uidmap for a given site.
+
+  // Need a dummy username variable to put the result in.
+  var username = new Object();
+
+  try {
+    var passman = Components.classes["@mozilla.org/passwordmanager;1"]
+        .getService(Components.interfaces.nsIPasswordManagerInternal);
+
+    // Dummy objects to hold things we don't really care about,
+    // but must have a place for nonetheless.
+    var temphost = new Object();
+    var temppass = new Object();
+
+    // Do the job.
+    passman.findPasswordEntry("ljlogin." + siteid + ".uidmap", null, ljuid,
+                              temphost, username, temppass);
+  } catch(e if e instanceof Components.Exception) { // Oops. Probably no match.
+    if (e.result == Components.results.NS_ERROR_FAILURE) {
+      return "?UNKNOWN!";
+    } else { // Something else wrong?! Uh oh.
+      prompts.alert(window, "LJlogin", "Error looking up uid map: " + e);
+      return "?UNKNOWN!";
+    }
+  } catch(e) { // Big oops. What happened?!
+    prompts.alert(window, "LJlogin", "Error looking up uid map: " + e);
+    return "?UNKNOWN!";
+  }
+
+  // Yay! Win! Hand back the username.
+  return username.value;
+}
+
 function LJlogin_getljuser(siteid, ljcookie) {
   // Try to get the username out of the cookie.
 
@@ -126,31 +160,8 @@ function LJlogin_getljuser(siteid, ljcookie) {
     return false;
   }
 
-  // Now, go through the Password Manager and hopefully find a matching
-  // username/uid pair. I *would* use findPasswordEntry instead, except
-  // that whoever wrote it makes it throw an exception if there's no
-  // match, instead of doing something sane with return values. Cockbites.
-  try {
-    var passman = Components.classes["@mozilla.org/passwordmanager;1"]
-                  .getService(Components.interfaces.nsIPasswordManager);
-    var passcheck = passman.enumerator;
-    while (passcheck.hasMoreElements()) {
-      var signon = passcheck.getNext();
-      if (!signon) { // Oops. No actual info there.
-        continue; // So skip it.
-      }
-      // Translate the object into parts.
-      uidmap = signon.QueryInterface(Components.interfaces.nsIPassword);
-      if ((uidmap.host == "ljlogin." + siteid + ".uidmap") &&
-          (uidmap.password == ljuid)) {
-        return uidmap.user; // Yay, we found it!
-      }
-    }
-  } catch(e) {
-    alert("Error looking up uid map: " + e);
-    return false;
-  }
-  return "?UNKNOWN!"; // No match found. Aw.
+  // We've got a uid, so now try to get a result from the uidmap:
+  return LJlogin_uidmap_lookup(siteid, ljuid);
 }
 
 function LJlogin_trashsession(siteid) {
@@ -197,6 +208,19 @@ function LJlogin_validuser(ljuser) {
   } else {
     return true;
   }
+}
+
+// Remove a username's entry in a site's uidmap
+function LJlogin_uidmap_rmentry(siteid, ljuser) {
+  try {
+    var passman = Components.classes["@mozilla.org/passwordmanager;1"]
+        .getService().QueryInterface(Components.interfaces.nsIPasswordManager);
+    passman.removeUser("ljlogin." + siteid + ".uidmap", ljuser);
+  } catch(e) {
+    prompts.alert(window, "LJlogin", "Error removing entry from uidmap: " + e);
+    return false;
+  }
+  return true;
 }
 
 // Stash a username/userid pair into the Password Manager to make available
@@ -261,6 +285,18 @@ function LJlogin_savesession(siteid, mysession) {
     return false;
   }
   return true;
+}
+
+// Conditionally refresh a login session, if it's for a userid
+// whose uidmap entry has been changed in some way.
+function LJlogin_refreshsession(siteid, ljuid) {
+  var ljsession = LJlogin_getljsession(siteid);
+  if ((ljsession) && (ljsession.split(":")[1] == ljuid)) {
+    // Can't use ljl_loggedin(), since we're not in the right window, so
+    // trash and remake the session cookies instead:
+    LJlogin_trashsession(siteid);
+    LJlogin_savesession(siteid, ljsession);
+  }
 }
 
 // Pull a list of usernames from the PM, hand them back as a sorted array.

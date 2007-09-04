@@ -30,9 +30,9 @@
     <hbox>
       <menulist id="ljlogin-prefs-uidmap-menu" flex="1" minwidth="300" />
       <button id="ljlogin-prefs-uidmap-rename" label="Change Username"
-              oncommand="ljl_prefs_uidmap_rename();" />
+              oncommand="LJlogin_prefs_uidmap_rename();" />
       <button id="ljlogin-prefs-uidmap-remove" label="Remove From UID Map"
-              oncommand="ljl_prefs_uidmap_remove();" />
+              oncommand="LJlogin_prefs_uidmap_remove();" />
     </hbox>
   </groupbox>
 
