@@ -19,15 +19,19 @@ function LJlogin_init() {
     observe: function(subject, topic, data) {
       // Get the cookie
       var yumcookie = subject.QueryInterface(Components.interfaces.nsICookie);
+
       // Loop over active sites
-      // XXX Change this to the list of actually enabled sites.
-      for (var siteid in LJlogin_sites) {
+      var enabledsites = LJlogin_enabled_sites();
+      for (var i = 0; i < enabledsites.length; i++) {
+        var siteid = enabledsites[i];
+
         // Do we even care about this cookie?
         var ljcookie = new RegExp(LJlogin_sites[siteid].cookiere);
         if ((!ljcookie.test(yumcookie.host)) ||
             (yumcookie.name != "ljsession")) {
           return;
         }
+
         // Okay. We got this far, so this should be a cookie we want. Now
         // to handle it accordingly.
         switch(data) {
