@@ -63,10 +63,38 @@ function LJlogin_statusbar_refresh() {
   // Loop over enabled sites to set up statusbar widgets for
   // enabled LJcode sites.
 
-  // XXX Make sure to change this to check for being enabled.
+  // First, reduce things to a known-base state: No enabled
+  // per-site widgets, base LJlogin widget enabled.
+  var ljsb = document.getElementById("ljlogin-status");
+  var sb = document.getElementById("status-bar");
+  var popupset = document.getElementById("mainPopupSet");
+  ljsb.collapsed = false;
+
   for (var siteid in LJlogin_sites) {
-    // First things first: Create the widget
-    // and associated popup menu.
+    // Check for the existence of a widget, and if it's there, remove.
+    var rmwidget = document.getElementById("ljlogin-" + siteid + "-status");
+    if (rmwidget != null) {
+      sb.removeChild(rmwidget);
+    }
+
+    // And do the same for its associated popup menu.
+    var rmmenu = document.getElementById("ljlogin-" + siteid + "-menu");
+    if (rmmenu != null) {
+      popupset.removeChild(rmmenu);
+    }
+  }
+
+
+  // Now create/enable widgets for enabled sites, if any.
+  var enabledsites = LJlogin_enabled_sites();
+  if (enabledsites.length > 0) { // If any enabled sites, hide generic widget.
+    ljsb.collapsed = true;
+  }
+
+  for (var i = 0; i < enabledsites.length; i++) {
+    var siteid = enabledsites[i];
+
+    // Create the widget and associated popup menu.
     var thepanel = document.createElement("statusbarpanel");
     thepanel.setAttribute("id", "ljlogin-" + siteid + "-status");
     thepanel.setAttribute("class", "statusbarpanel-iconic-text loading");
@@ -74,9 +102,6 @@ function LJlogin_statusbar_refresh() {
     thepanel.setAttribute("label", LJlogin_sites[siteid].name);
     thepanel.setAttribute("context", "ljlogin-" + siteid + "-menu");
     thepanel.setAttribute("popup", "ljlogin-" + siteid + "-menu");
-    var sb = document.getElementById("status-bar");
-    var ljsb = document.getElementById("ljlogin-status");
-//    ljsb.collapsed = true;
     sb.insertBefore(thepanel, ljsb);
 
     var themenu = document.createElement("popup");
@@ -86,7 +111,6 @@ function LJlogin_statusbar_refresh() {
                          "LJlogin_createmenu('" + siteid + "');");
     themenu.setAttribute("onpopuphidden",
                          "LJlogin_cleanmenu('ljlogin-" + siteid + "-menu');");
-    var popupset = document.getElementById("mainPopupSet");
     popupset.appendChild(themenu);
 
     // Now that we have the widget, we can set its state appropriately.
@@ -103,26 +127,12 @@ function LJlogin_statusbar_refresh() {
     } else {
       // We're not logged in. Check to see if we should log in
       // as a default user:
-      // XXX Not multi-LJcode-capable yet!
-      var defenabled;
-      try {
-        var prefs = Components.classes["@mozilla.org/preferences-service;1"]
-                              .getService(Components.interfaces.nsIPrefService);
-        prefs = prefs.getBranch("extensions.ljlogin.");
-        defenabled = prefs.getBoolPref("defaultlogin.enable");
-      } catch(e) {
-        var prompts = Components
-                       .classes["@mozilla.org/embedcomp/prompt-service;1"]
-                       .getService(Components.interfaces.nsIPromptService);
-        prompts.alert(window, "LJlogin",
-                              "Problem getting default login enable pref: " + e);
-        return false;
-      }
-      if (defenabled) { // Yes, log in as a default user.
-        var ljuser = ljl_getdefaultlogin();
+      if (LJlogin_sites_defaultlogin_enabled(siteid)) {
+        // Yes, log in as a default user.
+        var ljuser = LJlogin_sites_defaultlogin_ljuser(siteid);
         if (ljuser) { // Make sure there's actually a user to log in as.
           // Is this a user for whom we have an account stored?
-          if (LJlogin_userlist(siteid).indexOf(ljuser) > -1) {
+          if (LJlogin_userlist(siteid).indexOf(ljuser) != -1) {
             // Yes. Hand off to automated login:
             LJlogin_userlogin(siteid, ljuser);
           } else {
@@ -137,7 +147,7 @@ function LJlogin_statusbar_refresh() {
       }
     }
   }
-  return true;
+  return;
 }
 
 function LJlogin_loggedin(siteid, ljcookie) {
