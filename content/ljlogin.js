@@ -55,7 +55,26 @@ function LJlogin_init() {
                         .getService(Components.interfaces.nsIObserverService);
   observerService.addObserver(cookiemonster,"cookie-changed",false);
 
-  // Get the statusbar widgets into shape.
+  // Set up a preferences observer to keep the statusbar widgets
+  // in tune with the list of enabled sites.
+  var prerogative = {
+    observe: function(subject, topic, data) {
+               // Only care if we're talking a changed preference.
+               if (topic != "nsPref:changed") return;
+               // There's only one preference we truly care about.
+               if (data != "ljcode.enabledsites") return;
+               // And here we are. Go for it...
+               LJlogin_statusbar_refresh();
+               return; // And done.
+             }
+  };
+  var prefsObserver = Components.classes["@mozilla.org/preferences-service;1"]
+                        .getService(Components.interfaces.nsIPrefService)
+                        .getBranch("extensions.ljlogin.");
+  prefsObserver.QueryInterface(Components.interfaces.nsIPrefBranch2);
+  prefsObserver.addObserver("", prerogative, false);
+
+  // And set the statusbar by hand once, to get things started.
   LJlogin_statusbar_refresh();
 
   // Finally, flag that the extension is loaded.
