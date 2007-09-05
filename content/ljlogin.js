@@ -29,7 +29,7 @@ function LJlogin_init() {
         var ljcookie = new RegExp(LJlogin_sites[siteid].cookiere);
         if ((!ljcookie.test(yumcookie.host)) ||
             (yumcookie.name != "ljsession")) {
-          return;
+          continue;
         }
 
         // Okay. We got this far, so this should be a cookie we want. Now
