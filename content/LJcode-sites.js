@@ -8,6 +8,15 @@ var LJlogin_sites = {
              cookieurl: 'http://www.livejournal.com/',
           interfaceurl: 'http://www.livejournal.com/interface/flat'
         },
+  'ij': {
+                  name: 'InsaneJournal',
+                domain: 'insanejournal.com',
+            passmanurl: 'http://www.insanejournal.com',
+              cookiere: 'insanejournal\.com$',
+             cookiedom: '.insanejournal.com',
+             cookieurl: 'http://www.insanejournal.com/',
+          interfaceurl: 'http://www.insanejournal.com/interface/flat'
+        },
   'gj': {
                   name: 'GreatestJournal',
                 domain: 'greatestjournal.com',
@@ -17,6 +26,15 @@ var LJlogin_sites = {
              cookieurl: 'http://www.greatestjournal.com/',
           interfaceurl: 'http://www.greatestjournal.com/interface/flat'
         },
+  'jf': {
+                  name: 'JournalFen',
+                domain: 'journalfen.net',
+            passmanurl: 'http://www.journalfen.net',
+              cookiere: 'journalfen\.net$',
+             cookiedom: '.journalfen.net',
+             cookieurl: 'http://www.journalfen.net/',
+          interfaceurl: 'http://www.journalfen.net/interface/flat'
+        },
   'dj': {
                   name: 'DeadJournal',
                 domain: 'deadjournal.com',
@@ -25,15 +43,6 @@ var LJlogin_sites = {
              cookiedom: '.deadjournal.com',
              cookieurl: 'http://www.deadjournal.com/',
           interfaceurl: 'http://www.deadjournal.com/interface/flat'
-        },
-  'ij': {
-                  name: 'InsaneJournal',
-                domain: 'insanejournal.com',
-            passmanurl: 'http://www.insanejournal.com',
-              cookiere: 'insanejournal\.com$',
-             cookiedom: '.insanejournal.com',
-             cookieurl: 'http://www.insanejournal.com/',
-          interfaceurl: 'http://www.insanejournal.com/interface/flat'
         }
 };
 
