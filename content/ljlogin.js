@@ -29,7 +29,7 @@ function LJlogin_init() {
         // Do we even care about this cookie?
         var ljcookie = new RegExp(LJlogin_sites[siteid].cookiere);
         if ((!ljcookie.test(yumcookie.host)) ||
-            (yumcookie.name != "ljsession")) {
+            (yumcookie.name != "ljmastersession")) {
           continue;
         }
 
