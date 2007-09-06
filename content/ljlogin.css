@@ -1,24 +1,37 @@
+/* Classes for the non-site widget */
 #ljlogin-status[class~="loading"] {
   color: red;
 }
 
 #ljlogin-status[class~="loaded"] {
-  color: green;
-}
-
-menuitem[class~="ljuser"],
-#ljlogin-status[class~="ljuser"] {
   font-style: normal;
   font-weight: bold;
   color: blue;
+  text-decoration: underline;
 }
 
-#ljlogin-status[class~="loggedout"] {
+/* ===== Per-Site Status Widgets ===== */
+
+/* === Common === */
+
+#ljlogin-lj-status[class~="loggedout"]
+{
   color: black;
   font-style: italic;
 }
 
-#ljlogin-status[class~="unknown"] {
+#ljlogin-lj-status[class~="unknown"]
+{
   color: red;
   font-style: italic;
+}
+
+/* LiveJournal */
+
+#ljlogin-lj-menu menuitem[class~="ljuser"],
+#ljlogin-lj-status[class~="ljuser"] {
+  font-style: normal;
+  font-weight: bold;
+  color: blue;
+  text-decoration: underline;
 }

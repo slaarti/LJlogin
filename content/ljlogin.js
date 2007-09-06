@@ -11,6 +11,7 @@ function LJlogin_init() {
   var sb = document.getElementById("ljlogin-status");
   sb.label = "LJlogin";
   sb.setAttribute("class", "statusbarpanel-iconic-text loaded");
+  sb.src = "chrome://ljlogin/content/userinfo.gif";
 //  return true;
 
   // Hook into the Observer service so we can see when the ljsession
