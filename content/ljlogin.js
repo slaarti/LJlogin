@@ -11,7 +11,7 @@ function LJlogin_init() {
   var sb = document.getElementById("ljlogin-status");
   sb.label = "LJlogin";
   sb.setAttribute("class", "statusbarpanel-iconic-text loaded");
-  sb.src = "chrome://ljlogin/content/userinfo.gif";
+  sb.src = "chrome://ljlogin/content/icons/lj/userinfo.gif";
 //  return true;
 
   // Hook into the Observer service so we can see when the ljsession
@@ -182,11 +182,11 @@ function LJlogin_loggedin(siteid, ljcookie) {
     LJlogin_loggedout(siteid);
   } else if (ljuser == "?UNKNOWN!") {
     sb.label = "(Unknown user)";
-    sb.src = "chrome://ljlogin/content/whoareyou.gif";
+    sb.src = "chrome://ljlogin/content/icons/whoareyou.gif";
     sb.setAttribute("class", "statusbarpanel-iconic-text unknown");
   } else {
     sb.label = ljuser;
-    sb.src = "chrome://ljlogin/content/userinfo.gif";
+    sb.src = "chrome://ljlogin/content/icons/" + siteid + "/userinfo.gif";
     sb.setAttribute("class", "statusbarpanel-iconic-text ljuser");
   }
   return;
@@ -195,7 +195,7 @@ function LJlogin_loggedin(siteid, ljcookie) {
 function LJlogin_loggedout(siteid) {
   var sb = document.getElementById("ljlogin-" + siteid + "-status");
   sb.label = "Not logged in.";
-  sb.src = "chrome://ljlogin/content/anonymous.gif";
+  sb.src = "chrome://ljlogin/content/icons/anonymous.gif";
   sb.setAttribute("class", "statusbarpanel-iconic-text loggedout");
 }
 
@@ -536,7 +536,9 @@ function LJlogin_createmenu(siteid) {
     while (userlist.length > 0) {
       var ljuser = userlist.shift();
       var ljnode = document.createElement("menuitem");
-      ljnode.setAttribute("image", "chrome://ljlogin/content/userinfo.gif");
+      ljnode.setAttribute("image",
+                          "chrome://ljlogin/content/icons/" + siteid +
+                                                          "/userinfo.gif");
       ljnode.setAttribute("label", ljuser);
       ljnode.setAttribute("class", "menuitem-iconic ljuser");
       ljnode.setAttribute("oncommand",
