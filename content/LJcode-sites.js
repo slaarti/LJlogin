@@ -6,6 +6,7 @@ var LJlogin_sites = {
               cookiere: 'livejournal\.com$',
              cookiedom: '.livejournal.com',
              cookieurl: 'http://www.livejournal.com/',
+            cookiename: 'ljmastersession',
           interfaceurl: 'http://www.livejournal.com/interface/flat'
         },
   'ij': {
@@ -15,6 +16,7 @@ var LJlogin_sites = {
               cookiere: 'insanejournal\.com$',
              cookiedom: '.insanejournal.com',
              cookieurl: 'http://www.insanejournal.com/',
+            cookiename: 'ljmastersession',
           interfaceurl: 'http://www.insanejournal.com/interface/flat'
         },
   'gj': {
@@ -24,6 +26,7 @@ var LJlogin_sites = {
               cookiere: 'greatestjournal\.com$',
              cookiedom: '.greatestjournal.com',
              cookieurl: 'http://www.greatestjournal.com/',
+            cookiename: 'ljsession',
           interfaceurl: 'http://www.greatestjournal.com/interface/flat'
         },
   'jf': {
@@ -33,6 +36,7 @@ var LJlogin_sites = {
               cookiere: 'journalfen\.net$',
              cookiedom: '.journalfen.net',
              cookieurl: 'http://www.journalfen.net/',
+            cookiename: 'ljsession',
           interfaceurl: 'http://www.journalfen.net/interface/flat'
         },
   'dj': {
@@ -42,6 +46,7 @@ var LJlogin_sites = {
               cookiere: 'deadjournal\.com$',
              cookiedom: '.deadjournal.com',
              cookieurl: 'http://www.deadjournal.com/',
+            cookiename: 'ljmastersession',
           interfaceurl: 'http://www.deadjournal.com/interface/flat'
         }
 };

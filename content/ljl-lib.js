@@ -109,7 +109,8 @@ function LJlogin_getljsession(siteid) {
     yumcookie = yumcookie.QueryInterface(Components.interfaces.nsICookie);
     // Check if it's the one we want.
     var ljcookie = new RegExp(LJlogin_sites[siteid].cookiere);
-    if ((ljcookie.test(yumcookie.host)) && (yumcookie.name == "ljsession")) {
+    if ((ljcookie.test(yumcookie.host)) &&
+        (yumcookie.name == LJlogin_sites[siteid].cookiename)) {
       return yumcookie.value;
     }
   }
@@ -172,6 +173,12 @@ function LJlogin_trashsession(siteid) {
     cookiejar.remove(cookiedom, "ljsession", "/", false);
     cookiejar.remove(cookiedom, "ljmastersession", "/", false);
     cookiejar.remove(cookiedom, "ljloggedin", "/", false);
+    cookiejar.remove(".www" + cookiedom, "ljsession", "/", false);
+    cookiejar.remove(".www" + cookiedom, "ljmastersession", "/", false);
+    cookiejar.remove(".www" + cookiedom, "ljloggedin", "/", false);
+    cookiejar.remove("www" + cookiedom, "ljsession", "/", false);
+    cookiejar.remove("www" + cookiedom, "ljmastersession", "/", false);
+    cookiejar.remove("www" + cookiedom, "ljloggedin", "/", false);
   } catch(e) {
     alert("Error removing login cookies: " + e);
   }

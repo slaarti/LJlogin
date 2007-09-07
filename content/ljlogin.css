@@ -6,7 +6,7 @@
 #ljlogin-status[class~="loaded"] {
   font-style: normal;
   font-weight: bold;
-  color: blue;
+  color: #0000CC;
   text-decoration: underline;
 }
 
@@ -15,6 +15,9 @@
 /* === Common === */
 
 #ljlogin-ij-status[class~="loggedout"],
+#ljlogin-dj-status[class~="loggedout"],
+#ljlogin-gj-status[class~="loggedout"],
+#ljlogin-jf-status[class~="loggedout"],
 #ljlogin-lj-status[class~="loggedout"]
 {
   color: black;
@@ -22,6 +25,9 @@
 }
 
 #ljlogin-ij-status[class~="unknown"],
+#ljlogin-dj-status[class~="unknown"],
+#ljlogin-gj-status[class~="unknown"],
+#ljlogin-jf-status[class~="unknown"],
 #ljlogin-lj-status[class~="unknown"]
 {
   color: red;
@@ -34,7 +40,7 @@
 #ljlogin-lj-status[class~="ljuser"] {
   font-style: normal;
   font-weight: bold;
-  color: blue;
+  color: #0000CC;
   text-decoration: underline;
 }
 
@@ -45,6 +51,36 @@
   font-style: normal;
   font-weight: bold;
   color: #222222;
+  text-decoration: underline;
+}
+
+/* DeadJournal */
+
+#ljlogin-dj-menu menuitem[class~="ljuser"],
+#ljlogin-dj-status[class~="ljuser"] {
+  font-style: normal;
+  font-weight: bold;
+  color: #160066;
+  text-decoration: underline;
+}
+
+/* GreatestJournal */
+
+#ljlogin-gj-menu menuitem[class~="ljuser"],
+#ljlogin-gj-status[class~="ljuser"] {
+  font-style: normal;
+  font-weight: bold;
+  color: #000066;
+  text-decoration: underline;
+}
+
+/* JournalFen */
+
+#ljlogin-jf-menu menuitem[class~="ljuser"],
+#ljlogin-jf-status[class~="ljuser"] {
+  font-style: normal;
+  font-weight: bold;
+  color: #0000C0;
   text-decoration: underline;
 }
 
