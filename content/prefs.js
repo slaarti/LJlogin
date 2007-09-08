@@ -5,6 +5,35 @@ function LJlogin_prefs_siteid() {
   return sitemenu.value;
 }
 
+// Set stealth widget preference according to checkbox.
+function LJlogin_prefs_stealth_onoff() {
+  var siteid = LJlogin_prefs_siteid();
+
+  var chx = document.getElementById('ljlogin-prefs-stealth-enable').checked;
+  LJlogin_sites_stealthwidget(siteid, chx);
+
+  return;
+}
+
+// Configure checkbox for stealth widget preference.
+function LJlogin_prefs_stealth_init(siteid) {
+  var chx = document.getElementById('ljlogin-prefs-stealth-enable');
+
+  // Unset/disable by default.
+  chx.checked = false;
+  chx.disabled = true;
+
+  // If no siteid, we're done.
+  if (!siteid) return;
+
+  // Set the checked status according to preference, and enable.
+  chx.checked = LJlogin_sites_stealthwidget(siteid);
+  chx.disabled = false;
+
+  // Done.
+  return;
+}
+
 // Set preference for site scheme cookie. Setting 'none' will unset.
 function LJlogin_prefs_scheme_set() {
   var siteid = LJlogin_prefs_siteid();
@@ -536,6 +565,7 @@ function LJlogin_prefs_site_select() {
   LJlogin_prefs_account_init(siteid);
   LJlogin_prefs_default_init(siteid);
   LJlogin_prefs_scheme_init(siteid);
+  LJlogin_prefs_stealth_init(siteid);
 }
 
 function LJlogin_prefs_site_menu(gotosite) {

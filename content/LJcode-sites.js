@@ -138,3 +138,12 @@ function LJlogin_sites_sitescheme(siteid) {
   }
 }
 
+function LJlogin_sites_stealthwidget(siteid) {
+  var key = "site." + siteid + ".stealthwidget";
+  if (arguments.length > 1) { // Set
+    return LJlogin_preference(key, false, arguments[1]);
+  } else {
+    return LJlogin_preference(key, false);
+  }
+}
+

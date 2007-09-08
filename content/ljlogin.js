@@ -63,8 +63,9 @@ function LJlogin_init() {
     observe: function(subject, topic, data) {
                // Only care if we're talking a changed preference.
                if (topic != "nsPref:changed") return;
-               // There's only one preference we truly care about.
-               if (data != "ljcode.enabledsites") return;
+               // There're only a few preferences we truly care about.
+               if ((data != "ljcode.enabledsites") &&
+                   (data.indexOf('stealthwidget') == -1)) return;
                // And here we are. Go for it...
                LJlogin_statusbar_refresh();
                return; // And done.
@@ -183,29 +184,73 @@ function LJlogin_statusbar_refresh() {
   return;
 }
 
+// Notify the statusbar widget for a given site that a user's been logged in.
 function LJlogin_loggedin(siteid, ljcookie) {
+  // Which user?
   var ljuser = LJlogin_getljuser(siteid, ljcookie);
+
+  // Get the statusbar widget
   var sb = document.getElementById("ljlogin-" + siteid + "-status");
+
+  // Default to non-stealth widgets.
+  var wclass = 'statusbarpanel-iconic-text';
+  // Won't know the session state until we go through the checks.
+  var sclass = '';
+
   if (!ljuser) {
     // Oops. Nothing there, apparently.
     LJlogin_loggedout(siteid);
-  } else if (ljuser == "?UNKNOWN!") {
+  } else if (ljuser == "?UNKNOWN!") { // User whose identity isn't in uidmap.
     sb.label = "(Unknown user)";
     sb.src = "chrome://ljlogin/content/icons/whoareyou.gif";
-    sb.setAttribute("class", "statusbarpanel-iconic-text unknown");
+    sclass = "unknown";
   } else {
     sb.label = ljuser;
     sb.src = "chrome://ljlogin/content/icons/" + siteid + "/userinfo.gif";
-    sb.setAttribute("class", "statusbarpanel-iconic-text ljuser");
+    sclass = "ljuser";
   }
+
+  // Is this supposed to be a stealth widget?
+  if (LJlogin_sites_stealthwidget(siteid)) {
+    // Set a tooltip so the user's not entirely blind to who he's logged in as.
+    sb.tooltipText = LJlogin_sites[siteid].name + ": " + sb.label;
+    // And say that we want stealth.
+    wclass = 'statusbarpanel-iconic';
+  }
+
+  // And, finally, finalize the formatting of the widget:
+  sb.className = wclass + " " + sclass;
+
+  // Done.
   return;
 }
 
 function LJlogin_loggedout(siteid) {
+  // Get the statusbar widget
   var sb = document.getElementById("ljlogin-" + siteid + "-status");
+
+  // Default to non-stealth widgets.
+  var wclass = 'statusbarpanel-iconic-text';
+  // We're logged out, so set session class accordingly:
+  var sclass = 'loggedout';
+
+  // Set status...
   sb.label = "Not logged in.";
   sb.src = "chrome://ljlogin/content/icons/anonymous.gif";
-  sb.setAttribute("class", "statusbarpanel-iconic-text loggedout");
+
+  // Is this supposed to be a stealth widget?
+  if (LJlogin_sites_stealthwidget(siteid)) {
+    // Set a tooltip so the user's not entirely blind to who he's logged in as.
+    sb.tooltipText = LJlogin_sites[siteid].name + ": " + sb.label;
+    // And say that we want stealth.
+    wclass = 'statusbarpanel-iconic';
+  }
+
+  // And, finally, finalize the formatting of the widget:
+  sb.className = wclass + " " + sclass;
+
+  // Done.
+  return;
 }
 
 // Prep a network connection. We should only be trying to do one network-y

@@ -26,6 +26,17 @@
             oncommand="LJlogin_prefs_site_select();" />
 
   <groupbox>
+    <caption label="Hidden Username" />
+    <description>
+      Hide the username field from this site's status bar widget.
+    </description>
+    <hbox>
+      <checkbox id="ljlogin-prefs-stealth-enable" label="Enable"
+                oncommand="LJlogin_prefs_stealth_onoff();" />
+    </hbox>
+  </groupbox>
+
+  <groupbox>
     <caption label="UserID Mapping Maintenance" />
     <hbox>
       <menulist id="ljlogin-prefs-uidmap-menu" flex="1" minwidth="300" />
