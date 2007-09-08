@@ -171,6 +171,14 @@ function LJlogin_statusbar_refresh() {
         LJlogin_loggedout(siteid);
       }
     }
+
+    // Set the site scheme cookie for each site,
+    // if we have a preference to set one.
+    var scheme = LJlogin_sites_sitescheme(siteid);
+    if (scheme) {
+      LJlogin_save_sitescheme(siteid, scheme);
+    }
+
   }
   return;
 }

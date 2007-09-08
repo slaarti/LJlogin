@@ -7,7 +7,13 @@ var LJlogin_sites = {
              cookiedom: '.livejournal.com',
              cookieurl: 'http://www.livejournal.com/',
             cookiename: 'ljmastersession',
-          interfaceurl: 'http://www.livejournal.com/interface/flat'
+          interfaceurl: 'http://www.livejournal.com/interface/flat',
+           siteschemes: {
+                           'horizon': 'Horizon',
+                           'vertigo': 'Vertigo',
+                          'xcolibur': "XColibur",
+                          'dystopia': "Dystopia"
+                        }
         },
   'ij': {
                   name: 'InsaneJournal',
@@ -17,7 +23,18 @@ var LJlogin_sites = {
              cookiedom: '.insanejournal.com',
              cookieurl: 'http://www.insanejournal.com/',
             cookiename: 'ljmastersession',
-          interfaceurl: 'http://www.insanejournal.com/interface/flat'
+          interfaceurl: 'http://www.insanejournal.com/interface/flat',
+           siteschemes: {
+                                  'tweak': 'New Tweak',
+                             'insanelook': 'InsaneLook',
+                                  'anime': 'Insanime',
+                              'honeycomb': 'Honeycomb Redesigned',
+                          'honeycomb_old': 'Honeycomb',
+                                   'hand': 'Hand',
+                                 'trails': 'Trails',
+                                  'brown': 'Brown',
+                                  'clean': 'Clean'
+                        }
         },
   'gj': {
                   name: 'GreatestJournal',
@@ -27,7 +44,27 @@ var LJlogin_sites = {
              cookiedom: '.greatestjournal.com',
              cookieurl: 'http://www.greatestjournal.com/',
             cookiename: 'ljsession',
-          interfaceurl: 'http://www.greatestjournal.com/interface/flat'
+          interfaceurl: 'http://www.greatestjournal.com/interface/flat',
+           siteschemes: {
+                            'dystopia': 'Red and Gold',
+                              'purple': 'purple',
+                                'pink': 'Pink',
+                                'lust': 'Lust',
+                               'blood': 'Blood',
+                                'gray': 'Gray',
+                                'lime': 'Lime',
+                               'sugar': 'Sugar',
+                                 'sky': 'Sky',
+                              'forest': 'Forest',
+                                'sage': 'Sage',
+                               'night': 'Night',
+                              'casual': 'Casual',
+                               'grape': 'Grape',
+                            'lavender': 'Lavender',
+                          'watermelon': 'Watermelon',
+                           'tangerine': 'Tangerine',
+                            'defaultb': 'Top_Navigation'
+                        }
         },
   'jf': {
                   name: 'JournalFen',
@@ -37,7 +74,10 @@ var LJlogin_sites = {
              cookiedom: '.journalfen.net',
              cookieurl: 'http://www.journalfen.net/',
             cookiename: 'ljsession',
-          interfaceurl: 'http://www.journalfen.net/interface/flat'
+          interfaceurl: 'http://www.journalfen.net/interface/flat',
+           siteschemes: {
+                          'jf': 'JournalFen'
+                        }
         },
   'dj': {
                   name: 'DeadJournal',
@@ -47,7 +87,11 @@ var LJlogin_sites = {
              cookiedom: '.deadjournal.com',
              cookieurl: 'http://www.deadjournal.com/',
             cookiename: 'ljmastersession',
-          interfaceurl: 'http://www.deadjournal.com/interface/flat'
+          interfaceurl: 'http://www.deadjournal.com/interface/flat',
+           siteschemes: {
+                             'mindvamp': 'skull',
+                          'deadjournal': 'radioactive'
+                        }
         }
 };
 
@@ -84,3 +128,13 @@ function LJlogin_sites_defaultlogin_ljuser(siteid) {
     return LJlogin_preference(key, '');
   }
 }
+
+function LJlogin_sites_sitescheme(siteid) {
+  var key = "site." + siteid + ".sitescheme";
+  if (arguments.length > 1) { // Set
+    return LJlogin_preference(key, '', arguments[1]);
+  } else {
+    return LJlogin_preference(key, '');
+  }
+}
+

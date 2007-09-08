@@ -5,6 +5,61 @@ function LJlogin_prefs_siteid() {
   return sitemenu.value;
 }
 
+// Set preference for site scheme cookie. Setting 'none' will unset.
+function LJlogin_prefs_scheme_set() {
+  var siteid = LJlogin_prefs_siteid();
+  var scheme = document.getElementById('ljlogin-prefs-scheme').value;
+  LJlogin_sites_sitescheme(siteid, scheme);
+
+  // Handle doing the cookie op.
+  LJlogin_save_sitescheme(siteid, scheme);
+
+  return;
+}
+
+// Configure menu for setting site scheme cookie
+function LJlogin_prefs_scheme_init(siteid) {
+  // Before we can build, we must first destroy:
+  var menu = document.getElementById("ljlogin-prefs-scheme");
+  menu.selectedIndex = -1; // Unselect...
+  menu.removeAllItems(); // ...and clear.
+
+  // Disable all of the elements; we'll re-enable if we have uidmap
+  // elements to deal with for this siteid (assuming it's a real one.)
+  document.getElementById("ljlogin-prefs-scheme").disabled = true;
+  document.getElementById("ljlogin-prefs-scheme-set").disabled = true;
+
+  // If we got handed the empty siteid, then we're actually just here
+  // to disable this set of elements, so we're done.
+  if (siteid == '') {
+    return;
+  }
+
+  // Get the scheme list to populate the menu.
+  var schemes = LJlogin_sites[siteid].siteschemes;
+
+  // First, we provide a null option, which means to set no cookie at all.
+  menu.appendItem('(None)', '');
+
+  for (var scheme in schemes) { // Make the menu.
+    menu.appendItem(schemes[scheme], scheme); // Add item to menu
+  }
+
+  // And a few bonus schemes, bundled with LJcode:
+  menu.appendItem('Lynx', 'lynx');
+  menu.appendItem('Blue White', 'bluewhite');
+  menu.appendItem('Opal Cat', 'opalcat');
+
+  // Set the initial value from preferences:
+  menu.value = LJlogin_sites_sitescheme(siteid);
+
+  // And now, make the menu and related buttons useable:
+  document.getElementById("ljlogin-prefs-scheme").disabled = false;
+  document.getElementById("ljlogin-prefs-scheme-set").disabled = false;
+
+  return;
+}
+
 // Rename an account in the uidmap
 function LJlogin_prefs_uidmap_rename() {
   var siteid = LJlogin_prefs_siteid();
@@ -480,6 +535,7 @@ function LJlogin_prefs_site_select() {
   LJlogin_prefs_uidmap_init(siteid);
   LJlogin_prefs_account_init(siteid);
   LJlogin_prefs_default_init(siteid);
+  LJlogin_prefs_scheme_init(siteid);
 }
 
 function LJlogin_prefs_site_menu(gotosite) {

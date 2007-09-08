@@ -246,6 +246,57 @@ function LJlogin_mkuidmap(siteid, ljuser, ljuid) {
   return true;
 }
 
+// Set the site scheme for a given site to a given value,
+// or unset of a blank scheme value is given.
+function LJlogin_save_sitescheme(siteid, scheme) {
+  // No point if invalid siteid.
+  if (!LJlogin_sites.hasOwnProperty(siteid)) return;
+  var cookiedom = LJlogin_sites[siteid].cookiedom;
+
+  // If blank scheme, then unset any cookies that might be here.
+  // We do this possibility first 'cause it's simpler.
+  if (!scheme) {
+
+    try {
+      var cookiejar = Components.classes["@mozilla.org/cookiemanager;1"]
+                      .getService(Components.interfaces.nsICookieManager);
+      cookiejar.remove(cookiedom, "BMLschemepref", "/", false);
+      cookiejar.remove(".www" + cookiedom, "BMLschemepref", "/", false);
+      cookiejar.remove("www" + cookiedom, "BMLschemepref", "/", false);
+      return;
+    } catch(e) {
+      alert("Error removing site scheme cookies: " + e);
+      return;
+    }
+
+  } else {
+
+    // See the gripe in LJlogin_savesession() about all of the
+    // hoops that I have to jump through to save a cookie.
+    var ljuri = Components.classes["@mozilla.org/network/standard-url;1"]
+                          .createInstance(Components.interfaces.nsIURI);
+    ljuri.spec = LJlogin_sites[siteid].cookieurl;
+    // The cookies need to be formatted like they
+    // were being handed back from a server.
+    var cookiedom = LJlogin_sites[siteid].cookiedom;
+    var schemecookie = "BMLschemepref=" + scheme +
+                       "; path=/; domain=" + cookiedom + ";";
+
+    // Do the actual save.
+    try {
+      var cookiejar = Components.classes["@mozilla.org/cookiemanager;1"]
+                      .getService(Components.interfaces.nsICookieService);
+      cookiejar.setCookieString(ljuri, null, schemecookie, null);
+    } catch(e) {
+      alert("Error in cookie creation: " + e);
+      return;
+    }
+
+  }
+
+  return;
+}
+
 // Take an ljsession and make the requisite cookies.
 function LJlogin_savesession(siteid, mysession) {
   if (!mysession) return false; // No point if no session.

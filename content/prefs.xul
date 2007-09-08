@@ -63,6 +63,19 @@
               oncommand="LJlogin_prefs_default_setacct();" />
     </hbox>
   </groupbox>
+
+  <groupbox>
+    <caption label="Site Scheme" />
+    <description>
+      Automatically set a site scheme cookie.
+    </description>
+    <hbox>
+      <menulist id="ljlogin-prefs-scheme" />
+      <button id="ljlogin-prefs-scheme-set" label="Set Site Scheme"
+              oncommand="LJlogin_prefs_scheme_set();" />
+    </hbox>
+  </groupbox>
+
 </groupbox>
 
 </dialog>
