@@ -85,6 +85,33 @@
   </groupbox>
 
   <groupbox>
+    <caption label="Post-Login Action" />
+    <description>
+      Upon successfully logging in as a user...
+    </description>
+    <hbox>
+      <menulist id="ljlogin-prefs-session-action"
+                oncommand="LJlogin_prefs_session_action();">
+        <menupopup>
+          <menuitem label="Do nothing." value="0" />
+          <menuitem label="Load user's journal..." value="1" />
+          <menuitem label="Load user's friends page..." value="2" />
+          <menuitem label="Load Update Journal page..." value="3" />
+        </menupopup>
+      </menulist>
+      <menulist id="ljlogin-prefs-session-dest"
+                oncommand="LJlogin_prefs_session_dest();">
+        <menupopup>
+          <menuitem label="...in the current window/tab." value="0" />
+          <menuitem label="...in a new focused tab." value="1" />
+          <menuitem label="...in a new backgrounded tab." value="2" />
+          <menuitem label="...in a new window." value="3" />
+        </menupopup>
+      </menulist>
+    </hbox>
+  </groupbox>
+
+  <groupbox>
     <caption label="Site Scheme" />
     <description>
       Automatically set a site scheme cookie.

@@ -149,3 +149,25 @@ function LJlogin_sites_stealthwidget(siteid) {
   }
 }
 
+function LJlogin_sites_session_action(siteid) {
+  var key = "site." + siteid + ".sessionaction.src";
+  if (arguments.length > 1) { // Set
+    var pd = LJlogin_preference(key, 0, Number(arguments[1]));
+  } else {
+    var pd = LJlogin_preference(key, 0);
+  }
+
+  return pd.toString();
+}
+
+function LJlogin_sites_session_dest(siteid) {
+  var key = "site." + siteid + ".sessionaction.dest";
+  if (arguments.length > 1) { // Set
+    var pd = LJlogin_preference(key, 0, Number(arguments[1]));
+  } else {
+    var pd = LJlogin_preference(key, 0);
+  }
+
+  return pd.toString();
+}
+

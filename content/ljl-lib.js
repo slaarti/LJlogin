@@ -399,6 +399,56 @@ function LJlogin_userlist(siteid) {
   return userlist.sort();
 }
 
+// Handle post-login action, if one is defined for the site.
+function LJlogin_sessionaction(siteid, ljuser) {
+  // Check for basic argument presence.
+  if ((!siteid) || (!ljuser)) return;
+
+  // Get action and see what, if anything, we should do.
+  var action = LJlogin_sites_session_action(siteid);
+  switch (action) {
+    case "3":
+      // Update Journal
+      var url = LJlogin_sites[siteid].passmanurl + "/update.bml";
+      break;
+    case "2":
+      // Friends page
+      var url = LJlogin_sites[siteid].passmanurl + "/users/"
+                                                 + ljuser + "/friends/";
+      break;
+    case "1":
+      var url = LJlogin_sites[siteid].passmanurl + "/users/" + ljuser;
+      break;
+    case "0":
+    default:
+      return;
+  }
+
+  // Now we know what we're getting, but where to put it?
+  switch (LJlogin_sites_session_dest(siteid)) {
+    case "0": // Current window/tab
+      var gb = getBrowser();
+      gb.loadURI(url);
+      break;
+    case "3": // New window
+      window.open(url, '_blank');
+      break;
+    case "2": // Backgrounded tab
+      var gb = getBrowser();
+      gb.addTab(url);
+      break;
+    case "1": // Focused tab
+      var gb = getBrowser();
+      gb.selectedTab = gb.addTab(url);
+      break;
+    default:
+      return;
+  }
+
+  // Done.
+  return;
+}
+
 // The meat of this function is lifted pretty much wholesale from the
 // page on nsICryptoHash on MozDevCenter. Take a string, pass it back
 // as hexified md5 hash. Presumably, this'll be cleaner than the md5

@@ -444,6 +444,9 @@ function LJlogin_dologin(siteid, ljuser, ljpass) {
   // Now save:
   LJlogin_savesession(siteid, mysession);
 
+  // Perform post-login action, if any.
+  LJlogin_sessionaction(siteid, ljuser);
+
   // Aaaaand, done.
   w.status = "Done";
   return true;

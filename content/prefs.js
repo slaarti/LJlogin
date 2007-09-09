@@ -503,6 +503,63 @@ function LJlogin_prefs_default_init(siteid) {
   return;
 }
 
+function LJlogin_prefs_session_action() {
+  var siteid = LJlogin_prefs_siteid();
+
+  // Get the value of the menu, and set the preference accordingly.
+  var actionmenu = document.getElementById("ljlogin-prefs-session-action");
+  var action = actionmenu.value;
+  LJlogin_sites_session_action(siteid, action);
+
+  // Refresh the prefbox session, to possibly change the dest menu's state.
+  LJlogin_prefs_session_init(siteid);
+
+  // Done.
+  return;
+}
+
+function LJlogin_prefs_session_dest() {
+  var siteid = LJlogin_prefs_siteid();
+
+  // Get the value of the menu, and set the preference accordingly.
+  var destmenu = document.getElementById("ljlogin-prefs-session-dest");
+  var dest = destmenu.value;
+  LJlogin_sites_session_dest(siteid, dest);
+
+  // Done.
+  return;
+}
+
+function LJlogin_prefs_session_init(siteid) {
+  // Elements at play:
+  var actionmenu = document.getElementById("ljlogin-prefs-session-action");
+  var destmenu = document.getElementById("ljlogin-prefs-session-dest");
+
+  // Deselect and disable by default.
+  actionmenu.selectedIndex = -1;
+  actionmenu.disabled = true;
+  destmenu.selectedIndex = -1;
+  destmenu.disabled = true;
+
+  // If no siteid, then we're done.
+  if (!siteid) return;
+
+  // Get settings to apply to menus.
+  var action = LJlogin_sites_session_action(siteid);
+  var dest = LJlogin_sites_session_dest(siteid);
+
+  // Set values.
+  actionmenu.value = action;
+  destmenu.value = dest;
+
+  // Always enable action, but only enable dest if we have an action.
+  actionmenu.disabled = false;
+  if (action != "0") destmenu.disabled = false;
+
+  // And done.
+  return;
+}
+
 function LJlogin_prefs_ljcode_select(siteid) {
   var enabledsites = LJlogin_enabled_sites();
 
@@ -566,6 +623,7 @@ function LJlogin_prefs_site_select() {
   LJlogin_prefs_default_init(siteid);
   LJlogin_prefs_scheme_init(siteid);
   LJlogin_prefs_stealth_init(siteid);
+  LJlogin_prefs_session_init(siteid);
 }
 
 function LJlogin_prefs_site_menu(gotosite) {
