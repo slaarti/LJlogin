@@ -1,5 +1,4 @@
 var LJlogin_loaded = false;
-var ljl_conn = undefined;
 
 function LJlogin_init() {
   // We only care to have this stuff loaded up once.
@@ -257,30 +256,14 @@ function LJlogin_loggedout(siteid) {
 // thing at a time (especially since we're using synchronous connection),
 // so this will cancel any existing connection before allocating the new one.
 function LJlogin_newconn(siteid) {
-  LJlogin_cancelconn(); // Kill any possibly existing connection.
-  ljl_conn = new XMLHttpRequest(); // Allocate the new connection.
+  var conn = new XMLHttpRequest(); // Allocate the new connection.
   // Since we're always going to do these, may as well do them here
   // once and for all. Point the connection at LJ's flat interface,
   // and prep for form posting.
-  ljl_conn.open("POST", LJlogin_sites[siteid].interfaceurl, false);
-  ljl_conn.setRequestHeader("Content-Type",
-                            "application/x-www-form-urlencoded");
-//  ljl_conn.timeout = window.setTimeout("ljl_cancelconn()", 30000);
-}
-
-// Finalize the connection.
-function LJlogin_endconn() {
-  ljl_conn = undefined;
-//  window.clearTimeout(ljl_conn.timeout);
-}
-
-// Allow the user (or the extension, should the connection take too long)
-// to cancel the current connection attempt.
-function LJlogin_cancelconn() {
-  if (ljl_conn !== undefined) {
-    ljl_conn.abort();
-    LJlogin_endconn();
-  }
+  conn.open("POST", LJlogin_sites[siteid].interfaceurl, false);
+  conn.setRequestHeader("Content-Type",
+                        "application/x-www-form-urlencoded");
+  return conn;
 }
 
 // Turns the response handed back by LJ's flat interface into a hash object.
@@ -314,22 +297,22 @@ function LJlogin_logmeout(siteid) {
     var w = window;
 
     // Tell LJ that we want to expire this session.
-    LJlogin_newconn(siteid); // Create the connection.
+    var conn = LJlogin_newconn(siteid); // Create the connection.
     // Give the connection our existing login credentials, which we're expiring.
-    ljl_conn.setRequestHeader("X-LJ-Auth", "cookie");
-    ljl_conn.setRequestHeader("Cookie", "ljsession=" + ljsession);
-    ljl_conn.setRequestHeader("Cookie", "ljmastersession=" + ljsession);
+    conn.setRequestHeader("X-LJ-Auth", "cookie");
+    conn.setRequestHeader("Cookie", "ljsession=" + ljsession);
+    conn.setRequestHeader("Cookie", "ljmastersession=" + ljsession);
     var sessfields = ljsession.split(":");
-    ljl_conn.setRequestHeader("Cookie", "ljloggedin=" +
-                                         sessfields[1]+":"+sessfields[2]);
+    conn.setRequestHeader("Cookie", "ljloggedin=" +
+                                     sessfields[1]+":"+sessfields[2]);
     // Aaaaaand, go!
     w.status = "Logging out of " + LJlogin_sites[siteid].name + "...";
-    ljl_conn.send("mode=sessionexpire&user="
-                 + encodeURIComponent(ljuser) +
-                 "&auth_method=cookie");
-    if (ljl_conn.status == 200) { // Assuming a successful request...
+    conn.send("mode=sessionexpire&user="
+             + encodeURIComponent(ljuser) +
+             "&auth_method=cookie");
+    if (conn.status == 200) { // Assuming a successful request...
       // Check whether the request accomplished the job.
-      var ljsaid = LJlogin_parseljresponse(ljl_conn.responseText);
+      var ljsaid = LJlogin_parseljresponse(conn.responseText);
       if ((ljsaid["success"] != "OK") || (ljsaid["errmsg"])) {
         // Something went wrong here.
         window.openDialog("chrome://ljlogin/content/logouterr.xul",
@@ -340,11 +323,10 @@ function LJlogin_logmeout(siteid) {
     } else { // Something else happened.
       window.openDialog("chrome://ljlogin/content/logouterr.xul",
                         "ljlogin-logouterr", "chrome,dialog", siteid,
-                        ljl_conn.status + " " + ljl_conn.statusText);
+                        conn.status + " " + conn.statusText);
       return false;
     }
     w.status = "Done";
-    LJlogin_endconn();
   } else if (ljuser == "?UNKNOWN!") {
     // No username/uid mapping available. Make just trashing the session
     // an option:
@@ -378,56 +360,50 @@ function LJlogin_dologin(siteid, ljuser, ljpass) {
   LJlogin_logmeout(siteid);
 
   // Login, Phase I: Get the challenge
-  LJlogin_newconn(siteid); // Create the connection.
+  var conn = LJlogin_newconn(siteid); // Create the connection.
   w.status = "Getting challenge from " +
              LJlogin_sites[siteid].name + "...";
-  ljl_conn.send("mode=getchallenge");
-  if (ljl_conn.status != 200) { // If something went wrong
+  conn.send("mode=getchallenge");
+  if (conn.status != 200) { // If something went wrong
     alert("Could not get login challenge from " +
           LJlogin_sites[siteid].name + ": " +
-          ljl_conn.status + " " + ljl_conn.statusText);
+          conn.status + " " + conn.statusText);
     w.status = "Done";
-    LJlogin_endconn();
     return false;
   } else { // Transaction itself was OK, but did it work?
-    ljsaid = LJlogin_parseljresponse(ljl_conn.responseText);
+    ljsaid = LJlogin_parseljresponse(conn.responseText);
     if ((ljsaid["success"] != "OK") || (ljsaid["errmsg"])) {
       // Trouble in getchallenge land...
       alert("Could not get login challenge from " +
             LJlogin_sites[siteid].name + ": " + ljsaid["errmsg"]);
       w.status = "Done";
-      LJlogin_endconn();
       return false;
     }
   }
-  LJlogin_endconn();
   var challenge = ljsaid["challenge"];
   var response = LJlogin_hex_md5(challenge + LJlogin_hex_md5(ljpass));
 
   // Login, Phase II: Send back the response.
-  LJlogin_newconn(siteid); // Create the connection.
+  conn = LJlogin_newconn(siteid); // Create the connection.
   w.status = "Sending response to " + LJlogin_sites[siteid].name + "...";
-  ljl_conn.send("mode=sessiongenerate&auth_method=challenge"
-                + "&user=" + encodeURIComponent(ljuser)
-                + "&auth_challenge=" + encodeURIComponent(challenge)
-                + "&auth_response=" + encodeURIComponent(response));
-  if (ljl_conn.status != 200) { // If something went wrong
+  conn.send("mode=sessiongenerate&auth_method=challenge"
+            + "&user=" + encodeURIComponent(ljuser)
+            + "&auth_challenge=" + encodeURIComponent(challenge)
+            + "&auth_response=" + encodeURIComponent(response));
+  if (conn.status != 200) { // If something went wrong
     alert("Login connection failed: "
-          + ljl_conn.status + " " + ljl_conn.statusText);
+          + conn.status + " " + conn.statusText);
     w.status = "Done";
-    LJlogin_endconn();
     return false;
   } else { // Transaction itself was OK, but did it work?
-    ljsaid = LJlogin_parseljresponse(ljl_conn.responseText);
+    ljsaid = LJlogin_parseljresponse(conn.responseText);
     if ((ljsaid["success"] != "OK") || (ljsaid["errmsg"])) {
       // Oops. Login failed. Tell us how.
       alert("Login failed: " + ljsaid["errmsg"]);
       w.status = "Done";
-      LJlogin_endconn();
       return false;
     }
   }
-  LJlogin_endconn();
   var mysession = ljsaid["ljsession"]; // Hooray!
 
   // Login, Phase III: We've gone through the challenge/response hoops,
