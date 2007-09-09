@@ -302,6 +302,16 @@ function LJlogin_savesession(siteid, mysession) {
   if (!mysession) return false; // No point if no session.
   // Also no point if invalid siteid.
   if (!LJlogin_sites.hasOwnProperty(siteid)) return false;
+
+  // If we're supposed to make persistent sessions, then
+  // crunch the numbers for cookie expiry. 1 year sounds good.
+  var expiry = '';
+  if (LJlogin_sites_persistdefault(siteid) == "1") {
+    var exdate = new Date();
+    exdate.setTime(exdate.getTime() + (365*24*60*60*1000));
+    expiry = "; expires=" + exdate.toGMTString();
+  }
+
 // This code was written on the assumption that the nsICookieManager2
 // interface, which had this nifty add() method that did just what you'd
 // expect, would be available. Alas, it's not, so we have to do some
@@ -321,13 +331,16 @@ function LJlogin_savesession(siteid, mysession) {
   // formatted like they were being handed back from a server.
   var cookiedom = LJlogin_sites[siteid].cookiedom;
   var ljsession = "ljsession=" + mysession +
+                  expiry +
                   "; path=/; domain=" + cookiedom + ";";
   var ljmasters = "ljmastersession=" + mysession +
+                  expiry +
                   "; path=/; domain=" + cookiedom + ";";
   // This bit's tricky: Gotta pull the uid and session id out of the
   // session info, and use that to build the ljloggedin cookie:
   var sessfields = mysession.split(":");
   var ljloggedin = "ljloggedin=" + sessfields[1]+":"+sessfields[2] +
+                  expiry +
                    "; path=/; domain=" + cookiedom + ";";
   // Do the actual saves.
   try {

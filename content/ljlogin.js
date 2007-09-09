@@ -153,7 +153,7 @@ function LJlogin_statusbar_refresh() {
     } else {
       // We're not logged in. Check to see if we should log in
       // as a default user:
-      if (LJlogin_sites_defaultlogin_enabled(siteid)) {
+      if (LJlogin_sites_persistdefault(siteid) == "2") {
         // Yes, log in as a default user.
         var ljuser = LJlogin_sites_defaultlogin_ljuser(siteid);
         if (ljuser) { // Make sure there's actually a user to log in as.

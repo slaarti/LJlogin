@@ -4,6 +4,7 @@
 <dialog id="ljlogin-prefs"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         title="LJlogin Preferences"
+        maxwidth="700"
         buttons="accept"
         buttonlabelaccept="Close"
         ondialogaccept="return true;"
@@ -59,13 +60,21 @@
   </groupbox>
 
   <groupbox>
-    <caption label="Default login" />
+    <caption label="Persistent Sessions/Default Login" />
     <description>
-      These options exist to set a user to log in as on browser start.
+      These options allow the user to either make logins performed by
+      LJlogin be persistent (lasting beyond the end of the current
+      browser session), or set a user to log in as on browser start.
     </description>
     <hbox>
-      <checkbox id="ljlogin-prefs-default-enable" label="Enable"
-                oncommand="LJlogin_prefs_default_onoff();" />
+      <menulist id="ljlogin-prefs-persist-default"
+                oncommand="LJlogin_prefs_persist_default();">
+        <menupopup>
+          <menuitem label="Do nothing." value="0" />
+          <menuitem label="Set persistent sessions." value="1" />
+          <menuitem label="On browser start, log in as:" value="2" />
+        </menupopup>
+      </menulist>
       <menulist id="ljlogin-prefs-default-ljuser" editable="true"
                 sizetopopup="none"
                 oncommand="LJlogin_prefs_default_change();"

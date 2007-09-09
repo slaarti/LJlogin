@@ -111,13 +111,15 @@ function LJlogin_enabled_sites() {
   }
 }
 
-function LJlogin_sites_defaultlogin_enabled(siteid) {
-  var key = "site." + siteid + ".defaultlogin.enable";
+function LJlogin_sites_persistdefault(siteid) {
+  var key = "site." + siteid + ".persistdefault";
   if (arguments.length > 1) { // Set
-    return LJlogin_preference(key, false, arguments[1]);
+    var pd = LJlogin_preference(key, 0, Number(arguments[1]));
   } else {
-    return LJlogin_preference(key, false);
+    var pd = LJlogin_preference(key, 0);
   }
+
+  return pd.toString();
 }
 
 function LJlogin_sites_defaultlogin_ljuser(siteid) {

@@ -409,25 +409,21 @@ function LJlogin_prefs_account_init(siteid) {
 
 // Toggle the availability of the default-user select menu, as well as
 // setting the value of the relevant preference.
-function LJlogin_prefs_default_onoff() {
+function LJlogin_prefs_persist_default() {
   var siteid = LJlogin_prefs_siteid();
 
-  // Get checkbox state:
-  var checked = document.getElementById("ljlogin-prefs-default-enable")
-                        .checked;
+  // Get menu state:
+  var choice = document.getElementById("ljlogin-prefs-persist-default")
+                       .value;
 
-  // Remember that checked means enabled means "disabled" must be false
-  // and vice versa:
-  document.getElementById("ljlogin-prefs-default-ljuser")
-          .disabled = !checked;
+  // Save the value to the preference system:
+  LJlogin_sites_persistdefault(siteid, choice);
 
-  // We always disable this, because it's only allowed by entering text
-  // in the account name box:
-  document.getElementById("ljlogin-prefs-default-setacct")
-          .disabled = true;
+  // And re-initialize the menus/buttons, to set whether or not
+  // the default-login options are enabled.
+  LJlogin_prefs_default_init(siteid);
 
-  // Save the enable/disable value to the preference system:
-  LJlogin_sites_defaultlogin_enabled(siteid, checked);
+  return;
 }
 
 // Make sure we can set a default account when the menu is changed
@@ -457,17 +453,18 @@ function LJlogin_prefs_default_setacct() {
 
 function LJlogin_prefs_default_init(siteid) {
   // Elements at play:
+  var act = document.getElementById("ljlogin-prefs-persist-default");
   var menu = document.getElementById("ljlogin-prefs-default-ljuser");
-  var chx = document.getElementById("ljlogin-prefs-default-enable");
 
   // Before we can build, we must first destroy:
   menu.value = ''; // Blank out any possible custom text.
   menu.selectedIndex = -1; // Unselect...
   menu.removeAllItems(); // ...and clear.
+  act.value = "0"; // Set to do nothing by default.
 
   // Disable all of the elements; we'll re-enable if we have account
   // elements to deal with for this siteid (assuming it's a real one.)
-  chx.disabled = true;
+  act.disabled = true;
   menu.disabled = true;
   document.getElementById("ljlogin-prefs-default-setacct").disabled = true;
 
@@ -488,16 +485,19 @@ function LJlogin_prefs_default_init(siteid) {
   // Get the default username, and fill the field info:
   menu.value = LJlogin_sites_defaultlogin_ljuser(siteid);
 
-  // Get the default account enable preference, and set the state of the
-  // default-account checkbox and menu being enabled accordingly:
-  var defchecked = LJlogin_sites_defaultlogin_enabled(siteid);
-  chx.checked = defchecked;
-  menu.disabled = !defchecked;
+  // Get the preference for whether the user wants persistent sessions
+  // or default account, and set the state of that menu and the default
+  // account selection menu's enable/disable accordingly:
+  var pd = LJlogin_sites_persistdefault(siteid);
+  act.value = pd;
+  if (pd == "2") { // Default login.
+    menu.disabled = false;
+  }
 
-  // And enable the default enable checkbox. The account setter
+  // And enable the persistent/default menu. The account setter
   // button stays disabled, because it's only allowed when the
   // user changes the username in the box.
-  chx.disabled = false;
+  act.disabled = false;
 
   // And now we're done.
   return;
