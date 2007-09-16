@@ -460,7 +460,7 @@ function LJlogin_prefs_default_init(siteid) {
   menu.value = ''; // Blank out any possible custom text.
   menu.selectedIndex = -1; // Unselect...
   menu.removeAllItems(); // ...and clear.
-  act.value = "0"; // Set to do nothing by default.
+  act.selectedIndex = -1; // Unselect.
 
   // Disable all of the elements; we'll re-enable if we have account
   // elements to deal with for this siteid (assuming it's a real one.)
