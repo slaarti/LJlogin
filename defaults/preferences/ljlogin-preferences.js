@@ -1,2 +1,1 @@
-pref("extensions.ljlogin.defaultlogin.enable", false);
-pref("extensions.ljlogin.defaultlogin.ljuser", "");
+pref("extensions.ljlogin.ljcode.enabledsites", "lj");
