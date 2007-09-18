@@ -476,5 +476,6 @@ function LJlogin_hex_md5(plaintext) {
     return ("0" + charCode.toString(16)).slice(-2);
   }
 
-  return [toHexString(hash.charCodeAt(i)) for (i in hash)].join("");
+  return [toHexString(hash.charCodeAt(i)) for (i in hash)].join("")
+                                                          .slice(0,32);
 }
