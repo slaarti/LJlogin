@@ -7,12 +7,12 @@
 
   <em:id>{ad4ee9e5-49c7-4589-acf3-db9fa76a95c9}</em:id>
   <em:name>LJlogin</em:name>
-  <em:version>1.9.999</em:version>
+  <em:version>2.0</em:version>
   <em:description>Tells you which LiveJournal account you're logged in with, and lets you switch between them.</em:description>
   <em:iconURL>chrome://ljlogin/content/icons/lj/userinfo.gif</em:iconURL>
   <em:creator>Chris Pinard</em:creator>
   <em:homepageURL>http://ljlogin.e-space.gweep.net/</em:homepageURL>
-  <em:updateURL>http://www.gweep.net/~slarti/Gweep/LJlogin/updates.rdf</em:updateURL>
+  <em:updateURL>http://ljlogin.e-space.gweep.net/releases/updates.rdf</em:updateURL>
   <em:type>2</em:type>
 
   <em:file>
@@ -24,11 +24,11 @@
   <em:targetApplication>
     <Description>
       <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
-      <em:minVersion>1.0</em:minVersion>
+      <em:minVersion>2.0</em:minVersion>
       <em:maxVersion>2.0+</em:maxVersion>
     </Description>
   </em:targetApplication>
 
- </Description>   
+ </Description>
 
 </RDF>
