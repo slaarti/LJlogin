@@ -284,7 +284,7 @@ function LJlogin_prefs_account_passwd() {
     var doit = prompts.promptPassword(window, "LJlogin: Change Password",
                       "What is the new password for this account? " +
                       "(Keep in mind that this does not change the " +
-                      "password on LiveJournal's servers.)",
+                      "password on " + LJlogin_sites[siteid].name + "'s servers.)",
                       passwd, null, chkbx);
     if (!doit) return; // User canceled.
 
@@ -308,7 +308,7 @@ function LJlogin_prefs_account_passwd() {
   try {
     var passman = Components.classes["@mozilla.org/passwordmanager;1"]
         .getService(Components.interfaces.nsIPasswordManagerInternal);
-    passman.addUserFull("http://www.livejournal.com",
+    passman.addUserFull(LJlogin_sites[siteid].passmanurl,
                         ljuser, passwd.value,
                         "user", "password");
   } catch(e) {
