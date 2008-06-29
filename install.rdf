@@ -1,34 +1,25 @@
 <?xml version="1.0"?>
-
-<RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-     xmlns:em="http://www.mozilla.org/2004/em-rdf#">
-
- <Description about="urn:mozilla:install-manifest">
-
-  <em:id>{ad4ee9e5-49c7-4589-acf3-db9fa76a95c9}</em:id>
-  <em:name>LJlogin</em:name>
-  <em:version>2.0</em:version>
-  <em:description>Tells you which LiveJournal account you're logged in with, and lets you switch between them.</em:description>
-  <em:iconURL>chrome://ljlogin/content/icons/lj/userinfo.gif</em:iconURL>
-  <em:creator>Chris Pinard</em:creator>
-  <em:homepageURL>http://ljlogin.e-space.gweep.net/</em:homepageURL>
-  <em:updateURL>http://ljlogin.e-space.gweep.net/releases/updates.rdf</em:updateURL>
-  <em:type>2</em:type>
-
-  <em:file>
-    <Description about="urn:mozilla:extension:file:ljlogin.jar">
-      <em:package>content/</em:package>
-    </Description>
-  </em:file>
-
-  <em:targetApplication>
-    <Description>
-      <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
-      <em:minVersion>2.0</em:minVersion>
-      <em:maxVersion>2.0+</em:maxVersion>
-    </Description>
-  </em:targetApplication>
-
- </Description>
-
-</RDF>
+<RDF:RDF xmlns:em="http://www.mozilla.org/2004/em-rdf#"
+         xmlns:NC="http://home.netscape.com/NC-rdf#"
+         xmlns:RDF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <RDF:Description RDF:about="rdf:#$ZouwY"
+                   em:id="{ec8030f7-c20a-464f-9b0e-13a3a9e97384}"
+                   em:minVersion="2.0"
+                   em:maxVersion="3.0.*" />
+  <RDF:Description RDF:about="urn:mozilla:extension:file:ljlogin.jar"
+                   em:package="content/" />
+  <RDF:Description RDF:about="urn:mozilla:install-manifest"
+                   em:id="{ad4ee9e5-49c7-4589-acf3-db9fa76a95c9}"
+                   em:name="LJlogin"
+                   em:version="2.1.0"
+                   em:description="Tells you which LiveJournal account you're logged in with, and lets you switch between them."
+                   em:iconURL="chrome://ljlogin/content/icons/lj/userinfo.gif"
+                   em:creator="Chris Pinard"
+                   em:homepageURL="http://ljlogin.e-space.gweep.net/"
+                   em:updateURL="http://ljlogin.e-space.gweep.net/releases/updates.rdf"
+                   em:type="2"
+                   em:updateKey="MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQD27gm17LjevAEWytG018aN2BNqrcW2joLtQSAGTGW/MVV7KcXwa3BJTbzMk17FxX3zkO/qMxj0JBRjxu/Q8WPv6IirGwindgvEFEOgMowNJ7h/uqrdFImMjm15MaxCI3Dougwexn65skZqOqMoCcjCwyGCl3uFfDzylvysoTUuiQIDAQAB">
+    <em:file RDF:resource="urn:mozilla:extension:file:ljlogin.jar"/>
+    <em:targetApplication RDF:resource="rdf:#$ZouwY"/>
+  </RDF:Description>
+</RDF:RDF>

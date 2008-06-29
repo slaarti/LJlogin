@@ -75,11 +75,44 @@ function LJlogin_preference(pref, failval) {
 function LJlogin_savepassword(siteid, ljuser, ljpass) {
   // Save a username/password pair in the Password Manager.
   try {
-    var passman = Components.classes["@mozilla.org/passwordmanager;1"]
-        .getService(Components.interfaces.nsIPasswordManagerInternal);
-    passman.addUserFull(LJlogin_sites[siteid].passmanurl,
-                        ljuser, ljpass,
-                        "user", "password");
+    if ("@mozilla.org/passwordmanager;1" in Components.classes) { // FF2
+      // Our old friend, the Password Manager
+      var passman = Components.classes["@mozilla.org/passwordmanager;1"]
+          .getService(Components.interfaces.nsIPasswordManagerInternal);
+      passman.addUserFull(LJlogin_sites[siteid].passmanurl,
+                          ljuser, ljpass,
+                          "user", "password");
+    } else if ("@mozilla.org/login-manager;1" in Components.classes) { // FF3
+      // Our new friend, the Login Manager!
+      var logman = Components.classes["@mozilla.org/login-manager;1"]
+          .getService(Components.interfaces.nsILoginManager);
+
+      // Okay, this shit is utterly bananas. In order to make sure I
+      // don't save an entry where I already have one (which, with
+      // the PM, would just cause it to overwrite/update the old
+      // entry, the LM doesn't just throw an exception; it throws an
+      // exception that's *just a string*, with no useful exception
+      // class or anything. So, as a prophylactic measure before we
+      // save the entry, we search and destroy any such entry that
+      // might already be there. Lame!
+      var linfos = logman.findLogins({},
+                                     LJlogin_sites[siteid].passmanurl,
+                                     LJlogin_sites[siteid].passmanurl, null);
+      for (var i = 0; i < linfos.length; i++) {
+        if (linfos[i].username == ljuser) {
+           logman.removeLogin(linfos[i]);
+           break;
+        }
+      }
+
+      var linfo = Components.classes["@mozilla.org/login-manager/loginInfo;1"]
+                          .createInstance(Components.interfaces.nsILoginInfo);
+      linfo.init(LJlogin_sites[siteid].passmanurl,
+                 LJlogin_sites[siteid].passmanurl, null,
+                 ljuser, ljpass,
+                 "user", "password");
+      logman.addLogin(linfo);
+    }
   } catch(e) {
     var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
                             .getService(Components.interfaces.nsIPromptService);
@@ -120,35 +153,67 @@ function LJlogin_getljsession(siteid) {
 function LJlogin_uidmap_lookup(siteid, ljuid) {
   // Do a lookup on the uidmap for a given site.
 
-  // Need a dummy username variable to put the result in.
-  var username = new Object();
+  if ("@mozilla.org/passwordmanager;1" in Components.classes) { // FF2
+    // Our old friend, the Password Manager
 
-  try {
-    var passman = Components.classes["@mozilla.org/passwordmanager;1"]
-        .getService(Components.interfaces.nsIPasswordManagerInternal);
+    // Need a dummy username variable to put the result in.
+    var username = new Object();
 
-    // Dummy objects to hold things we don't really care about,
-    // but must have a place for nonetheless.
-    var temphost = new Object();
-    var temppass = new Object();
+    try {
+      var passman = Components.classes["@mozilla.org/passwordmanager;1"]
+          .getService(Components.interfaces.nsIPasswordManagerInternal);
 
-    // Do the job.
-    passman.findPasswordEntry("ljlogin." + siteid + ".uidmap", null, ljuid,
-                              temphost, username, temppass);
-  } catch(e if e instanceof Components.Exception) { // Oops. Probably no match.
-    if (e.result == Components.results.NS_ERROR_FAILURE) {
-      return "?UNKNOWN!";
-    } else { // Something else wrong?! Uh oh.
+      // Dummy objects to hold things we don't really care about,
+      // but must have a place for nonetheless.
+      var temphost = new Object();
+      var temppass = new Object();
+
+      // Do the job.
+      passman.findPasswordEntry("ljlogin." + siteid + ".uidmap", null, ljuid,
+                                temphost, username, temppass);
+    } catch(e if e instanceof Components.Exception) {
+      // Oops. Probably no match.
+      if (e.result == Components.results.NS_ERROR_FAILURE) {
+        return "?UNKNOWN!";
+      } else { // Something else wrong?! Uh oh.
+        prompts.alert(window, "LJlogin", "Error looking up uid map: " + e);
+        return "?UNKNOWN!";
+      }
+    } catch(e) { // Big oops. What happened?!
       prompts.alert(window, "LJlogin", "Error looking up uid map: " + e);
       return "?UNKNOWN!";
     }
-  } catch(e) { // Big oops. What happened?!
-    prompts.alert(window, "LJlogin", "Error looking up uid map: " + e);
-    return "?UNKNOWN!";
-  }
 
-  // Yay! Win! Hand back the username.
-  return username.value;
+    // Yay! Win! Hand back the username.
+    return username.value;
+
+  } else if ("@mozilla.org/login-manager;1" in Components.classes) { // FF3
+    try {
+      // Our new friend, the Login Manager!
+      var logman = Components.classes["@mozilla.org/login-manager;1"]
+          .getService(Components.interfaces.nsILoginManager);
+      // I have to say, though, that this method of searching
+      // for an entry? Pretty fucking stupid, compared to the
+      // relative simplicity of the Password Manager method.
+      var linfos = logman.findLogins({},
+                                     "ljlogin." + siteid + ".uidmap",
+                                     "ljlogin." + siteid + ".uidmap", null);
+      // Loop over the logins we've got, looking for the right one.
+      for (var i = 0; i < linfos.length; i++) {
+        if (linfos[i].password == ljuid) {
+          // Yay! Win! Hand back the username.
+          return linfos[i].username;
+          break;
+        }
+      }
+
+      return "?UNKNOWN!"; // No matches.
+
+    } catch(e) { // Big oops. What happened?!
+      prompts.alert(window, "LJlogin", "Error looking up uid map: " + e);
+      return "?UNKNOWN!";
+    }
+  }
 }
 
 function LJlogin_getljuser(siteid, ljcookie) {
@@ -220,9 +285,28 @@ function LJlogin_validuser(ljuser) {
 // Remove a username's entry in a site's uidmap
 function LJlogin_uidmap_rmentry(siteid, ljuser) {
   try {
-    var passman = Components.classes["@mozilla.org/passwordmanager;1"]
+    if ("@mozilla.org/passwordmanager;1" in Components.classes) { // FF2
+      // Our old friend, the Password Manager
+      var passman = Components.classes["@mozilla.org/passwordmanager;1"]
         .getService().QueryInterface(Components.interfaces.nsIPasswordManager);
-    passman.removeUser("ljlogin." + siteid + ".uidmap", ljuser);
+      passman.removeUser("ljlogin." + siteid + ".uidmap", ljuser);
+    } else if ("@mozilla.org/login-manager;1" in Components.classes) { // FF3
+      // Our new friend, the Login Manager!
+      var logman = Components.classes["@mozilla.org/login-manager;1"]
+          .getService(Components.interfaces.nsILoginManager);
+      // I have to say, though, that this method of deleting
+      // a password? Pretty fucking stupid, compared to the
+      // relative simplicity of the Password Manager method.
+      var linfos = logman.findLogins({},
+                                     "ljlogin." + siteid + ".uidmap",
+                                     "ljlogin." + siteid + ".uidmap", null);
+      for (var i = 0; i < linfos.length; i++) {
+        if (linfos[i].username == ljuser) {
+           logman.removeLogin(linfos[i]);
+           break;
+        }
+      }
+    }
   } catch(e) {
     prompts.alert(window, "LJlogin", "Error removing entry from uidmap: " + e);
     return false;
@@ -234,11 +318,44 @@ function LJlogin_uidmap_rmentry(siteid, ljuser) {
 // later for getting a username from a uid.
 function LJlogin_mkuidmap(siteid, ljuser, ljuid) {
   try {
-    var passman = Components.classes["@mozilla.org/passwordmanager;1"]
-                  .getService(Components.interfaces.nsIPasswordManagerInternal);
-    passman.addUserFull("ljlogin." + siteid + ".uidmap",
-                         ljuser,     ljuid,
-                        "username", "userid");
+    if ("@mozilla.org/passwordmanager;1" in Components.classes) { // FF2
+      // Our old friend, the Password Manager
+      var passman = Components.classes["@mozilla.org/passwordmanager;1"]
+          .getService(Components.interfaces.nsIPasswordManagerInternal);
+      passman.addUserFull("ljlogin." + siteid + ".uidmap",
+                           ljuser,     ljuid,
+                          "username", "userid");
+    } else if ("@mozilla.org/login-manager;1" in Components.classes) { // FF3
+      // Our new friend, the Login Manager!
+      var logman = Components.classes["@mozilla.org/login-manager;1"]
+          .getService(Components.interfaces.nsILoginManager);
+
+      // Okay, this shit is utterly bananas. In order to make sure I
+      // don't save an entry where I already have one (which, with
+      // the PM, would just cause it to overwrite/update the old
+      // entry, the LM doesn't just throw an exception; it throws an
+      // exception that's *just a string*, with no useful exception
+      // class or anything. So, as a prophylactic measure before we
+      // save the entry, we search and destroy any such entry that
+      // might already be there. Lame!
+      var linfos = logman.findLogins({},
+                                     "ljlogin." + siteid + ".uidmap",
+                                     "ljlogin." + siteid + ".uidmap", null);
+      for (var i = 0; i < linfos.length; i++) {
+        if (linfos[i].username == ljuser) {
+           logman.removeLogin(linfos[i]);
+           break;
+        }
+      }
+
+      var linfo = Components.classes["@mozilla.org/login-manager/loginInfo;1"]
+                          .createInstance(Components.interfaces.nsILoginInfo);
+      linfo.init("ljlogin." + siteid + ".uidmap",
+                 "ljlogin." + siteid + ".uidmap", null,
+                 ljuser, ljuid,
+                 "user", "password");
+      logman.addLogin(linfo);
+    }
   } catch(e) {
     alert("Password saving failed: " + e);
     return false;
@@ -375,17 +492,33 @@ function LJlogin_userlist(siteid) {
   var userlist = new Array();
   try {
     // Grab logins to form menu.
-    var passman = Components.classes["@mozilla.org/passwordmanager;1"]
-                  .getService(Components.interfaces.nsIPasswordManager);
-    var passcheck = passman.enumerator;
-    while (passcheck.hasMoreElements()) {
-      var signon = passcheck.getNext(); // Get the password
-      if (!signon) continue; // Oops. No actual password info there.
-      // Translate the object into parts.
-      signon = signon.QueryInterface(Components.interfaces.nsIPassword);
-      if (signon.host == LJlogin_sites[siteid].passmanurl) {
-        // We have a winner! Add the username to the list.
-        userlist.push(signon.user);
+    if ("@mozilla.org/passwordmanager;1" in Components.classes) { // FF2
+      // Our old friend, the Password Manager
+      var passman = Components.classes["@mozilla.org/passwordmanager;1"]
+                    .getService(Components.interfaces.nsIPasswordManager);
+      var passcheck = passman.enumerator;
+      while (passcheck.hasMoreElements()) {
+        var signon = passcheck.getNext(); // Get the password
+        if (!signon) continue; // Oops. No actual password info there.
+        // Translate the object into parts.
+        signon = signon.QueryInterface(Components.interfaces.nsIPassword);
+        if (signon.host == LJlogin_sites[siteid].passmanurl) {
+          // We have a winner! Add the username to the list.
+          userlist.push(signon.user);
+        }
+      }
+    } else if ("@mozilla.org/login-manager;1" in Components.classes) { // FF3
+      // Our new friend, the Login Manager!
+      var logman = Components.classes["@mozilla.org/login-manager;1"]
+          .getService(Components.interfaces.nsILoginManager);
+      // Finally, a function in which the findLogins method isn't
+      // one of the stupider ways to go about doing what I want,
+      // and turns out to actually be an improvement over the PM.
+      var linfos = logman.findLogins({},
+                                     LJlogin_sites[siteid].passmanurl,
+                                     LJlogin_sites[siteid].passmanurl, null);
+      for (var i = 0; i < linfos.length; i++) {
+        userlist.push(linfos[i].username);
       }
     }
   } catch(e) {
@@ -407,6 +540,11 @@ function LJlogin_sessionaction(siteid, ljuser) {
   // Get action and see what, if anything, we should do.
   var action = LJlogin_sites_session_action(siteid);
   switch (action) {
+    case "4":
+      // Reload the current page
+      var gb = getBrowser();
+      gb.reload();
+      return;
     case "3":
       // Update Journal
       var url = LJlogin_sites[siteid].passmanurl + "/update.bml";

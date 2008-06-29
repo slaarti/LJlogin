@@ -6,7 +6,7 @@
                    chrome:name="ljlogin"
                    chrome:author="Chris Pinard"
                    chrome:authorURL="http://www.gweep.net/~slarti/Gweep/"
-                   chrome:displayName="LJlogin 2.0"
+                   chrome:displayName="LJlogin 2.1.0"
                    chrome:extension="true"
                    chrome:description="Tells you which LiveJournal account you're logged in with, and lets you switch between them.">
   </RDF:Description>

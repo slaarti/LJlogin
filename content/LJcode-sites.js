@@ -12,7 +12,8 @@ var LJlogin_sites = {
                            'horizon': 'Horizon',
                            'vertigo': 'Vertigo',
                           'xcolibur': "XColibur",
-                          'dystopia': "Dystopia"
+                          'dystopia': "Dystopia",
+                          'lanzelot': "Lanzelot"
                         }
         },
   'ij': {
@@ -33,7 +34,11 @@ var LJlogin_sites = {
                                    'hand': 'Hand',
                                  'trails': 'Trails',
                                   'brown': 'Brown',
-                                  'clean': 'Clean'
+                                  'clean': 'Clean',
+                               'worksafe': 'Worksafe (Sidebar)',
+                       'worksafedropdown': 'Worksafe (Dropdown)',
+                               'dramatic': 'Dramatic (Dropdown)',
+                        'dramaticsidebar': 'Dramatic (Sidebar)'
                         }
         },
   'gj': {
@@ -47,7 +52,7 @@ var LJlogin_sites = {
           interfaceurl: 'http://www.greatestjournal.com/interface/flat',
            siteschemes: {
                             'dystopia': 'Red and Gold',
-                              'purple': 'purple',
+                              'purple': 'Purple',
                                 'pink': 'Pink',
                                 'lust': 'Lust',
                                'blood': 'Blood',
@@ -91,6 +96,19 @@ var LJlogin_sites = {
            siteschemes: {
                              'mindvamp': 'skull',
                           'deadjournal': 'radioactive'
+                        }
+        },
+  'scribbld': {
+                  name: 'Scribbld',
+                domain: 'scribbld.net',
+            passmanurl: 'http://www.scribbld.net',
+              cookiere: 'scribbld\.net$',
+             cookiedom: '.scribbld.net',
+             cookieurl: 'http://www.scribbld.net/',
+            cookiename: 'ljmastersession',
+          interfaceurl: 'http://www.scribbld.net/interface/flat',
+           siteschemes: {
+                             'scribbld': 'Scribbld'
                         }
         }
 };

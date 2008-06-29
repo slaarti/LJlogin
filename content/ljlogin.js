@@ -310,22 +310,12 @@ function LJlogin_logmeout(siteid) {
     conn.send("mode=sessionexpire&user="
              + encodeURIComponent(ljuser) +
              "&auth_method=cookie");
-    if (conn.status == 200) { // Assuming a successful request...
-      // Check whether the request accomplished the job.
-      var ljsaid = LJlogin_parseljresponse(conn.responseText);
-      if ((ljsaid["success"] != "OK") || (ljsaid["errmsg"])) {
-        // Something went wrong here.
-        window.openDialog("chrome://ljlogin/content/logouterr.xul",
-                          "ljlogin-logouterr", "chrome,dialog",
-                          siteid, ljsaid["errmsg"]);
-        return false;
-      }
-    } else { // Something else happened.
-      window.openDialog("chrome://ljlogin/content/logouterr.xul",
-                        "ljlogin-logouterr", "chrome,dialog", siteid,
-                        conn.status + " " + conn.statusText);
-      return false;
-    }
+    // We used to check for what the return code was and
+    // whatever else, but that led to a lot of mystery
+    // logout troubles whenever something odd was going on
+    // not with LJlogin itself, so we're just going to say
+    // that we did what we could to notify the remote end
+    // and kill the session locally without checking.
     w.status = "Done";
   } else if (ljuser == "?UNKNOWN!") {
     // No username/uid mapping available. Make just trashing the session
@@ -463,14 +453,34 @@ function LJlogin_userlogin(siteid, username) {
   var password = '';
   // Get the password for the given username from the Password Manager.
   try {
-    var passman = Components.classes["@mozilla.org/passwordmanager;1"]
-        .getService(Components.interfaces.nsIPasswordManagerInternal);
-    var temphost = new Object();
-    var tempuser = new Object();
-    var temppass = new Object();
-    passman.findPasswordEntry(LJlogin_sites[siteid].passmanurl, username, null,
-                              temphost, tempuser, temppass);
-    password = temppass.value;
+    if ("@mozilla.org/passwordmanager;1" in Components.classes) { // FF2
+      // Our old friend, the Password Manager
+      var passman = Components.classes["@mozilla.org/passwordmanager;1"]
+          .getService(Components.interfaces.nsIPasswordManagerInternal);
+      var temphost = new Object();
+      var tempuser = new Object();
+      var temppass = new Object();
+      passman.findPasswordEntry(LJlogin_sites[siteid].passmanurl,
+                                          username, null,
+                                temphost, tempuser, temppass);
+      password = temppass.value;
+    } else if ("@mozilla.org/login-manager;1" in Components.classes) { // FF3
+      // Our new friend, the Login Manager!
+      var logman = Components.classes["@mozilla.org/login-manager;1"]
+          .getService(Components.interfaces.nsILoginManager);
+      // I have to say, though, that this method of searching
+      // for an entry? Pretty fucking stupid, compared to the
+      // relative simplicity of the Password Manager method.
+      var linfos = logman.findLogins({},
+                                     LJlogin_sites[siteid].passmanurl,
+                                     LJlogin_sites[siteid].passmanurl, null);
+      for (var i = 0; i < linfos.length; i++) {
+        if (linfos[i].username == username) {
+           password = linfos[i].password;
+           break;
+        }
+      }
+    }
   } catch(e) {
     alert ("Unable to get password for " + username + ": " + e);
   }

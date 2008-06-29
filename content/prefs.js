@@ -211,17 +211,34 @@ function LJlogin_prefs_uidmap_init(siteid) {
   var uidcount = 0; // Keep a count, since .length apparently
                     // doesn't work on hashes.
   try {
-    var passman = Components.classes["@mozilla.org/passwordmanager;1"]
-                  .getService(Components.interfaces.nsIPasswordManager);
-    var uidload = passman.enumerator;
-    while (uidload.hasMoreElements()) {
-      var mapping = uidload.getNext(); // Get the mapping.
-      if (!mapping) continue; // Oops. Nothing actually there.
-      // Break it down.
-      mapping = mapping.QueryInterface(Components.interfaces.nsIPassword);
-      // Make sure it is one of ours.
-      if (mapping.host == "ljlogin." + siteid + ".uidmap") {
-        uidmap[mapping.password] = mapping.user; // Add to the list.
+    if ("@mozilla.org/passwordmanager;1" in Components.classes) { // FF2
+      // Our old friend, the Password Manager
+      var passman = Components.classes["@mozilla.org/passwordmanager;1"]
+                    .getService(Components.interfaces.nsIPasswordManager);
+      var uidload = passman.enumerator;
+      while (uidload.hasMoreElements()) {
+        var mapping = uidload.getNext(); // Get the mapping.
+        if (!mapping) continue; // Oops. Nothing actually there.
+        // Break it down.
+        mapping = mapping.QueryInterface(Components.interfaces.nsIPassword);
+        // Make sure it is one of ours.
+        if (mapping.host == "ljlogin." + siteid + ".uidmap") {
+          uidmap[mapping.password] = mapping.user; // Add to the list.
+          uidcount++; // Up the count.
+        }
+      }
+    } else if ("@mozilla.org/login-manager;1" in Components.classes) { // FF3
+      // Our new friend, the Login Manager!
+      var logman = Components.classes["@mozilla.org/login-manager;1"]
+          .getService(Components.interfaces.nsILoginManager);
+      // Holy shit, a time when the weird-ass "get 'em all
+      // for a site and loop over 'em" method actually makes
+      // some fucking sense. Amazing!
+      var linfos = logman.findLogins({},
+                                     "ljlogin." + siteid + ".uidmap",
+                                     "ljlogin." + siteid + ".uidmap", null);
+      for (var i = 0; i < linfos.length; i++) {
+        uidmap[linfos[i].password] = linfos[i].username; // Add to the list.
         uidcount++; // Up the count.
       }
     }
@@ -305,18 +322,6 @@ function LJlogin_prefs_account_passwd() {
   }
 
   // Okay. Now we have the goods. Update the password
-  try {
-    var passman = Components.classes["@mozilla.org/passwordmanager;1"]
-        .getService(Components.interfaces.nsIPasswordManagerInternal);
-    passman.addUserFull(LJlogin_sites[siteid].passmanurl,
-                        ljuser, passwd.value,
-                        "user", "password");
-  } catch(e) {
-    prompts.alert(window, "LJlogin",
-                          "Error while attempting to save password: " + e);
-    return;
-  }
-
   if (LJlogin_savepassword(siteid, ljuser, passwd.value)) {
     prompts.alert(window, "LJlogin: Change Password",
                           "Password change successful!");
@@ -348,9 +353,28 @@ function LJlogin_prefs_account_remove() {
 
   // Do the removal:
   try {
-    var passman = Components.classes["@mozilla.org/passwordmanager;1"]
+    if ("@mozilla.org/passwordmanager;1" in Components.classes) { // FF2
+      // Our old friend, the Password Manager
+      var passman = Components.classes["@mozilla.org/passwordmanager;1"]
         .getService().QueryInterface(Components.interfaces.nsIPasswordManager);
-    passman.removeUser(LJlogin_sites[siteid].passmanurl, ljuser);
+      passman.removeUser(LJlogin_sites[siteid].passmanurl, ljuser);
+    } else if ("@mozilla.org/login-manager;1" in Components.classes) { // FF3
+      // Our new friend, the Login Manager!
+      var logman = Components.classes["@mozilla.org/login-manager;1"]
+          .getService(Components.interfaces.nsILoginManager);
+      // I have to say, though, that this method of deleting
+      // a password? Pretty fucking stupid, compared to the
+      // relative simplicity of the Password Manager method.
+      var linfos = logman.findLogins({},
+                                     LJlogin_sites[siteid].passmanurl,
+                                     LJlogin_sites[siteid].passmanurl, null);
+      for (var i = 0; i < linfos.length; i++) {
+        if (linfos[i].username == ljuser) {
+           logman.removeLogin(linfos[i]);
+           break;
+        }
+      }
+    }
   } catch(e) {
     prompts.alert(window, "LJlogin", "Error removing account: " + e);
     return;
@@ -552,9 +576,10 @@ function LJlogin_prefs_session_init(siteid) {
   actionmenu.value = action;
   destmenu.value = dest;
 
-  // Always enable action, but only enable dest if we have an action.
+  // Always enable action, but only enable dest if we have an action
+  // that requires a tab/window location.
   actionmenu.disabled = false;
-  if (action != "0") destmenu.disabled = false;
+  if ((action != "0") && (action != "4")) destmenu.disabled = false;
 
   // And done.
   return;

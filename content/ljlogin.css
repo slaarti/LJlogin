@@ -18,6 +18,7 @@
 #ljlogin-dj-status[class~="loggedout"],
 #ljlogin-gj-status[class~="loggedout"],
 #ljlogin-jf-status[class~="loggedout"],
+#ljlogin-scribbld-status[class~="loggedout"],
 #ljlogin-lj-status[class~="loggedout"]
 {
   color: black;
@@ -28,6 +29,7 @@
 #ljlogin-dj-status[class~="unknown"],
 #ljlogin-gj-status[class~="unknown"],
 #ljlogin-jf-status[class~="unknown"],
+#ljlogin-scribbld-status[class~="unknown"],
 #ljlogin-lj-status[class~="unknown"]
 {
   color: red;
@@ -78,6 +80,16 @@
 
 #ljlogin-jf-menu menuitem[class~="ljuser"],
 #ljlogin-jf-status[class~="ljuser"] {
+  font-style: normal;
+  font-weight: bold;
+  color: #0000C0;
+  text-decoration: underline;
+}
+
+/* Scribbld */
+
+#ljlogin-scribbld-menu menuitem[class~="ljuser"],
+#ljlogin-scribbld-status[class~="ljuser"] {
   font-style: normal;
   font-weight: bold;
   color: #0000C0;

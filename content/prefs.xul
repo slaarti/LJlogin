@@ -4,7 +4,7 @@
 <dialog id="ljlogin-prefs"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         title="LJlogin Preferences"
-        maxwidth="700"
+        maxwidth="600"
         buttons="accept"
         buttonlabelaccept="Close"
         ondialogaccept="return true;"
@@ -26,102 +26,134 @@
   <menulist id="ljlogin-prefs-site-select"
             oncommand="LJlogin_prefs_site_select();" />
 
-  <groupbox>
-    <caption label="Hidden Username" />
-    <description>
-      Hide the username field from this site's status bar widget.
-    </description>
-    <hbox>
-      <checkbox id="ljlogin-prefs-stealth-enable" label="Enable"
-                oncommand="LJlogin_prefs_stealth_onoff();" />
-    </hbox>
-  </groupbox>
+  <tabbox id="ljlogin-prefs-tabbox">
 
-  <groupbox>
-    <caption label="UserID Mapping Maintenance" />
-    <hbox>
-      <menulist id="ljlogin-prefs-uidmap-menu" flex="1" minwidth="300" />
-      <button id="ljlogin-prefs-uidmap-rename" label="Change Username"
-              oncommand="LJlogin_prefs_uidmap_rename();" />
-      <button id="ljlogin-prefs-uidmap-remove" label="Remove From UID Map"
-              oncommand="LJlogin_prefs_uidmap_remove();" />
-    </hbox>
-  </groupbox>
+    <tabs>
+      <tab label="Stealth" />
+      <tab label="UIDs/Accounts" />
+      <tab label="Login Sessions" />
+      <tab label="Site Scheme" />
+    </tabs>
 
-  <groupbox>
-    <caption label="Account Maintenance" />
-    <hbox>
-      <menulist id="ljlogin-prefs-account-menu" flex="1" minwidth="300" />
-      <button id="ljlogin-prefs-account-passwd" label="Change Password"
-              oncommand="LJlogin_prefs_account_passwd();" />
-      <button id="ljlogin-prefs-account-remove" label="Remove Account"
-              oncommand="LJlogin_prefs_account_remove();" />
-    </hbox>
-  </groupbox>
+    <tabpanels>
 
-  <groupbox>
-    <caption label="Persistent Sessions/Default Login" />
-    <description>
-      These options allow the user to either make logins performed by
-      LJlogin be persistent (lasting beyond the end of the current
-      browser session), or set a user to log in as on browser start.
-    </description>
-    <hbox>
-      <menulist id="ljlogin-prefs-persist-default"
-                oncommand="LJlogin_prefs_persist_default();">
-        <menupopup>
-          <menuitem label="Do nothing." value="0" />
-          <menuitem label="Set persistent sessions." value="1" />
-          <menuitem label="On browser start, log in as:" value="2" />
-        </menupopup>
-      </menulist>
-      <menulist id="ljlogin-prefs-default-ljuser" editable="true"
-                sizetopopup="none"
-                oncommand="LJlogin_prefs_default_change();"
-                oninput="LJlogin_prefs_default_change();" />
-      <button id="ljlogin-prefs-default-setacct" label="Set Default Account"
-              oncommand="LJlogin_prefs_default_setacct();" />
-    </hbox>
-  </groupbox>
+      <tabpanel>
+        <groupbox>
+          <caption label="Hidden Username" />
+          <description>
+            Hide the username field from this site's status bar widget.
+          </description>
+          <hbox>
+            <checkbox id="ljlogin-prefs-stealth-enable" label="Enable"
+                      oncommand="LJlogin_prefs_stealth_onoff();" />
+          </hbox>
+        </groupbox>
+      </tabpanel>
 
-  <groupbox>
-    <caption label="Post-Login Action" />
-    <description>
-      Upon successfully logging in as a user...
-    </description>
-    <hbox>
-      <menulist id="ljlogin-prefs-session-action"
-                oncommand="LJlogin_prefs_session_action();">
-        <menupopup>
-          <menuitem label="Do nothing." value="0" />
-          <menuitem label="Load user's journal..." value="1" />
-          <menuitem label="Load user's friends page..." value="2" />
-          <menuitem label="Load Update Journal page..." value="3" />
-        </menupopup>
-      </menulist>
-      <menulist id="ljlogin-prefs-session-dest"
-                oncommand="LJlogin_prefs_session_dest();">
-        <menupopup>
-          <menuitem label="...in the current window/tab." value="0" />
-          <menuitem label="...in a new focused tab." value="1" />
-          <menuitem label="...in a new backgrounded tab." value="2" />
-          <menuitem label="...in a new window." value="3" />
-        </menupopup>
-      </menulist>
-    </hbox>
-  </groupbox>
+      <tabpanel>
+        <vbox>
+          <groupbox>
+            <caption label="UserID Mapping Maintenance" />
+            <hbox>
+              <menulist id="ljlogin-prefs-uidmap-menu" flex="1"
+                        minwidth="300" />
+              <button id="ljlogin-prefs-uidmap-rename" label="Change Username"
+                      oncommand="LJlogin_prefs_uidmap_rename();" />
+              <button id="ljlogin-prefs-uidmap-remove" 
+                      label="Remove From UID Map"
+                      oncommand="LJlogin_prefs_uidmap_remove();" />
+            </hbox>
+          </groupbox>
 
-  <groupbox>
-    <caption label="Site Scheme" />
-    <description>
-      Automatically set a site scheme cookie.
-    </description>
-    <hbox>
-      <menulist id="ljlogin-prefs-scheme" />
-      <button id="ljlogin-prefs-scheme-set" label="Set Site Scheme"
-              oncommand="LJlogin_prefs_scheme_set();" />
-    </hbox>
-  </groupbox>
+          <groupbox>
+            <caption label="Account Maintenance" />
+            <hbox>
+              <menulist id="ljlogin-prefs-account-menu" flex="1"
+                        minwidth="300" />
+              <button id="ljlogin-prefs-account-passwd" label="Change Password"
+                      oncommand="LJlogin_prefs_account_passwd();" />
+              <button id="ljlogin-prefs-account-remove" label="Remove Account"
+                      oncommand="LJlogin_prefs_account_remove();" />
+            </hbox>
+          </groupbox>
+        </vbox>
+      </tabpanel>
+
+      <tabpanel>
+        <vbox maxwidth="600">
+          <groupbox>
+            <caption label="Persistent Sessions/Default Login" />
+            <description>
+              These options allow the user to either make logins performed by
+              LJlogin be persistent (lasting beyond the end of the current
+              browser session), or set a user to log in as on browser start.
+            </description>
+            <hbox>
+              <menulist id="ljlogin-prefs-persist-default"
+                        oncommand="LJlogin_prefs_persist_default();">
+                <menupopup>
+                  <menuitem label="Do nothing." value="0" />
+                  <menuitem label="Set persistent sessions." value="1" />
+                  <menuitem label="On browser start, log in as:" value="2" />
+                </menupopup>
+              </menulist>
+              <menulist id="ljlogin-prefs-default-ljuser" editable="true"
+                        sizetopopup="none"
+                        oncommand="LJlogin_prefs_default_change();"
+                        oninput="LJlogin_prefs_default_change();" />
+              <button id="ljlogin-prefs-default-setacct"
+                      label="Set Default Account"
+                      oncommand="LJlogin_prefs_default_setacct();" />
+            </hbox>
+          </groupbox>
+
+          <groupbox>
+            <caption label="Post-Login Action" />
+            <description>
+              Upon successfully logging in as a user...
+            </description>
+            <hbox>
+              <menulist id="ljlogin-prefs-session-action"
+                        oncommand="LJlogin_prefs_session_action();">
+                <menupopup>
+                  <menuitem label="Do nothing." value="0" />
+                  <menuitem label="Load user's journal..." value="1" />
+                  <menuitem label="Load user's friends page..." value="2" />
+                  <menuitem label="Load Update Journal page..." value="3" />
+                  <menuitem label="Reload current page." value="4" />
+                </menupopup>
+              </menulist>
+              <menulist id="ljlogin-prefs-session-dest"
+                        oncommand="LJlogin_prefs_session_dest();">
+                <menupopup>
+                  <menuitem label="...in the current window/tab." value="0" />
+                  <menuitem label="...in a new focused tab." value="1" />
+                  <menuitem label="...in a new backgrounded tab." value="2" />
+                  <menuitem label="...in a new window." value="3" />
+                </menupopup>
+              </menulist>
+            </hbox>
+          </groupbox>
+        </vbox>
+      </tabpanel>
+
+      <tabpanel>
+        <vbox>
+          <groupbox>
+            <caption label="Site Scheme" />
+            <description>
+              Automatically set a site scheme cookie.
+            </description>
+            <hbox>
+              <menulist id="ljlogin-prefs-scheme" />
+              <button id="ljlogin-prefs-scheme-set" label="Set Site Scheme"
+                      oncommand="LJlogin_prefs_scheme_set();" />
+            </hbox>
+          </groupbox>
+        </vbox>
+      </tabpanel>
+    </tabpanels>
+  </tabbox>
 
 </groupbox>
 
