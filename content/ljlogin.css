@@ -19,6 +19,8 @@
 #ljlogin-gj-status[class~="loggedout"],
 #ljlogin-jf-status[class~="loggedout"],
 #ljlogin-scribbld-status[class~="loggedout"],
+#ljlogin-dreamwidth-status[class~="loggedout"],
+#ljlogin-inksome-status[class~="loggedout"],
 #ljlogin-lj-status[class~="loggedout"]
 {
   color: black;
@@ -30,6 +32,8 @@
 #ljlogin-gj-status[class~="unknown"],
 #ljlogin-jf-status[class~="unknown"],
 #ljlogin-scribbld-status[class~="unknown"],
+#ljlogin-dreamwidth-status[class~="unknown"],
+#ljlogin-inksome-status[class~="unknown"],
 #ljlogin-lj-status[class~="unknown"]
 {
   color: red;
@@ -95,4 +99,25 @@
   color: #0000C0;
   text-decoration: underline;
 }
+
+/* Dreamwidth */
+
+#ljlogin-dreamwidth-menu menuitem[class~="ljuser"],
+#ljlogin-dreamwidth-status[class~="ljuser"] {
+  font-style: normal;
+  font-weight: bold;
+  color: #C1272D;
+  text-decoration: underline;
+}
+
+/* Inksome */
+
+#ljlogin-inksome-menu menuitem[class~="ljuser"],
+#ljlogin-inksome-status[class~="ljuser"] {
+  font-style: normal;
+  font-weight: bold;
+  color: #2B97A1;
+  text-decoration: underline;
+}
+
 

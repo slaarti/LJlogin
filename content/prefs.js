@@ -74,11 +74,6 @@ function LJlogin_prefs_scheme_init(siteid) {
     menu.appendItem(schemes[scheme], scheme); // Add item to menu
   }
 
-  // And a few bonus schemes, bundled with LJcode:
-  menu.appendItem('Lynx', 'lynx');
-  menu.appendItem('Blue White', 'bluewhite');
-  menu.appendItem('Opal Cat', 'opalcat');
-
   // Set the initial value from preferences:
   menu.value = LJlogin_sites_sitescheme(siteid);
 
