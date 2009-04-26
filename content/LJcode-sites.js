@@ -13,7 +13,10 @@ var LJlogin_sites = {
                            'vertigo': 'Vertigo',
                           'xcolibur': "XColibur",
                           'dystopia': "Dystopia",
-                          'lanzelot': "Lanzelot"
+                          'lanzelot': "Lanzelot",
+                         'bluewhite': "Blue White",
+                           'opalcat': "Opal Cat",
+                              'lynx': "Lynx"
                         }
         },
   'ij': {
@@ -26,49 +29,24 @@ var LJlogin_sites = {
             cookiename: 'ljmastersession',
           interfaceurl: 'http://www.insanejournal.com/interface/flat',
            siteschemes: {
-                                  'tweak': 'New Tweak',
-                             'insanelook': 'InsaneLook',
-                                  'anime': 'Insanime',
-                              'honeycomb': 'Honeycomb Redesigned',
-                          'honeycomb_old': 'Honeycomb',
-                                   'hand': 'Hand',
-                                 'trails': 'Trails',
-                                  'brown': 'Brown',
-                                  'clean': 'Clean',
-                               'worksafe': 'Worksafe (Sidebar)',
-                       'worksafedropdown': 'Worksafe (Dropdown)',
-                               'dramatic': 'Dramatic (Dropdown)',
-                        'dramaticsidebar': 'Dramatic (Sidebar)'
-                        }
-        },
-  'gj': {
-                  name: 'GreatestJournal',
-                domain: 'greatestjournal.com',
-            passmanurl: 'http://www.greatestjournal.com',
-              cookiere: 'greatestjournal\.com$',
-             cookiedom: '.greatestjournal.com',
-             cookieurl: 'http://www.greatestjournal.com/',
-            cookiename: 'ljsession',
-          interfaceurl: 'http://www.greatestjournal.com/interface/flat',
-           siteschemes: {
-                            'dystopia': 'Red and Gold',
-                              'purple': 'Purple',
-                                'pink': 'Pink',
-                                'lust': 'Lust',
-                               'blood': 'Blood',
-                                'gray': 'Gray',
-                                'lime': 'Lime',
-                               'sugar': 'Sugar',
-                                 'sky': 'Sky',
-                              'forest': 'Forest',
-                                'sage': 'Sage',
-                               'night': 'Night',
-                              'casual': 'Casual',
-                               'grape': 'Grape',
-                            'lavender': 'Lavender',
-                          'watermelon': 'Watermelon',
-                           'tangerine': 'Tangerine',
-                            'defaultb': 'Top_Navigation'
+                                        'tweak': 'New Tweak',
+                                   'insanelook': 'InsaneLook',
+                                        'anime': 'Insanime',
+                                    'honeycomb': 'Honeycomb Redesigned',
+                                'honeycomb_old': 'Honeycomb',
+                                         'hand': 'Hand',
+                                       'trails': 'Trails',
+                                        'brown': 'Brown',
+                                        'clean': 'Clean',
+                                     'worksafe': 'Worksafe (Sidebar)',
+                             'worksafedropdown': 'Worksafe (Dropdown)',
+                                     'dramatic': 'Dramatic (Dropdown)',
+                              'dramaticsidebar': 'Dramatic (Sidebar)',
+                         'monodramaticdropdown': 'Monodramatic (Dropdown)',
+                          'monodramaticsidebar': 'Monodramatic (Sidebar)',
+                                    'bluewhite': "Blue White",
+                                      'opalcat': "Opal Cat",
+                                         'lynx': "Lynx"
                         }
         },
   'jf': {
@@ -81,7 +59,10 @@ var LJlogin_sites = {
             cookiename: 'ljsession',
           interfaceurl: 'http://www.journalfen.net/interface/flat',
            siteschemes: {
-                          'jf': 'JournalFen'
+                                'jf': 'JournalFen',
+                         'bluewhite': "Blue White",
+                           'opalcat': "Opal Cat",
+                              'lynx': "Lynx"
                         }
         },
   'dj': {
@@ -95,7 +76,10 @@ var LJlogin_sites = {
           interfaceurl: 'http://www.deadjournal.com/interface/flat',
            siteschemes: {
                              'mindvamp': 'skull',
-                          'deadjournal': 'radioactive'
+                          'deadjournal': 'radioactive',
+                            'bluewhite': "Blue White",
+                              'opalcat': "Opal Cat",
+                                 'lynx': "Lynx"
                         }
         },
   'scribbld': {
@@ -108,7 +92,48 @@ var LJlogin_sites = {
             cookiename: 'ljmastersession',
           interfaceurl: 'http://www.scribbld.net/interface/flat',
            siteschemes: {
-                             'scribbld': 'Scribbld'
+                                'scribbld': 'Scribbld',
+                          'scribbldspring': 'Scribbld Spring',
+                         'scribbldpinkish': 'Scribbld Pink',
+                           'scribbldrocks': 'Scribbld Rocks',
+                          'scribbldfleurs': 'Scribbld Fleurs',
+                                 'opalcat': "Opal Cat",
+                                    'lynx': "Lynx"
+                        }
+        },
+  'dreamwidth': {
+                  name: 'Dreamwidth',
+                domain: 'dreamwidth.org',
+            passmanurl: 'http://www.dreamwidth.org',
+              cookiere: 'dreamwidth\.org$',
+             cookiedom: '.dreamwidth.org',
+             cookieurl: 'http://www.dreamwidth.org/',
+            cookiename: 'ljmastersession',
+          interfaceurl: 'http://www.dreamwidth.org/interface/flat',
+           siteschemes: {
+                              'tropo-red': 'Tropospherical Red',
+                           'tropo-purple': 'Tropospherical Purple',
+                         'celerity-local': 'Celerity',
+                                   'lynx': "Lynx"
+                        }
+        },
+  'inksome': {
+                  name: 'Inksome',
+                domain: 'inksome.com',
+            passmanurl: 'http://www.inksome.com',
+              cookiere: 'inksome\.com$',
+             cookiedom: '.inksome.com',
+             cookieurl: 'http://www.inksome.com/',
+            cookiename: 'ljmastersession',
+          interfaceurl: 'http://www.inksome.com/interface/flat',
+           siteschemes: {
+                          'bluewhite': 'Blue Ink',
+                              'green': 'Pengreen',
+                           'stewblue': 'The Stewart Blues',
+                               'pink': 'Pinkuin',
+                            'spikeit': 'Spikeit',
+                            'opalcat': "Opal Cat",
+                               'lynx': "Lynx"
                         }
         }
 };

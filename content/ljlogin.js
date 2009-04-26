@@ -309,6 +309,7 @@ function LJlogin_logmeout(siteid) {
     w.status = "Logging out of " + LJlogin_sites[siteid].name + "...";
     conn.send("mode=sessionexpire&user="
              + encodeURIComponent(ljuser) +
+             "&expire_id_" + sessfields[2].substr(1) + "=1" +
              "&auth_method=cookie");
     // We used to check for what the return code was and
     // whatever else, but that led to a lot of mystery
