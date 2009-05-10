@@ -263,12 +263,12 @@ function LJlogin_validuser(ljuser) {
   if (badchars.test(ljuser)) {
     prompts.alert(window, "LJlogin", "Invalid character(s) in username!");
     return false;
-  } else if (ljuser.length > 15) {
+  } else if (ljuser.length > 25) {
     // Also, check for if the username provided is too long. It's possible
     // that there's no actual harm in letting people screw up this way, but
     // we may as well check for it and handle appropriately:
     prompts.alert(window, "LJlogin",
-                  "Invalid username: Must be no longer than 15 characters.");
+                  "Invalid username: Must be no longer than 25 characters.");
     return false;
   } else if (ljuser.length == 0) {
     // Finally, check that we got anything at all. I suppose it's silly that
