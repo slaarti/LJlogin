@@ -56,25 +56,22 @@ function LJlogin_init() {
                         .getService(Components.interfaces.nsIObserverService);
   observerService.addObserver(cookiemonster,"cookie-changed",false);
 
-  // Set up a preferences observer to keep the statusbar widgets
-  // in tune with the list of enabled sites.
+  // Because Firefox broke their shit, this is a regular observer that
+  // has to be signaled by hand elsewhere. Laaaame. FIXME by reverting
+  // when they fix their shit. Anyway, this is to keep the statusbar
+  // widgets in tune with the list of enabled sites.
   var prerogative = {
     observe: function(subject, topic, data) {
-               // Only care if we're talking a changed preference.
-               if (topic != "nsPref:changed") return;
-               // There're only a few preferences we truly care about.
-               if ((data != "ljcode.enabledsites") &&
-                   (data.indexOf('stealthwidget') == -1)) return;
+               // Only care if we're talking a change in the statusbar.
+               if (topic != "ljlogin-update-statusbar") return;
                // And here we are. Go for it...
                LJlogin_statusbar_refresh();
                return; // And done.
              }
   };
-  var prefsObserver = Components.classes["@mozilla.org/preferences-service;1"]
-                        .getService(Components.interfaces.nsIPrefService)
-                        .getBranch("extensions.ljlogin.");
-  prefsObserver.QueryInterface(Components.interfaces.nsIPrefBranch2);
-  prefsObserver.addObserver("", prerogative, false);
+  // Fortunately, if we have to do this the dumb way, we've already got
+  // a regular observer service call set up for the cookie stuff, above.
+  observerService.addObserver(prerogative, "ljlogin-update-statusbar", false);
 
   // And set the statusbar by hand once, to get things started.
   LJlogin_statusbar_refresh();

@@ -138,11 +138,22 @@ var LJlogin_sites = {
         }
 };
 
+function LJlogin_notify_statusbar() {
+  // Get statusbar updated. FIXME by getting rid of this when Firefox
+  // hopefully fixes their shit.
+  Components.classes["@mozilla.org/observer-service;1"]
+            .getService(Components.interfaces.nsIObserverService)
+            .notifyObservers(null, "ljlogin-update-statusbar", null);
+}
+
 function LJlogin_enabled_sites() {
   var key = "ljcode.enabledsites";
 
   if (arguments.length > 0) { // Set
     var sites = LJlogin_preference(key, '', arguments[0].join(','));
+    // Get statusbar updated. FIXME by getting rid of this when Firefox
+    // hopefully fixes their shit.
+    LJlogin_notify_statusbar();
   } else {
     var sites = LJlogin_preference(key, '');
   }
@@ -186,7 +197,11 @@ function LJlogin_sites_sitescheme(siteid) {
 function LJlogin_sites_stealthwidget(siteid) {
   var key = "site." + siteid + ".stealthwidget";
   if (arguments.length > 1) { // Set
-    return LJlogin_preference(key, false, arguments[1]);
+    var value = LJlogin_preference(key, false, arguments[1]);
+    // Get statusbar updated. FIXME by getting rid of this when Firefox
+    // hopefully fixes their shit.
+    LJlogin_notify_statusbar();
+    return value;
   } else {
     return LJlogin_preference(key, false);
   }
