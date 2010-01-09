@@ -5,7 +5,7 @@ ljlogin.xpi: chrome install.rdf chrome.manifest defaults
 
 chrome: chrome/ljlogin.jar
 
-chrome/ljlogin.jar: content/contents.rdf content/ljlogin.xul \
+chrome/ljlogin.jar: content/ljlogin.xul \
                     content/ljlogin.js content/ljlogin.css \
 		    content/logouterr.xul content/ljl-lib.js \
 		    content/prefs.xul content/prefs.js
