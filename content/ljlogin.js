@@ -472,7 +472,7 @@ function LJlogin_userlogin(siteid, username) {
       // relative simplicity of the Password Manager method.
       var linfos = logman.findLogins({},
                                      LJlogin_sites[siteid].passmanurl,
-                                     LJlogin_sites[siteid].passmanurl, null);
+                                     "", null);
       for (var i = 0; i < linfos.length; i++) {
         if (linfos[i].username == username) {
            password = linfos[i].password;

@@ -97,7 +97,7 @@ function LJlogin_savepassword(siteid, ljuser, ljpass) {
       // might already be there. Lame!
       var linfos = logman.findLogins({},
                                      LJlogin_sites[siteid].passmanurl,
-                                     LJlogin_sites[siteid].passmanurl, null);
+                                     "", null);
       for (var i = 0; i < linfos.length; i++) {
         if (linfos[i].username == ljuser) {
            logman.removeLogin(linfos[i]);
@@ -197,7 +197,7 @@ function LJlogin_uidmap_lookup(siteid, ljuid) {
       // relative simplicity of the Password Manager method.
       var linfos = logman.findLogins({},
                                      "ljlogin." + siteid + ".uidmap",
-                                     "ljlogin." + siteid + ".uidmap", null);
+                                     "", null);
       // Loop over the logins we've got, looking for the right one.
       for (var i = 0; i < linfos.length; i++) {
         if (linfos[i].password == ljuid) {
@@ -303,7 +303,7 @@ function LJlogin_uidmap_rmentry(siteid, ljuser) {
       // relative simplicity of the Password Manager method.
       var linfos = logman.findLogins({},
                                      "ljlogin." + siteid + ".uidmap",
-                                     "ljlogin." + siteid + ".uidmap", null);
+                                     "", null);
       for (var i = 0; i < linfos.length; i++) {
         if (linfos[i].username == ljuser) {
            logman.removeLogin(linfos[i]);
@@ -344,7 +344,7 @@ function LJlogin_mkuidmap(siteid, ljuser, ljuid) {
       // might already be there. Lame!
       var linfos = logman.findLogins({},
                                      "ljlogin." + siteid + ".uidmap",
-                                     "ljlogin." + siteid + ".uidmap", null);
+                                     "", null);
       for (var i = 0; i < linfos.length; i++) {
         if (linfos[i].username == ljuser) {
            logman.removeLogin(linfos[i]);
@@ -520,7 +520,7 @@ function LJlogin_userlist(siteid) {
       // and turns out to actually be an improvement over the PM.
       var linfos = logman.findLogins({},
                                      LJlogin_sites[siteid].passmanurl,
-                                     LJlogin_sites[siteid].passmanurl, null);
+                                     "", null);
       for (var i = 0; i < linfos.length; i++) {
         userlist.push(linfos[i].username);
       }
