@@ -39,7 +39,7 @@ function LJlogin_init() {
           // Yay, logging in!
           case "added":
           case "changed":
-            LJlogin_loggedin(siteid, yumcookie.value);
+            LJlogin_loggedin(siteid, decodeURIComponent(yumcookie.value));
             break;
           // Aw. Logged out.
           case "deleted":
@@ -196,6 +196,7 @@ function LJlogin_loggedin(siteid, ljcookie) {
   if (!ljuser) {
     // Oops. Nothing there, apparently.
     LJlogin_loggedout(siteid);
+    return;
   } else if (ljuser == "?UNKNOWN!") { // User whose identity isn't in uidmap.
     sb.label = "(Unknown user)";
     sb.src = "chrome://ljlogin/content/icons/whoareyou.gif";

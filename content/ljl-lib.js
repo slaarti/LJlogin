@@ -144,7 +144,7 @@ function LJlogin_getljsession(siteid) {
     var ljcookie = new RegExp(LJlogin_sites[siteid].cookiere);
     if ((ljcookie.test(yumcookie.host)) &&
         (yumcookie.name == LJlogin_sites[siteid].cookiename)) {
-      return yumcookie.value;
+      return decodeURIComponent(yumcookie.value);
     }
   }
   return false; // Didn't find the cookie we wanted.
@@ -219,8 +219,12 @@ function LJlogin_uidmap_lookup(siteid, ljuid) {
 function LJlogin_getljuser(siteid, ljcookie) {
   // Try to get the username out of the cookie.
 
-  // First, we need to extract the userid from the ljsession:
-  var sessfields = ljcookie.split(":");
+  // On some sites, if you log in via the webpage, the cookies they hand back
+  // have their colons URI encoded, which makes it difficult to get anything
+  // out of them. Thus, we first need to decode the cookie:
+  var decoded_cookie = decodeURIComponent(ljcookie);
+  // Now we can extract the userid from the ljsession:
+  var sessfields = decoded_cookie.split(":");
   var ljuid = sessfields[1];
   if (!ljuid) { // If there's nothing there, then punt:
     return false;
