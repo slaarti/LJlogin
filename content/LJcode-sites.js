@@ -84,19 +84,16 @@ var LJlogin_sites = {
         },
   'scribbld': {
                   name: 'Scribbld',
-                domain: 'scribbld.net',
-            passmanurl: 'http://www.scribbld.net',
-              cookiere: 'scribbld\.net$',
-             cookiedom: '.scribbld.net',
-             cookieurl: 'http://www.scribbld.net/',
+                domain: 'scribbld.com',
+            passmanurl: 'http://www.scribbld.com',
+              cookiere: 'scribbld\.com$',
+             cookiedom: '.scribbld.com',
+             cookieurl: 'http://www.scribbld.com/',
             cookiename: 'ljmastersession',
-          interfaceurl: 'http://www.scribbld.net/interface/flat',
+          interfaceurl: 'http://www.scribbld.com/interface/flat',
            siteschemes: {
                                 'scribbld': 'Scribbld',
-                          'scribbldspring': 'Scribbld Spring',
-                         'scribbldpinkish': 'Scribbld Pink',
-                           'scribbldrocks': 'Scribbld Rocks',
-                          'scribbldfleurs': 'Scribbld Fleurs',
+                            'scribbld2010': 'Scribbld 2010',
                                  'opalcat': "Opal Cat",
                                     'lynx': "Lynx"
                         }
