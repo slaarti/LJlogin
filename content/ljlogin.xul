@@ -29,11 +29,11 @@ try {
 </statusbar>
 
 <popupset id="mainPopupSet">
-  <popup id="ljlogin-menu" position="after_start">
+  <menupopup id="ljlogin-menu" position="after_start">
     <menuitem label="LJlogin" disabled="true" />
     <menuseparator />
     <menuitem label="Preferences" oncommand="LJlogin_prefs('');" />
-  </popup>
+  </menupopup>
 </popupset>
 
 </overlay>

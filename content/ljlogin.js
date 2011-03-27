@@ -126,7 +126,7 @@ function LJlogin_statusbar_refresh() {
     thepanel.setAttribute("popup", "ljlogin-" + siteid + "-menu");
     sb.insertBefore(thepanel, ljsb);
 
-    var themenu = document.createElement("popup");
+    var themenu = document.createElement("menupopup");
     themenu.setAttribute("id", "ljlogin-" + siteid + "-menu");
     themenu.setAttribute("position", "after_start");
     themenu.setAttribute("onpopupshowing",
