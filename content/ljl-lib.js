@@ -108,7 +108,7 @@ function LJlogin_savepassword(siteid, ljuser, ljpass) {
       var linfo = Components.classes["@mozilla.org/login-manager/loginInfo;1"]
                           .createInstance(Components.interfaces.nsILoginInfo);
       linfo.init(LJlogin_sites[siteid].passmanurl,
-                 LJlogin_sites[siteid].passmanurl, null,
+                 LJlogin_sites[siteid].pmformurl, null,
                  ljuser, ljpass,
                  "user", "password");
       logman.addLogin(linfo);
