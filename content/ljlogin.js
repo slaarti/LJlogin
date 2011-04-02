@@ -39,7 +39,7 @@ function LJlogin_init() {
           // Yay, logging in!
           case "added":
           case "changed":
-            LJlogin_loggedin(siteid, yumcookie.value);
+            LJlogin_loggedin(siteid, decodeURIComponent(yumcookie.value));
             break;
           // Aw. Logged out.
           case "deleted":
@@ -126,7 +126,7 @@ function LJlogin_statusbar_refresh() {
     thepanel.setAttribute("popup", "ljlogin-" + siteid + "-menu");
     sb.insertBefore(thepanel, ljsb);
 
-    var themenu = document.createElement("popup");
+    var themenu = document.createElement("menupopup");
     themenu.setAttribute("id", "ljlogin-" + siteid + "-menu");
     themenu.setAttribute("position", "after_start");
     themenu.setAttribute("onpopupshowing",
@@ -196,6 +196,7 @@ function LJlogin_loggedin(siteid, ljcookie) {
   if (!ljuser) {
     // Oops. Nothing there, apparently.
     LJlogin_loggedout(siteid);
+    return;
   } else if (ljuser == "?UNKNOWN!") { // User whose identity isn't in uidmap.
     sb.label = "(Unknown user)";
     sb.src = "chrome://ljlogin/content/icons/whoareyou.gif";
@@ -471,7 +472,7 @@ function LJlogin_userlogin(siteid, username) {
       // relative simplicity of the Password Manager method.
       var linfos = logman.findLogins({},
                                      LJlogin_sites[siteid].passmanurl,
-                                     LJlogin_sites[siteid].passmanurl, null);
+                                     "", null);
       for (var i = 0; i < linfos.length; i++) {
         if (linfos[i].username == username) {
            password = linfos[i].password;

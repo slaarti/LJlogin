@@ -97,7 +97,7 @@ function LJlogin_savepassword(siteid, ljuser, ljpass) {
       // might already be there. Lame!
       var linfos = logman.findLogins({},
                                      LJlogin_sites[siteid].passmanurl,
-                                     LJlogin_sites[siteid].passmanurl, null);
+                                     "", null);
       for (var i = 0; i < linfos.length; i++) {
         if (linfos[i].username == ljuser) {
            logman.removeLogin(linfos[i]);
@@ -108,7 +108,7 @@ function LJlogin_savepassword(siteid, ljuser, ljpass) {
       var linfo = Components.classes["@mozilla.org/login-manager/loginInfo;1"]
                           .createInstance(Components.interfaces.nsILoginInfo);
       linfo.init(LJlogin_sites[siteid].passmanurl,
-                 LJlogin_sites[siteid].passmanurl, null,
+                 LJlogin_sites[siteid].pmformurl, null,
                  ljuser, ljpass,
                  "user", "password");
       logman.addLogin(linfo);
@@ -144,7 +144,7 @@ function LJlogin_getljsession(siteid) {
     var ljcookie = new RegExp(LJlogin_sites[siteid].cookiere);
     if ((ljcookie.test(yumcookie.host)) &&
         (yumcookie.name == LJlogin_sites[siteid].cookiename)) {
-      return yumcookie.value;
+      return decodeURIComponent(yumcookie.value);
     }
   }
   return false; // Didn't find the cookie we wanted.
@@ -197,7 +197,7 @@ function LJlogin_uidmap_lookup(siteid, ljuid) {
       // relative simplicity of the Password Manager method.
       var linfos = logman.findLogins({},
                                      "ljlogin." + siteid + ".uidmap",
-                                     "ljlogin." + siteid + ".uidmap", null);
+                                     "", null);
       // Loop over the logins we've got, looking for the right one.
       for (var i = 0; i < linfos.length; i++) {
         if (linfos[i].password == ljuid) {
@@ -219,8 +219,12 @@ function LJlogin_uidmap_lookup(siteid, ljuid) {
 function LJlogin_getljuser(siteid, ljcookie) {
   // Try to get the username out of the cookie.
 
-  // First, we need to extract the userid from the ljsession:
-  var sessfields = ljcookie.split(":");
+  // On some sites, if you log in via the webpage, the cookies they hand back
+  // have their colons URI encoded, which makes it difficult to get anything
+  // out of them. Thus, we first need to decode the cookie:
+  var decoded_cookie = decodeURIComponent(ljcookie);
+  // Now we can extract the userid from the ljsession:
+  var sessfields = decoded_cookie.split(":");
   var ljuid = sessfields[1];
   if (!ljuid) { // If there's nothing there, then punt:
     return false;
@@ -299,7 +303,7 @@ function LJlogin_uidmap_rmentry(siteid, ljuser) {
       // relative simplicity of the Password Manager method.
       var linfos = logman.findLogins({},
                                      "ljlogin." + siteid + ".uidmap",
-                                     "ljlogin." + siteid + ".uidmap", null);
+                                     "", null);
       for (var i = 0; i < linfos.length; i++) {
         if (linfos[i].username == ljuser) {
            logman.removeLogin(linfos[i]);
@@ -340,7 +344,7 @@ function LJlogin_mkuidmap(siteid, ljuser, ljuid) {
       // might already be there. Lame!
       var linfos = logman.findLogins({},
                                      "ljlogin." + siteid + ".uidmap",
-                                     "ljlogin." + siteid + ".uidmap", null);
+                                     "", null);
       for (var i = 0; i < linfos.length; i++) {
         if (linfos[i].username == ljuser) {
            logman.removeLogin(linfos[i]);
@@ -516,7 +520,7 @@ function LJlogin_userlist(siteid) {
       // and turns out to actually be an improvement over the PM.
       var linfos = logman.findLogins({},
                                      LJlogin_sites[siteid].passmanurl,
-                                     LJlogin_sites[siteid].passmanurl, null);
+                                     "", null);
       for (var i = 0; i < linfos.length; i++) {
         userlist.push(linfos[i].username);
       }

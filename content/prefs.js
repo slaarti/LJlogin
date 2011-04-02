@@ -231,7 +231,7 @@ function LJlogin_prefs_uidmap_init(siteid) {
       // some fucking sense. Amazing!
       var linfos = logman.findLogins({},
                                      "ljlogin." + siteid + ".uidmap",
-                                     "ljlogin." + siteid + ".uidmap", null);
+                                     "", null);
       for (var i = 0; i < linfos.length; i++) {
         uidmap[linfos[i].password] = linfos[i].username; // Add to the list.
         uidcount++; // Up the count.
@@ -362,7 +362,7 @@ function LJlogin_prefs_account_remove() {
       // relative simplicity of the Password Manager method.
       var linfos = logman.findLogins({},
                                      LJlogin_sites[siteid].passmanurl,
-                                     LJlogin_sites[siteid].passmanurl, null);
+                                     "", null);
       for (var i = 0; i < linfos.length; i++) {
         if (linfos[i].username == ljuser) {
            logman.removeLogin(linfos[i]);
