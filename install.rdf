@@ -9,7 +9,7 @@
   <RDF:Description RDF:about="urn:mozilla:install-manifest"
                    em:id="{ad4ee9e5-49c7-4589-acf3-db9fa76a95c9}"
                    em:name="LJlogin"
-                   em:version="2.1.4"
+                   em:version="2.1.5"
                    em:description="Tells you which LiveJournal account you're logged in with, and lets you switch between them."
                    em:iconURL="chrome://ljlogin/content/icons/lj/userinfo.gif"
                    em:creator="Chris Pinard"
