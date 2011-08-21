@@ -14,9 +14,7 @@
                    em:iconURL="chrome://ljlogin/content/icons/lj/userinfo.gif"
                    em:creator="Chris Pinard"
                    em:homepageURL="http://ljlogin.e-space.gweep.net/"
-                   em:updateURL="http://ljlogin.e-space.gweep.net/releases/updates.rdf"
-                   em:type="2"
-                   em:updateKey="MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDJVn3Ym8KvFPeibPfMiM7eaL8YaeG0zaDJ9zhe/cGJOd7Juryc8SRveBgeh1n47H4K5DG00tF+xpOB3Fl52xi/am1KtAtPUXrdV7igos56Mwcv5rEGJKQY8CLTDZWLd7dufFQ2MSyDHDXhmM+sPeg8+jZJKSdnl1FxTqV7UM6/DQIDAQAB">
+                   em:type="2">
     <em:file RDF:resource="urn:mozilla:extension:file:ljlogin.jar"/>
     <em:targetApplication RDF:resource="rdf:#$ZouwY"/>
   </RDF:Description>
