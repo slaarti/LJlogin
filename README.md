@@ -36,6 +36,19 @@ the old values.
 
 Removals / Changes:
 
+*   From `install.rdf`:
+    *   Both instances of `em:id`
+    *   The `em:updateKey`, since you wouldn't really be able to sign your
+        packages without my private half anyway.
+    *   The `em:homepageURL` and `updateURL`, since neither of those is
+        valid anymore anyway. Actually, I've change the homepage URL to
+        the GitHub project. If you're going to develop from a fork, you
+        should probably change that to your own project URL.
+    *   I'm leaving `em:creator` as-is; I leave it to you and your
+        conscience to decide how you want to handle how much credit you
+        give me as original developer vs. yourself as the person picking
+        up the code.
+
 Also, reflecting the fact that this project is defunct and abandoned,
 I will not be accepting help or pull requests. I'm sorry, but please don't
 even try.
