@@ -48,6 +48,8 @@ Removals / Changes:
         conscience to decide how you want to handle how much credit you
         give me as original developer vs. yourself as the person picking
         up the code.
+*   ...Actually, that's it. You may wish I'd culled out all of my terrible
+    code, but sorry, no, that stays unless you do something about it.
 
 Also, reflecting the fact that this project is defunct and abandoned,
 I will not be accepting help or pull requests. I'm sorry, but please don't
