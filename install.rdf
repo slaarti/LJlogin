@@ -5,7 +5,7 @@
   <RDF:Description RDF:about="rdf:#$ZouwY"
                    em:id="idk@devilbear.insanejournal.com"
                    em:minVersion="2.0"
-                   em:maxVersion="7.*" />
+                   em:maxVersion="67.*" />
   <RDF:Description RDF:about="urn:mozilla:install-manifest"
                    em:id="idk@devilbear.insanejournal.com"
                    em:name="LJlogin Reborn"
