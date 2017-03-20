@@ -3,20 +3,18 @@
          xmlns:NC="http://home.netscape.com/NC-rdf#"
          xmlns:RDF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <RDF:Description RDF:about="rdf:#$ZouwY"
-                   em:id="(create your own id here)"
+                   em:id="idk@devilbear.insanejournal.com"
                    em:minVersion="2.0"
-                   em:maxVersion="7.*" />
+                   em:maxVersion="67.*" />
   <RDF:Description RDF:about="urn:mozilla:install-manifest"
-                   em:id="(create your own id here)"
-                   em:name="LJlogin"
-                   em:version="2.2.1"
+                   em:id="idk@devilbear.insanejournal.com"
+                   em:name="LJlogin Reborn"
+                   em:version="2.2.12"
                    em:description="Tells you which LiveJournal account you're logged in with, and lets you switch between them."
                    em:iconURL="chrome://ljlogin/content/icons/lj/userinfo.gif"
-                   em:creator="Chris Pinard"
+                   em:creator="coded by Chris Pinard, poked and prodded by devilbear"
                    em:homepageURL="https://github.com/slaarti/LJlogin"
-                   em:updateURL="(put your own URL in here)"
-                   em:type="2"
-                   em:updateKey="(please generate your own key; using my old one won't help you">
+                   em:type="2">
     <em:targetApplication RDF:resource="rdf:#$ZouwY"/>
   </RDF:Description>
 </RDF:RDF>
